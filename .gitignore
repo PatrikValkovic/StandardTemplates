@@ -26,3 +26,9 @@
 *.exe
 *.out
 *.app
+
+*.vcxproj
+*.vcxproj.*
+proccessed.cpp
+Debug
+.idea
