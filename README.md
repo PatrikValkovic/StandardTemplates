@@ -1,17 +1,24 @@
-Project with implementation of standards classes for C++.
+<h1>Project with implementation of standards classes for C++</h1>
 
-Contains:
-  - One-way linked list = Vector
-  - Two-way linked list = List
-  - Self-sizing array = Array
-  - Binary search tree
-  - Min heap
-  - Stack
-  - Queue
-  - Priority queue (internally use min heap)
-  - Iterators (not implemented for each structure)
-  - Internal exceptions
-  
-Not implemented yet: Self-balacing trees like AVL tree or Red-black tree
+<h2>Author</h2>
+Patrik Valkovic
+Czech Technical University in Prague
+Faculty of Information Technology
+2015/2016
 
-With tests.
+<h2>Contains:</h2>
+  Vector = One-way linked list
+  List = Two-way linked list
+  Array =  Self-sizing array
+  Binary search tree
+  Min heap
+  Stack
+  Queue
+  Priority queue (internally use min heap)
+  Iterators (not implemented for each structure)
+  Internal exceptions
+  Tests.
+
+Not implemented yet: Self-balacing structures like AVL tree or Red-black tree
+
+<h3>Licence: GNU GENERAL PUBLIC LICENSE, Version 3</h3>
