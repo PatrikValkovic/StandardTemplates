@@ -10,7 +10,7 @@ Contains:
   - Queue
   - Priority queue (internally use min heap)
   - Iterators (not implemented for each structure)
-  - Internal exceptions (not yet implemented from std::exception)
+  - Internal exceptions
   
 Not implemented yet: Self-balacing trees like AVL tree or Red-black tree
 
