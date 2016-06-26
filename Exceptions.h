@@ -3,11 +3,12 @@
 
 #ifndef _STALIB_
 #include <iostream>
+#include <exception>
 #endif
 
 namespace Templates
 {
-    class Exception
+    class Exception : public std::exception
     {
     protected:
         const char *Message;
