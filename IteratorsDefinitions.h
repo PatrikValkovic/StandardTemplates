@@ -23,11 +23,18 @@ namespace Templates
         };
 
         template<typename T>
-        class BackwardIteratorBase : virtual public ForwardIteratorBase<T>
+        class BackwardIteratorBase : virtual public IteratorBase<T>
         {
         public:
             virtual bool Back() = 0;
             virtual bool Back(int HowMany) = 0;
+        };
+
+        template<typename T>
+        class RandomAccessIteratorBase : virtual public BackwardIteratorBase<T>, virtual public ForwardIteratorBase<T>
+        {
+        public:
+            virtual void To(int Position) = 0;
         };
 
         template<typename T>
