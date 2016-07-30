@@ -107,7 +107,10 @@ namespace Templates
 
         BinaryMinHeap &operator=(const BinaryMinHeap &Second)
         {
+            if(this==&Second)
+                return *this;
             *this->Container = *Second.Container;
+            return *this;
         }
 
         ~BinaryMinHeap()

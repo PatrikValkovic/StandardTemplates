@@ -31,13 +31,13 @@ namespace Templates
         int Allocated;
         int Inserted;
 
-        T **Containing;
+        T** Containing;
     public:
         class Iterator : public virtual Iterators::DeletingBackwardIteratorBase<T>,
                          virtual Iterators::InsertingIteratorBase<T>
         {
         private:
-            Array *Instance;
+            Array* Instance;
             int index;
         public:
             /**
@@ -45,14 +45,14 @@ namespace Templates
              */
             Iterator()
             {
-                    index = -1;
-                    Instance = NULL;
+                index = -1;
+                Instance = NULL;
             }
 
             /**
              * Creates new valid iterator pointed to specific elements in Array
              */
-            Iterator(Array *ArrayInstance, int index)
+            Iterator(Array* ArrayInstance, int index)
             {
                 this->index = index;
                 this->Instance = ArrayInstance;
@@ -61,7 +61,7 @@ namespace Templates
             /**
              * Assignment operator
              */
-            Iterator &operator=(const Iterator &Second)
+            Iterator& operator=(const Iterator& Second)
             {
                 if (this == &Second)
                     return *this;
@@ -80,10 +80,20 @@ namespace Templates
             }
 
             /**
+             * Check if are iterators equal
+             * @param second Iterator compare to
+             * @return True if are iterators at the same position, false otherwise
+             */
+            virtual bool AreEqual(const Iterator& second) const
+            {
+                return this->index == second.index && this->Instance == second.Instance;
+            }
+
+            /**
              * Return editable value, where iterator referencing
              * If is not valid, return NULL
              */
-            virtual T *GetValue()
+            virtual T* GetValue()
             {
                 if (!IsValidIterator())
                     return NULL;
@@ -94,7 +104,7 @@ namespace Templates
              * Set value of element, which iterator referencing
              * If is iterator invalid, do nothing
              */
-            virtual void SetValue(const T &Val)
+            virtual void SetValue(const T& Val)
             {
                 if (!IsValidIterator())
                     return;
@@ -169,9 +179,9 @@ namespace Templates
              * Return 1 if success, 0 otherwise
              * Can change capacity of Array
              */
-            virtual int Insert(const T &Value)
+            virtual int Insert(const T& Value)
             {
-                if(!IsValidIterator())
+                if (!IsValidIterator())
                     return 0;
 
                 if (!Instance->Shift(index + 1, 1))
@@ -185,12 +195,12 @@ namespace Templates
              * Return 1 if success, 0 otherwise
              * Can change capacity of Array
              */
-            int InsertBefore(const T &Value)
+            int InsertBefore(const T& Value)
             {
-                if(Instance->Inserted==this->index)
+                if (Instance->Inserted == this->index)
                     return Instance->Push(Value);
 
-                if (Instance->Shift(index, 1)==0)
+                if (Instance->Shift(index, 1) == 0)
                     return 0;
                 index++;
                 Instance->Containing[index - 1] = new T(Value);
@@ -202,9 +212,9 @@ namespace Templates
              * Return count of inserted elements
              * Can change capacity of Array
              */
-            virtual int Insert(const T *const Values, int Count)
+            virtual int Insert(const T* const Values, int Count)
             {
-                if(!IsValidIterator())
+                if (!IsValidIterator())
                     return 0;
 
                 if (!Instance->Shift(index + 1, Count))
@@ -221,10 +231,10 @@ namespace Templates
              * Return count of inserted elements
              * Can change capacity of Array
              */
-            int InsertBefore(const T *const Values, int Count)
+            int InsertBefore(const T* const Values, int Count)
             {
-                if(Instance->Inserted==this->index)
-                    return Instance->Push(Values,Count);
+                if (Instance->Inserted == this->index)
+                    return Instance->Push(Values, Count);
 
                 if (!Instance->Shift(index, Count))
                     return 0;
@@ -243,16 +253,16 @@ namespace Templates
              */
             virtual int DeleteBefore(int Count = 1)
             {
-                if(this->Instance==NULL)
+                if (this->Instance == NULL)
                     return 0;
 
-                if(this->index==Instance->Inserted)
+                if (this->index == Instance->Inserted)
                     return Instance->DeleteFromEnd(Count);
 
-                if(!IsValidIterator())
+                if (!IsValidIterator())
                     return 0;
 
-                int temp = (-1)*this->Instance->Shift(this->index,-Count);
+                int temp = (-1) * this->Instance->Shift(this->index, -Count);
 
                 index = index - temp;
 
@@ -267,13 +277,13 @@ namespace Templates
              */
             virtual int DeleteAfter(int Count = 1)
             {
-                if(!IsValidIterator())
+                if (!IsValidIterator())
                     return 0;
 
-                if(index+Count>Instance->Size())
-                    return Instance->DeleteFromEnd(Instance->Inserted-index-1);
+                if (index + Count > Instance->Size())
+                    return Instance->DeleteFromEnd(Instance->Inserted - index - 1);
 
-                Instance->Shift(index + Count+1, -Count);
+                Instance->Shift(index + Count + 1, -Count);
                 return Count;
             }
 
@@ -286,7 +296,7 @@ namespace Templates
             {
                 if (!this->IsValidIterator())
                     return 0;
-                if(this->index==Instance->Inserted-1)
+                if (this->index == Instance->Inserted - 1)
                     return Instance->DeleteFromEnd(1);
                 Instance->Shift(index + 1, -1);
                 return 1;
@@ -299,7 +309,7 @@ namespace Templates
         Array(int Capacity)
         {
             Capacity = (Capacity <= 0 ? BaseSize : Capacity);
-            Containing = (T **) calloc(Capacity, sizeof(T *));
+            Containing = (T**) calloc((size_t)Capacity, sizeof(T*));
             Allocated = Capacity;
             Inserted = 0;
         }
@@ -308,13 +318,13 @@ namespace Templates
          * Initialize new instance with default size 10
          */
         Array() : Array(BaseSize)
-        { }
+        {}
 
         /**
          * Initialize new instance with same values as second Array
          * Creates deep copy
          */
-        Array(const Array &Second) : Array(Second.Size())
+        Array(const Array& Second) : Array(Second.Size())
         {
             int SizeOfSecond = Second.Size();
             for (int a = 0; a < SizeOfSecond; a++)
@@ -324,7 +334,7 @@ namespace Templates
         /**
          * Initialize new instance and fill it with values in array
          */
-        Array(T *array, int count) : Array(count)
+        Array(T* array, int count) : Array(count)
         {
             for (int a = 0; a < count; a++, array++)
                 this->Containing[a] = new T(*array);
@@ -344,7 +354,7 @@ namespace Templates
          * Copy all elements from second array to this
          * Creates deep copy of second array
          */
-        Array &operator=(const Array &Second)
+        Array& operator=(const Array& Second)
         {
             if (this == &Second)
                 return *this;
@@ -400,7 +410,7 @@ namespace Templates
          * Try to create iterator at specific position in array
          * Return false, if is index out of range
          */
-        bool TryAt(int index, Iterator &Out)
+        bool TryAt(int index, Iterator& Out)
         {
             if (index >= Inserted || index < 0)
                 return false;
@@ -430,10 +440,10 @@ namespace Templates
 
             int OldAllocation = Allocated;
             this->Allocated = Allocated + By;
-            Containing = (T **) realloc(Containing, sizeof(T *) * (Allocated));
+            Containing = (T**) realloc(Containing, sizeof(T*) * (Allocated));
 
             if (By > 0)
-                memset(Containing + OldAllocation, 0, sizeof(T *) * (By));
+                memset(Containing + OldAllocation, 0, sizeof(T*) * (By));
         }
 
         void ExpandTo(int To)
@@ -446,9 +456,9 @@ namespace Templates
 
             int OldAllocation = Allocated;
             this->Allocated = To;
-            Containing = (T **) realloc(Containing, sizeof(T *) * (Allocated));
+            Containing = (T**) realloc(Containing, sizeof(T*) * (Allocated));
             if (To > OldAllocation)
-                memset(Containing + OldAllocation, 0, sizeof(T *) * (To - OldAllocation));
+                memset(Containing + OldAllocation, 0, sizeof(T*) * (To - OldAllocation));
         }
 
         /**
@@ -460,26 +470,26 @@ namespace Templates
         {
             if (index < 0 || index >= Inserted)
                 return 0;
-            if (PlacesToShift == 0 || Inserted==0)
+            if (PlacesToShift == 0 || Inserted == 0)
                 return 0;
 
-            if(index+PlacesToShift<0)
-                PlacesToShift = (-1)*index;
+            if (index + PlacesToShift < 0)
+                PlacesToShift = (-1) * index;
 
-            if(PlacesToShift<0)
-                for(int a=index+PlacesToShift;a<index;a++)
+            if (PlacesToShift < 0)
+                for (int a = index + PlacesToShift; a < index; a++)
                     delete Containing[a];
 
             else if (Inserted + PlacesToShift > Allocated)
                 ExpandTo(Inserted + PlacesToShift);
 
-            memmove(Containing + index + PlacesToShift, Containing + index, sizeof(T *) * (Inserted - index));
+            memmove(Containing + index + PlacesToShift, Containing + index, sizeof(T*) * (Inserted - index));
 
             Math::Interval<int> Original(index, Allocated);
             Math::Interval<int> MovedTo(index + PlacesToShift, Inserted + PlacesToShift);
             Math::Interval<int> ToDelete = Original - MovedTo;
             memset(Containing + ToDelete.GetBegin(), 0,
-                   sizeof(T *) * (ToDelete.GetEnd() - ToDelete.GetBegin()));
+                   sizeof(T*) * (ToDelete.GetEnd() - ToDelete.GetBegin()));
 
             this->Inserted += PlacesToShift;
 
@@ -512,7 +522,7 @@ namespace Templates
             if (Count >= Inserted)
                 return Delete();
 
-            int deleted = (-1)*this->Shift(Count, -Count);
+            int deleted = (-1) * this->Shift(Count, -Count);
             return deleted;
         }
 
@@ -533,11 +543,11 @@ namespace Templates
 
         int DeleteFromEnd(int Count)
         {
-            int deleted=0;
-            for(int i=Inserted-1,a=0;a<Count && i>=0;a++,i--)
+            int deleted = 0;
+            for (int i = Inserted - 1, a = 0; a < Count && i >= 0; a++, i--)
             {
                 delete Containing[i];
-                Containing[i]=NULL;
+                Containing[i] = NULL;
                 deleted++;
                 Inserted--;
             }
@@ -548,12 +558,12 @@ namespace Templates
          * Convert Array to C-like array
          * Return new array, NULL otherwise
          */
-        T *ToArray(int &count) const
+        T* ToArray(int& count) const
         {
             if (Inserted == 0)
                 return NULL;
             count = Inserted;
-            T *CreatedArray = (T *) malloc(sizeof(T) * this->Inserted);
+            T* CreatedArray = (T*) malloc(sizeof(T) * this->Inserted);
             for (int a = 0; a < Inserted; a++)
                 new(CreatedArray + a) T(*Containing[a]);
             return CreatedArray;
@@ -563,14 +573,14 @@ namespace Templates
          * Create array, that can be edited
          * Return editable array, NULL otherwise
          */
-        T **ToWriteArray(int &count)
+        T** ToWriteArray(int& count)
         {
             if (Inserted == 0)
                 return NULL;
             count = Inserted;
 
-            T **CreatedArray = (T **) malloc(sizeof(T *) * this->Inserted);
-            CreatedArray = (T **) memcpy(CreatedArray, this->Containing, sizeof(T *) * this->Inserted);
+            T** CreatedArray = (T**) malloc(sizeof(T*) * this->Inserted);
+            CreatedArray = (T**) memcpy(CreatedArray, this->Containing, sizeof(T*) * this->Inserted);
             return CreatedArray;
         }
 
@@ -578,7 +588,7 @@ namespace Templates
          * Insert @Value in the end of Array
          * Return 1 if success, otherwise 0
          */
-        int Push(const T &Value)
+        int Push(const T& Value)
         {
             if (Allocated == Inserted)
             {
@@ -595,7 +605,7 @@ namespace Templates
          * Insert @Count values from @Values array
          * Return count of inserted elements, 0 if error was detected
          */
-        int Push(const T *const Values, int Count)
+        int Push(const T* const Values, int Count)
         {
             if (Allocated < Inserted + Count)
             {
@@ -617,10 +627,10 @@ namespace Templates
         int ShrinkToFit()
         {
             int NewSize = Inserted > 10 ? Inserted : 10;
-            this->Containing = (T **) realloc(this->Containing, sizeof(T *) * NewSize);
+            this->Containing = (T**) realloc(this->Containing, sizeof(T*) * NewSize);
             this->Allocated = NewSize;
             if (Allocated > Inserted)
-                memset(this->Containing + Inserted, 0, sizeof(T *) * (NewSize - Inserted));
+                memset(this->Containing + Inserted, 0, sizeof(T*) * (NewSize - Inserted));
             return Inserted;
         }
 
@@ -629,7 +639,8 @@ namespace Templates
          */
         bool Swap(int FirstIndex, int SecondIndex)
         {
-            if(FirstIndex<0 || FirstIndex>=Inserted || SecondIndex<0 || SecondIndex>=Inserted || FirstIndex==SecondIndex)
+            if (FirstIndex < 0 || FirstIndex >= Inserted || SecondIndex < 0 || SecondIndex >= Inserted ||
+                FirstIndex == SecondIndex)
                 return false;
 
             T* temp = Containing[FirstIndex];
