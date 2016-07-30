@@ -27,6 +27,13 @@ namespace Templates
         }
         return false;
     }
+
+    template<typename T>
+    void ForEach(ForwardIteratorBase<T>* Begin,IteratorBase<T>* End,void(*Func)(const T* const Value))
+    {
+        for(;!Begin->AreEqual(*End);Begin->Next())
+            Func(Begin->GetValue());
+    }
 }
 
 
