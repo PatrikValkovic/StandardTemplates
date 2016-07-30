@@ -136,7 +136,7 @@ namespace Templates
             /**
              * Create iterator chained with specific list
              */
-            Iterator(Node* Node, List* ListInstance)
+            Iterator(List::Node* Node, List* ListInstance)
             {
                 WorkingNode = Node;
                 this->ListInstance = ListInstance;
@@ -170,6 +170,11 @@ namespace Templates
             Iterator Clone()
             {
                 return Iterator(this->WorkingNode, this->ListInstance);
+            }
+
+            virtual bool AreEqual(const Iterator& second) const
+            {
+                return this->WorkingNode == second.WorkingNode;
             }
 
             /**
@@ -547,10 +552,13 @@ namespace Templates
          */
         List& operator=(const List& Second)
         {
+            if(this==&Second)
+                return *this;
+
             this->Delete();
 
             if(Second.Size()==0)
-                return;
+                return *this;
 
             Node* Start = Second.First;
             Node* End = Second.Last;
@@ -560,6 +568,7 @@ namespace Templates
                 this->End().InsertBefore(Temp->Value);
                 Temp = Temp->Forward;
             }while(Temp!=End);
+            return *this;
         }
 
         ~List()
@@ -576,7 +585,7 @@ namespace Templates
         /**
          * Return count of elements in list.
          */
-        int Size()
+        int Size() const
         {
 #ifdef ADDITIONAL_TESTS
             if (First == NULL || Last == NULL)

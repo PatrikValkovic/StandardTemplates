@@ -59,6 +59,16 @@ namespace Templates
             { }
 
             /**
+             * Check if are iterators at the same position
+             * @param Second Iterator compare to
+             * @return True if are iterators equal, false otherwise
+             */
+            virtual bool AreEqual(const Iterator& Second) const
+            {
+                return this->WorkingQueue == Second.WorkingQueue;
+            }
+
+            /**
              * Return true, if is iterator valid and may work with it.
              */
             virtual bool IsValidIterator() const

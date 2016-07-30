@@ -14,6 +14,11 @@ namespace Templates
     private:
         bool(* ValidCallback)(const T* What) = NULL;
     public:
+        /**
+         * Constructor
+         * @param Validation Function that return true, if should element be passed to queue
+         * @return Instance of CondQueue
+         */
         CondQueue(bool(* Validation)(const T* What))
                 : Queue<T>::Queue()
         {

@@ -8,7 +8,6 @@
 
 namespace Templates
 {
-    //TODO redefine using tree
     template<typename T>
     class PriorityQueue
     {
@@ -38,7 +37,10 @@ namespace Templates
          */
         PriorityQueue& operator=(const PriorityQueue& Second)
         {
+            if(this==&Second)
+                return *this;
             this->Instance = Second.Instance;
+            return *this;
         }
 
 
@@ -48,7 +50,7 @@ namespace Templates
          */
         bool Push(T  Value)
         {
-            return this->Instance->Insert(Value);
+            return this->Instance->Insert(Value) == 1;
         }
 
         /**
