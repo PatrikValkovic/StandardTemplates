@@ -226,9 +226,6 @@ namespace Templates
                 return 0;
             }
 
-            if (!ALLOW_DUPLICITIES)
-                return -1;
-
             int Inserted = this->Insert(ToFind);
 #ifdef ADDITIONAL_TESTS
             if (Inserted != 1)

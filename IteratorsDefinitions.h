@@ -12,7 +12,6 @@ namespace Templates
             virtual bool IsValidIterator() const = 0;
             virtual T* GetValue() = 0;
             virtual void SetValue(const T& Val) = 0;
-            virtual bool AreEqual(const IteratorBase& second) const = 0;
         };
 
         template<typename T>
