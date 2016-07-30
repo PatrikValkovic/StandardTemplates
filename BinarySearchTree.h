@@ -14,18 +14,18 @@ namespace Templates
         {
         public:
             T Val;
-            Node *Child[2] = {NULL, NULL};
+            Node* Child[2] = {NULL, NULL};
         };
 
-        Node *Root = NULL;
+        Node* Root = NULL;
 
         struct TempCopyStructure
         {
-            Node *CopyFrom;
-            Node **CopyTo;
+            Node* CopyFrom;
+            Node** CopyTo;
         };
 
-        int(*Distribution)(const T *const First, const T *const Second);
+        int (* Distribution)(const T* const First, const T* const Second);
         int CountOfElements;
     public:
         /**
@@ -33,7 +33,7 @@ namespace Templates
          *             - <0 if First is smaller then Second
          *             - >0 if First is bigger then Second
          */
-        BinarySearchTree(int(*Distribution)(const T *const First, const T *const Second))
+        BinarySearchTree(int(* Distribution)(const T* const First, const T* const Second))
         {
             this->CountOfElements = 0;
             this->Distribution = Distribution;
@@ -43,7 +43,7 @@ namespace Templates
         /**
          * Copy constructor
          */
-        BinarySearchTree(BinarySearchTree &Second)
+        BinarySearchTree(BinarySearchTree& Second)
                 : BinarySearchTree(Second.Distribution)
         {
             CountOfElements = Second.CountOfElements;
@@ -77,7 +77,7 @@ namespace Templates
             this->Clear();
         }
 
-        BinarySearchTree &operator=(const BinarySearchTree &Second)
+        BinarySearchTree& operator=(const BinarySearchTree& Second)
         {
             throw new NotImplementedException(__FILE__, __LINE__);
             //TODO
@@ -95,9 +95,9 @@ namespace Templates
          * Insert element into tree
          * return 1, if was element inserted
          */
-        int Insert(T &Value)
+        int Insert(T& Value)
         {
-            Node *Created = new Node;
+            Node* Created = new Node;
             Created->Val = Value;
             if (Root == NULL)
             {
@@ -106,8 +106,8 @@ namespace Templates
                 return 1;
             }
 
-            Node *Previous = NULL;
-            Node *Temp = this->Root;
+            Node* Previous = NULL;
+            Node* Temp = this->Root;
             while (Temp != NULL)
             {
                 int Result = this->Distribution(&Temp->Val, &Value);
@@ -128,7 +128,7 @@ namespace Templates
          * Insert @Count values into tree
          * returns count of inserted elements
          */
-        int Insert(T *Values, int Count)
+        int Insert(T* Values, int Count)
         {
             int inserted = 0;
             for (int a = 0; a < Count; a++)
@@ -146,10 +146,10 @@ namespace Templates
             if (this->Root == NULL)
                 return 0;
             int Deleted = 0;
-            Stack<Node *> *ToDeleteStack = new Stack<Node *>();
+            Stack<Node*>* ToDeleteStack = new Stack<Node*>();
             ToDeleteStack->Push(this->Root);
 
-            Node *ToDelete;
+            Node* ToDelete;
             while (!ToDeleteStack->IsEmpty())
             {
                 if (!ToDeleteStack->Pop(ToDelete))
@@ -174,11 +174,11 @@ namespace Templates
         /**
          * Return true, if is Value in tree, otherwise false
          */
-        bool Contain(const T &Value) const
+        bool Contain(const T& Value) const
         {
             if (this->Root == NULL)
                 return false;
-            Node *Temp = this->Root;
+            Node* Temp = this->Root;
             while (Temp != NULL)
             {
                 int Resolve = this->Distribution(&Temp->Val, &Value);
@@ -193,29 +193,21 @@ namespace Templates
          * Return element with specific properties
          * Return true on success, false otherwise
          */
-        bool Get(T* &Returned, const T &ToFind) const
+        bool Get(T*& Returned, const T& ToFind) const
         {
-            if (this->Root == NULL)
+            Node* Result = this->GetNode(ToFind);
+            if (Result == NULL)
                 return false;
-            Node *Temp = this->Root;
-            while (Temp != NULL)
-            {
-                int Resolve = this->Distribution(&Temp->Val, &ToFind);
-                if (Resolve == 0)
-                {
-                    Returned = &(Temp->Val);
-                    return true;
-                }
-                Temp = Temp->Child[Resolve > 0];
-            }
-            return false;
+            Returned = &(Result->Val);
+            return true;
         }
 
         /**
          * Return element by callback
          */
-        Vector <T*> Get(bool(*Callback)(const T *const Value, void *data), void *data = NULL, int Count = 1)
+        Vector<T*> Get(bool(* Callback)(const T* const Value, void* data), void* data = NULL, int Count = 1)
         {
+            throw new NotImplementedException(__FILE__, __LINE__);
             //TODO
         }
 
@@ -224,39 +216,31 @@ namespace Templates
          * If this element doesnt exists, creates new based on parameter
          * Return -1 if fails, 0 if success and 1 if was created
          */
-        int GetOrCreate(T &ToFind, T* &Return)
+        int GetOrCreate(T& ToFind, T*& Return)
         {
-            if (ALLOW_DUPLICITIES)
-                return 0;
+            Node* Result = this->GetNode(ToFind);
 
-            if (this->Root == NULL)
+            if (Result != NULL)
             {
-                this->Insert(ToFind);
-                Return = &(this->Root->Val);
-                CountOfElements++;
-                return 1;
-            };
-            Node *Parent = this->Root;
-            Node *Temp = this->Root;
-            while (Temp != NULL)
-            {
-                int Resolve = this->Distribution(&Temp->Val, &ToFind);
-                if (Resolve == 0)
-                {
-                    Return = &(Temp->Val);
-                    return 0;
-                }
-                Parent = Temp;
-                Temp = Temp->Child[Resolve > 0];
+                Return = &(Result->Val);
+                return 0;
             }
 
-            //create new one
-            Node *Created = new Node;
-            Created->Val = ToFind;
-            int resolve = this->Distribution(&Parent->Val, &ToFind);
-            Parent->Child[resolve > 0] = Created;
-            Return = &(Created->Val);
-            CountOfElements++;
+            if (!ALLOW_DUPLICITIES)
+                return -1;
+
+            int Inserted = this->Insert(ToFind);
+#ifdef ADDITIONAL_TESTS
+            if (Inserted != 1)
+                throw new Exception(__FILE__, __LINE__); //TODO specific exception
+#endif
+            Inserted = (bool)this->Get(Return,ToFind);
+#ifdef ADDITIONAL_TESTS
+            if(Inserted)
+                return 1;
+            else
+                throw new Exception(__FILE__,__LINE__); //TODO specific function
+#endif
             return 1;
         }
 
@@ -264,30 +248,18 @@ namespace Templates
          * Try to find specific element, remove it and return it
          * Return 0 if wasnt found, 1 if was element deleted
          */
-        int GetAndDelete(T &ToFind, T &Return)
+        int GetAndDelete(T& ToFind, T& Return)
         {
-            if (this->Root == NULL)
+            Node* Returned = this->GetNode(ToFind);
+            if(Returned==NULL)
                 return 0;
-            Node *Parent = NULL;
-            Node *Temp = this->Root;
-            while (Temp != NULL)
-            {
-                int Resolve = this->Distribution(&Temp->Val, &ToFind);
-                if (Resolve == 0)
-                {
-                    Return = Temp->Val;
-                    this->RemoveNode(ToDeleteHelpClass{Parent, Temp});
-                    this->CountOfElements--;
-                    return 1;
-                }
-                Parent = Temp;
-                Temp = Temp->Child[Resolve > 0];
-            }
-            return 0;
+            Return = Returned->Val;
+            this->Delete(Return);
+            return 1;
         }
 
     private:
-        void ToArrayRecursive(Vector <T> &Array, Node *Temp) const
+        void ToArrayRecursive(Vector <T>& Array, Node* Temp) const
         {
             if (Temp == NULL)
                 return;
@@ -302,23 +274,23 @@ namespace Templates
         {
         public:
             ToDeleteHelpClass()
-            { }
+            {}
 
-            ToDeleteHelpClass(Node *Parent, Node *ToDelete)
+            ToDeleteHelpClass(Node* Parent, Node* ToDelete)
                     : Parent(Parent), ToDelete(ToDelete)
-            { }
+            {}
 
-            Node *Parent = NULL;
-            Node *ToDelete = NULL;
+            Node* Parent = NULL;
+            Node* ToDelete = NULL;
         };
 
         /**
          * Remove node from tree.
          * Return node replaced by original node, NULL if was leaf
          */
-        Node *RemoveNode(ToDeleteHelpClass Deleting)
+        Node* RemoveNode(ToDeleteHelpClass Deleting)
         {
-            Node **ParentPointer = NULL;
+            Node** ParentPointer = NULL;
             if (Deleting.ToDelete == this->Root)
                 ParentPointer = &this->Root;
             else
@@ -356,8 +328,8 @@ namespace Templates
                 return *ParentPointer;
             }
 
-            Node *Parent = Deleting.ToDelete->Child[0];
-            Node *Replaced = Parent->Child[1];
+            Node* Parent = Deleting.ToDelete->Child[0];
+            Node* Replaced = Parent->Child[1];
             while (Replaced->Child[1] != NULL)
             {
                 Parent = Replaced;
@@ -371,13 +343,30 @@ namespace Templates
             return *ParentPointer;
         }
 
+        Node* GetNode(const T& ToFind) const //TODO return with parent
+        {
+            if (this->Root == NULL)
+                return NULL;
+            Node* Temp = this->Root;
+            while (Temp != NULL)
+            {
+                int Resolve = this->Distribution(&Temp->Val, &ToFind);
+                if (Resolve == 0)
+                {
+                    return Temp;
+                }
+                Temp = Temp->Child[Resolve > 0];
+            }
+            return NULL;
+        }
+
     public:
         /**
          * Return all elements in tree.
          * Elements will be sorted
          * Otherwise NULL
          */
-        T *ToArray(int &Count) const
+        T* ToArray(int& Count) const
         {
             Vector<T> ArrayTemp;
             ToArrayRecursive(ArrayTemp, this->Root);
@@ -389,7 +378,7 @@ namespace Templates
          * Return count of deleted elements
          * data parameter will be passed to callback
          */
-        int Delete(bool(*Callback)(const T *const Value, void *data), void *data = NULL)
+        int Delete(bool(* Callback)(const T* const Value, void* data), void* data = NULL)
         {
             if (this->Root == NULL)
                 return 0;
@@ -402,7 +391,7 @@ namespace Templates
             {
                 if (Callback(&Temp.ToDelete->Val, data))
                 {
-                    Node *Replaced = this->RemoveNode(Temp);
+                    Node* Replaced = this->RemoveNode(Temp);
                     if (Replaced != NULL)
                         Nodes.Push(ToDeleteHelpClass(Temp.Parent, Replaced));
                     deleted++;
@@ -427,8 +416,8 @@ namespace Templates
             if (this->Root == NULL)
                 return 0;
 
-            Node *Temp = this->Root;
-            Node *Parent = NULL;
+            Node* Temp = this->Root;
+            Node* Parent = NULL;
 
             while (Temp != NULL)
             {
