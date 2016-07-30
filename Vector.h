@@ -102,7 +102,7 @@ namespace Templates
             {
 #ifdef ADDITIONAL_TESTS
                 if (WorkingNode == NULL)
-                    throw new VectorException(__FILE__, __LINE__);
+                    throw new InternalException(__FILE__, __LINE__);
 #endif
                 if (!IsValidIterator())
                     return NULL;
@@ -117,7 +117,7 @@ namespace Templates
             {
 #ifdef ADDITIONAL_TESTS
                 if (WorkingNode == NULL)
-                    throw new VectorException(__FILE__, __LINE__);
+                    throw new InternalException(__FILE__, __LINE__);
 #endif
                 if (!IsValidIterator())
                     throw new OutOfRangeException();
@@ -141,7 +141,7 @@ namespace Templates
             {
 #ifdef ADDITIONAL_TESTS
                 if (WorkingNode == NULL)
-                    throw new VectorException(__FILE__, __LINE__);
+                    throw new InternalException(__FILE__, __LINE__);
 #endif
                 return Next(1);
             }
@@ -154,7 +154,7 @@ namespace Templates
             {
 #ifdef ADDITIONAL_TESTS
                 if (WorkingNode == NULL)
-                    throw new VectorException(__FILE__, __LINE__);
+                    throw new InternalException(__FILE__, __LINE__);
 #endif
                 Node* Temp = WorkingNode;
                 for (int a = 0; a < HowMany; a++)
@@ -175,7 +175,7 @@ namespace Templates
             {
 #ifdef ADDITIONAL_TESTS
                 if (WorkingNode == NULL)
-                    throw new VectorException(__FILE__, __LINE__);
+                    throw new InternalException(__FILE__, __LINE__);
 #endif
                 return WorkingNode == Second.WorkingNode;
             }
@@ -238,7 +238,7 @@ namespace Templates
             {
 #ifdef ADDITIONAL_TESTS
                 if (WorkingNode == NULL)
-                    throw new VectorException(__FILE__, __LINE__);
+                    throw new InternalException(__FILE__, __LINE__);
 #endif
                 if (!IsValidIterator())
                     throw new OutOfRangeException();
@@ -265,7 +265,7 @@ namespace Templates
         {
 #ifdef ADDITIONAL_TESTS
             if (First == NULL)
-                throw new VectorException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             Node* Temp = First;
             while (Temp != NULL)
@@ -380,7 +380,7 @@ namespace Templates
         {
 #ifdef ADDITIONAL_TESTS
             if (First == NULL)
-                throw new VectorException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             Count = Size();
             if (Count == 0)
@@ -406,7 +406,7 @@ namespace Templates
         {
 #ifdef ADDITIONAL_TESTS
             if (First == NULL)
-                throw new VectorException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             return Iterator(First, this);
         }
@@ -419,7 +419,7 @@ namespace Templates
         {
 #ifdef ADDITIONAL_TESTS
             if (First == NULL)
-                throw new VectorException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             Node* Temp = First;
             while (Temp->Next != NULL)
@@ -446,7 +446,7 @@ namespace Templates
         {
 #ifdef ADDITIONAL_TESTS
             if (First == NULL)
-                throw new VectorException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             Node* Working = First;
             int Count = 0;
@@ -483,7 +483,7 @@ namespace Templates
         {
 #ifdef ADDITIONAL_TESTS
             if (From.WorkingNode == NULL || First == NULL || To.WorkingNode == NULL)
-                throw new VectorException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             if (!IsMyIterator(From) || !IsMyIterator(To) || !To.IsGreaterThan(From))
                 return 0;
@@ -513,7 +513,7 @@ namespace Templates
         {
 #ifdef ADDITIONAL_TESTS
             if (First == NULL)
-                throw new VectorException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             if (HowMany == 0 || IndexFrom > Size())
                 return 0;

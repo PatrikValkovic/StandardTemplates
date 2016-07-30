@@ -204,7 +204,7 @@ namespace Templates
             {
 #ifdef ADDITIONAL_TESTS
                 if (!IsValidIterator())
-                    throw new ListException(__FILE__, __LINE__);
+                    throw new InternalException(__FILE__, __LINE__);
 #endif
                 WorkingNode->Value = Val;
             }
@@ -255,7 +255,7 @@ namespace Templates
             {
 #ifdef ADDITIONAL_TESTS
                 if (WorkingNode == NULL)
-                    throw new ListException(__FILE__, __LINE__);
+                    throw new InternalException(__FILE__, __LINE__);
 #endif
                 Node* Temp = WorkingNode;
                 for (int a = 0; a < HowMany; a++)
@@ -276,7 +276,7 @@ namespace Templates
             {
 #ifdef ADDITIONAL_TESTS
                 if (WorkingNode == NULL)
-                    throw new ListException(__FILE__, __LINE__);
+                    throw new InternalException(__FILE__, __LINE__);
 #endif
                 if (WorkingNode->Forward == NULL)
                     return -1;
@@ -295,7 +295,7 @@ namespace Templates
             {
 #ifdef ADDITIONAL_TESTS
                 if (WorkingNode == NULL)
-                    throw new ListException(__FILE__, __LINE__);
+                    throw new InternalException(__FILE__, __LINE__);
 #endif
                 if (WorkingNode->Forward == NULL)
                     return -1;
@@ -322,7 +322,7 @@ namespace Templates
             {
 #ifdef ADDITIONAL_TESTS
                 if (WorkingNode == NULL)
-                    throw new ListException(__FILE__, __LINE__);
+                    throw new InternalException(__FILE__, __LINE__);
 #endif
                 Node* NewNode = new Node;
                 NewNode->Value = Value;
@@ -383,7 +383,7 @@ namespace Templates
             {
 #ifdef ADDITIONAL_TESTS
                 if (ListInstance == NULL || WorkingNode == NULL)
-                    throw new ListException(__FILE__, __LINE__);
+                    throw new InternalException(__FILE__, __LINE__);
 #endif
                 return this->ListInstance->Delete(*this, Count);
             }
@@ -420,7 +420,7 @@ namespace Templates
             {
 #ifdef ADDITIONAL_TESTS
                 if (WorkingNode == NULL || Second.WorkingNode == NULL)
-                    throw new ListException(__FILE__, __LINE__);
+                    throw new InternalException(__FILE__, __LINE__);
 #endif
                 return WorkingNode == Second.WorkingNode;
             }
@@ -466,7 +466,7 @@ namespace Templates
         {
 #ifdef ADDITIONAL_TESTS
             if (Iter.WorkingNode == NULL)
-                throw new ListException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             if (Iter.ListInstance != this)
                 return false;
@@ -516,7 +516,7 @@ namespace Templates
                 throw new ::Templates::InvalidArgumentException("Cannot pass null array with count < 1", __LINE__);
 #ifdef ADDITIONAL_TESTS
             if (First == NULL || Last == NULL)
-                throw new ListException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             Node* Temp = First;
             while (Temp->Forward != NULL)
@@ -589,7 +589,7 @@ namespace Templates
         {
 #ifdef ADDITIONAL_TESTS
             if (First == NULL || Last == NULL)
-                throw new ListException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             Node* Temp = First;
             int Count = 0;
@@ -608,7 +608,7 @@ namespace Templates
         {
 #ifdef ADDITIONAL_TESTS
             if (First == NULL)
-                throw new ListException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             return Iterator(First, this);
         }
@@ -621,7 +621,7 @@ namespace Templates
         {
 #ifdef ADDITIONAL_TESTS
             if (Last == NULL)
-                throw new ListException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             return Iterator(Last, this);
         }
@@ -634,7 +634,7 @@ namespace Templates
         {
 #ifdef ADDITIONAL_TESTS
             if (First == NULL)
-                throw new ListException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             Node* Temp = First;
             int a;
@@ -687,7 +687,7 @@ namespace Templates
 
 #ifdef ADDITIONAL_TESTS
             if (Iter.WorkingNode == NULL || Iter.ListInstance != this)
-                throw new ListException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             Node* ToDelete = Iter.WorkingNode->Forward;
             int deleted = 0;
@@ -710,7 +710,7 @@ namespace Templates
         {
 #ifdef ADDITIONAL_TESTS
             if (First == NULL || Last == NULL)
-                throw new ListException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             return Size() == 0;
         }
