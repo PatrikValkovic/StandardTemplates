@@ -56,7 +56,7 @@ namespace Templates
             {
 #ifdef ADDITIONAL_TESTS
                 if (!CopyQueue.Pop(ToCopy))
-                    throw new QueueException(__FILE__, __LINE__);
+                    throw new InternalException(__FILE__, __LINE__);
 #else
                 CopyQueue.Pop(ToCopy);
 #endif
@@ -229,14 +229,14 @@ namespace Templates
             int Inserted = this->Insert(ToFind);
 #ifdef ADDITIONAL_TESTS
             if (Inserted != 1)
-                throw new Exception(__FILE__, __LINE__); //TODO specific exception
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             Inserted = (bool)this->Get(Return,ToFind);
 #ifdef ADDITIONAL_TESTS
             if(Inserted)
                 return 1;
             else
-                throw new Exception(__FILE__,__LINE__); //TODO specific function
+                throw new InternalException(__FILE__,__LINE__);
 #endif
             return 1;
         }

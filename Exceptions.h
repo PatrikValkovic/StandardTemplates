@@ -125,6 +125,30 @@ namespace Templates
         virtual ~NotImplementedException()
         { }
     };
+
+    class InternalException : public Exception
+    {
+    protected:
+        virtual std::ostream &ToString(std::ostream &os)
+        {
+            return os << this->Message << std::endl;
+        }
+
+    public:
+        InternalException() : Exception("Index is out of range.", -1)
+        { }
+
+        InternalException(const char *Message)
+                : Exception(Message, -1)
+        { }
+
+        InternalException(const char *Message, int LineNumber)
+                : Exception(Message, LineNumber)
+        { }
+
+        virtual ~InternalException()
+        { }
+    };
 }
 
 namespace Math

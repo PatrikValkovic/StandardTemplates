@@ -19,20 +19,13 @@ namespace Templates
             T* Val = Iter->GetValue();
 #ifdef ADDITIONAL_TESTS
             if(Val==NULL)
-                return false;
+                throw new InternalException(__FILE__,__LINE__);
 #endif
             if (Validation(Val,params))
                 return true;
             Iter->Next();
         }
         return false;
-    }
-
-    template<typename T>
-    void ForEach(ForwardIteratorBase<T>* Begin,IteratorBase<T>* End,void(*Func)(const T* const Value))
-    {
-        for(;!Begin->AreEqual(*End);Begin->Next())
-            Func(Begin->GetValue());
     }
 }
 

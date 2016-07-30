@@ -286,7 +286,7 @@ namespace Templates
             }
 #ifdef ADDITIONAL_TESTS
             else
-                throw new QueueException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             return true;
         }
@@ -320,7 +320,7 @@ namespace Templates
             }
 #ifdef ADDITIONAL_TESTS
             else
-                throw new QueueException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             return true;
         }
@@ -340,7 +340,7 @@ namespace Templates
         {
 #ifdef ADDITIONAL_TESTS
             if ((First == NULL && Last != NULL) || (First != NULL && Last == NULL))
-                throw new QueueException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             int deleted = 0;
             for (int a = 0; a < HowMany && First != NULL; a++)
@@ -366,7 +366,7 @@ namespace Templates
                 return false;
 #ifdef ADDITIONAL_TESTS
             else
-                throw new QueueException(__FILE__, __LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             throw new QueueException(__FILE__, __LINE__);
         }
