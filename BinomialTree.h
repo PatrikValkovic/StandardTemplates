@@ -17,15 +17,15 @@ namespace Templates
         class Node
         {
         public:
-            Node(T& val): val(val) {}
-            const T& val;
+            Node(T val): val(val) {}
+            T val;
             Vector<Node*> rest;
         };
 
         Node* top;
 
     public:
-        BinomialTree(T& val)
+        BinomialTree(T val)
         {
             Node* created = new Node(val);
             this->top = created;
@@ -42,29 +42,29 @@ namespace Templates
 
             while(ToProcess.Pop(ToDelete))
             {
-                Vector<Node*>::Iterator moving = ToDelete->rest.Begin();
-                Vector<Node*>::Iterator end = ToDelete->rest.End();
+                typename Vector<Node*>::Iterator moving = ToDelete->rest.Begin();
+                typename Vector<Node*>::Iterator end = ToDelete->rest.End();
                 for(;!moving.AreEqual(end) && moving.Next();)
                     ToProcess.Push(*moving.GetValue());
                 delete ToDelete;
             }
         }
 
-        BinomialTree(const T& a, const T& b)
+        BinomialTree(T a, T b)
                 : BinomialTree(a)
         {
             BinomialTree x(b);
             Merge(x);
         }
 
-        BinomialTree(const T& a, const T& b, const T& c, const T& d)
+        BinomialTree(T a, T b, T c, T d)
                 : BinomialTree(a, b)
         {
             BinomialTree x(c, d);
             Merge(x);
         }
 
-        BinomialTree(const T& a, const T& b, const T& c, const T& d, const T& e, const T& f, const T& g, const T& h)
+        BinomialTree(T a, T b, T c, T d, T e, T f, T g, T h)
                 : BinomialTree(a, b, c, d)
         {
             BinomialTree x(e, f, g, h);
