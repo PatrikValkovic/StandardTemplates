@@ -3,6 +3,7 @@
 
 #include "Vector.h"
 #include "Queue.h"
+#include "Stack.h"
 
 namespace Templates
 {
@@ -15,6 +16,22 @@ namespace Templates
         public:
             T Val;
             Node* Child[2] = {NULL, NULL};
+        };
+
+        class AssignClass
+        {
+        private:
+            static Node* p;
+        public:
+            Node*& po;
+            Node* working;
+
+            AssignClass() : AssignClass(p, NULL)
+            {}
+
+            AssignClass(Node*& pointer, Node* working)
+                    : po(pointer), working(working)
+            {}
         };
 
         Node* Root = NULL;
@@ -77,10 +94,14 @@ namespace Templates
             this->Clear();
         }
 
-        BinarySearchTree& operator=(const BinarySearchTree& Second)
+        BinarySearchTree& operator=(BinarySearchTree& Second)
         {
-            throw new NotImplementedException(__FILE__, __LINE__);
-            //TODO
+            if (this == &Second)
+                return *this;
+
+            this->Clear();
+            this->BinarySearchTree(Second);
+            return *this;
         }
 
         /**
@@ -142,7 +163,6 @@ namespace Templates
          */
         int Clear()
         {
-            //TODO rewrite to use queue
             if (this->Root == NULL)
                 return 0;
             int Deleted = 0;
@@ -205,10 +225,24 @@ namespace Templates
         /**
          * Return element by callback
          */
-        Vector<T*> Get(bool(* Callback)(const T* const Value, void* data), void* data = NULL, int Count = 1)
+        Vector <T> Get(bool(* Callback)(const T* const Value, void* data), void* data = NULL)
         {
-            throw new NotImplementedException(__FILE__, __LINE__);
-            //TODO
+            //TODO maybe short
+            Vector<T> vals;
+            Stack<Node*> ToProcess;
+            ToProcess.Push(this->Root);
+            Node* temp;
+            while (!ToProcess.IsEmpty())
+            {
+                ToProcess.Pop(temp);
+                if (temp->Child[0] != NULL)
+                    ToProcess.Push(temp->Child[0]);
+                if (temp->Child[1] != NULL)
+                    ToProcess.Push(temp->Child[1]);
+                if (Callback(&temp->Val, data))
+                    vals.Insert(temp->Val);
+            }
+            return vals;
         }
 
         /**
@@ -231,12 +265,12 @@ namespace Templates
             if (Inserted != 1)
                 throw new InternalException(__FILE__, __LINE__);
 #endif
-            Inserted = (bool)this->Get(Return,ToFind);
+            Inserted = (bool) this->Get(Return, ToFind);
 #ifdef ADDITIONAL_TESTS
-            if(Inserted)
+            if (Inserted)
                 return 1;
             else
-                throw new InternalException(__FILE__,__LINE__);
+                throw new InternalException(__FILE__, __LINE__);
 #endif
             return 1;
         }
@@ -248,7 +282,7 @@ namespace Templates
         int GetAndDelete(T& ToFind, T& Return)
         {
             Node* Returned = this->GetNode(ToFind);
-            if(Returned==NULL)
+            if (Returned == NULL)
                 return 0;
             Return = Returned->Val;
             this->Delete(Return);
@@ -340,7 +374,7 @@ namespace Templates
             return *ParentPointer;
         }
 
-        Node* GetNode(const T& ToFind) const //TODO return with parent
+        Node* GetNode(const T& ToFind) const
         {
             if (this->Root == NULL)
                 return NULL;

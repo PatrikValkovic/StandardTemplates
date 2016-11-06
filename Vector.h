@@ -343,7 +343,7 @@ namespace Templates
         /**
          * Copy constructor
          */
-        Vector(Vector& Copy)
+        Vector(const Vector& Copy)
         {
             int val;
             T* Array = Copy.ToArray(val);
@@ -354,7 +354,7 @@ namespace Templates
         /**
          * Assignment operator
          */
-        Vector& operator=(Vector& Second)
+        Vector& operator=(const Vector& Second)
         {
             if (this != &Second)
             {
@@ -381,7 +381,7 @@ namespace Templates
          * Return pointer to array and Count of elements in parametr.
          * If fails, return NULL.
          */
-        T* ToArray(int& Count)
+        T* ToArray(int& Count) const
         {
 #ifdef ADDITIONAL_TESTS
             if (First == NULL)
@@ -447,7 +447,7 @@ namespace Templates
         /**
          * Return count of elements in Vector.
          */
-        int Size()
+        int Size() const
         {
 #ifdef ADDITIONAL_TESTS
             if (First == NULL)

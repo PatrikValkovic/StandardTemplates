@@ -1,6 +1,6 @@
 #ifndef TEMPLATES_BINOMIALMINHEAP_H
 #define TEMPLATES_BINOMIALMINHEAP_H
-
+/*
 #include "Vector.h"
 #include "BinomialTree.h"
 
@@ -46,5 +46,5 @@ namespace Templates
     };
 
 }
-
+*/
 #endif //TEMPLATES_BINOMIALMINHEAP_H

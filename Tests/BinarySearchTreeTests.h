@@ -906,6 +906,77 @@ private:
         free(CreatedArray);
     }
 
+    static void CopyTests()
+    {
+        BinarySearchTree<int> *Instance = NULL;
+
+        //right rotate test
+        /**
+         *                90
+         *               /  \
+         *             50    95
+         *            /  \
+         *          30    60
+         *         /  \     \
+         *       15    40    65
+         *      /       \    / \
+         *    10         41 62  67
+         *    /\          \
+         *   5  12         42
+         */
+        // {10, 12, 15, 30, 40, 41, 42, 5, 50, 60, 62, 65, 67, 90, 95};
+        int RightRotateTestBase[15] = {90, 50, 95, 30, 60, 15, 40, 65, 10, 41, 62, 67, 5, 12, 42};
+        Instance = new BinarySearchTree<int>(Solve);
+        for(int i=0;i<15;i++)
+            Instance->Insert(RightRotateTestBase[i]);
+        BinarySearchTree<int> secondInstance = *Instance;
+        int countFirst;
+        int countSecond;
+        int* ArrayFirst = Instance->ToArray(countFirst);
+        int* ArraySecond = secondInstance.ToArray(countSecond);
+        assert(countFirst == countSecond);
+        for(int a=0;a<countFirst;a++)
+            assert(ArrayFirst[a]==ArraySecond[a]);
+        delete Instance;
+        free(ArrayFirst);
+        free(ArraySecond);
+        return;
+    }
+
+    static bool filter(const int* const val,void *data)
+    {
+        return *val < 50;
+    }
+
+    static void FilterTests()
+    {
+        BinarySearchTree<int> *Instance = NULL;
+
+        //right rotate test
+        /**
+         *                90
+         *               /  \
+         *             50    95
+         *            /  \
+         *          30    60
+         *         /  \     \
+         *       15    40    65
+         *      /       \    / \
+         *    10         41 62  67
+         *    /\          \
+         *   5  12         42
+         */
+        // {5, 10, 12, 15, 30, 40, 41, 42, 5, 50, 60, 62, 65, 67, 90, 95};
+        int RightRotateTestBase[15] = {90, 50, 95, 30, 60, 15, 40, 65, 10, 41, 62, 67, 5, 12, 42};
+        Instance = new BinarySearchTree<int>(Solve);
+        for(int i=0;i<15;i++)
+            Instance->Insert(RightRotateTestBase[i]);
+        Vector<int> lower = Instance->Get(filter);
+        assert(lower.Size() == 8);
+        delete Instance;
+        return;
+    }
+
 public:
     static void tests()
     {
@@ -928,6 +999,10 @@ public:
         GetAndDeleteTests();
 
         GetOrCreateCustomClassTests();
+
+        CopyTests();
+
+        FilterTests();
     }
 };
 
