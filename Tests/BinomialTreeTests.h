@@ -27,8 +27,8 @@ private:
          *           |
          *           5
          */
-        BinomialTree<int,comp> tree1(5,3,9,1,-8,10,4,21);
-        assert(tree1.Top()==-8);
+        BinomialTree<int, comp> tree1(5, 3, 9, 1, -8, 10, 4, 21);
+        assert(tree1.Top() == -8);
         assert(tree1.Level() == 3);
         auto firstLevel = tree1.InnerTrees();
         auto firstLevelMov = firstLevel.Begin();
@@ -75,8 +75,8 @@ private:
          *           |
          *           5
          */
-        BinomialTree<int,comp> tree1(5,3,9,1,-8,10,4,21);
-        assert(tree1.Top()==-8);
+        BinomialTree<int, comp> tree1(5, 3, 9, 1, -8, 10, 4, 21);
+        assert(tree1.Top() == -8);
         assert(tree1.Level() == 3);
         auto firstLevel = tree1.InnerTrees();
         auto firstLevelMov = firstLevel.Begin();
@@ -93,7 +93,7 @@ private:
         assert(Top10.Level() == 0);
         auto secondLevelRight = Top4.InnerTrees();
         auto Top21 = *secondLevelRight.Begin().GetValue();
-            auto secondLevelLeft = Top1.InnerTrees();
+        auto secondLevelLeft = Top1.InnerTrees();
         auto secondLevelMove = secondLevelLeft.Begin();
         auto Top3 = *secondLevelMove.GetValue();
         secondLevelMove.Next();
@@ -118,10 +118,10 @@ private:
          *          |
          *          5
          */
-        BinomialTree<int,comp> tree1(5,3,9,1);
+        BinomialTree<int, comp> tree1(5, 3, 9, 1);
         assert(tree1.Top() == 1);
         auto inner1 = tree1.InnerTrees();
-        assert(inner1.Size()==2);
+        assert(inner1.Size() == 2);
         auto mov = inner1.Begin();
         auto left = *mov.GetValue();
         mov.Next();
@@ -140,11 +140,11 @@ private:
          *      |
          *      5
          */
-        BinomialTree<int,comp> tree1(5,3);
+        BinomialTree<int, comp> tree1(5, 3);
         assert(tree1.Top() == 3);
         assert(tree1.Level() == 1);
         auto inner1 = tree1.InnerTrees();
-        assert(inner1.Size()==1);
+        assert(inner1.Size() == 1);
         assert(inner1.Begin().GetValue()->Top() == 5);
     }
 
