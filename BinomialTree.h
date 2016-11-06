@@ -3,8 +3,7 @@
 
 #include "Exceptions.h"
 #include "Vector.h"
-#include "Queue.h"
-#include "BinomialMinHeap.h"
+#include "Stack.h"
 
 namespace Templates
 {
@@ -27,6 +26,12 @@ namespace Templates
             Vector<Node*> rest;
         };
 
+        struct Assign
+        {
+            Node* prev;
+            Node* toProccess;
+        };
+
         Node* top;
 
         BinomialTree() : top(NULL)
@@ -44,7 +49,7 @@ namespace Templates
             if (top == NULL)
                 return;
 
-            Queue<Node*> ToProcess;
+            Stack<Node*> ToProcess;
             ToProcess.Push(top);
             Node* ToDelete;
 
@@ -80,19 +85,48 @@ namespace Templates
         }
 
         BinomialTree(const BinomialTree& second)
-            : BinomialTree()
+                : BinomialTree()
         {
-            *this = second;
+            if (this == &second)
+                return;
+
+            Stack<Assign> ToProcess;
+            ToProcess.Push(Assign{NULL, second.top});
+            Assign ToCopy;
+
+            while (!ToProcess.IsEmpty())
+            {
+                ToProcess.Pop(ToCopy);
+                Node* newOne = new Node(ToCopy.toProccess->val);
+
+                if(ToCopy.prev != NULL)
+                    ToCopy.prev->rest.Insert(newOne);
+                else
+                    this->top = newOne;
+
+                typename Vector<Node*>::Iterator moving = ToCopy.toProccess->rest.Begin();
+                for (;moving.IsValidIterator();moving.Next())
+                    ToProcess.Push(Assign {newOne,*moving.GetValue()});
+            }
         }
 
         BinomialTree& operator=(const BinomialTree& Second)
         {
-            if(this==&Second)
+            if (this == &Second)
                 return *this;
 
-            //TODO
-
+            this->Clear();
+            this->BinomialTree(Second);
             return *this;
+        }
+
+        void Clear()
+        {
+            if (top == NULL)
+                return;
+
+            this->~BinomialTree();
+            this->top = NULL;
         }
 
         void Merge(BinomialTree& second)
@@ -106,7 +140,7 @@ namespace Templates
                 top->rest.Insert(second.top);
                 second.top = NULL;
             }
-            else if((accomp==0 && allowDuplicities) || accomp > 0)
+            else if ((accomp == 0 && allowDuplicities) || accomp > 0)
             {
                 second.top->rest.Insert(top);
                 this->top = second.top;
@@ -114,11 +148,11 @@ namespace Templates
             }
         }
 
-        Vector<BinomialTree<T,comp,allowDuplicities>> InnerTrees()
+        Vector<BinomialTree<T, comp, allowDuplicities>> InnerTrees()
         {
             Vector<BinomialTree> inner;
             typename Vector<Node*>::Iterator moving = this->top->rest.Begin();
-            for(;moving.IsValidIterator();moving.Next())
+            for (; moving.IsValidIterator(); moving.Next())
             {
                 BinomialTree x;
                 x.top = *moving.GetValue();
