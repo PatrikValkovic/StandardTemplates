@@ -17,6 +17,7 @@
 #include "Tests/ArrayTests.h"
 #include "Tests/IntervalTests.h"
 #include "Tests/BinomialTreeTests.h"
+#include "Tests/BinomialHeapTests.h"
 
 int main()
 {
@@ -32,6 +33,7 @@ int main()
     BinaryHeapTests::tests();
     BinarySearchTreeTests::tests();
     BinomialTreeTest::tests();
+    BinomialHeapTests::tests();
 
     std::cout << "No errors" << std::endl;
 

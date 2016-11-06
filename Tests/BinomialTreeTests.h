@@ -20,7 +20,6 @@ public:
     {
         BinomialTree<int,comp> tree(5,3,9,1,-8,10,4,21);
         BinomialTree<int,comp> second = tree;
-        return;
     }
 };
 

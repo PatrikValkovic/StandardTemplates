@@ -29,5 +29,5 @@ set(SOURCE_FILES
         Tests/StackTests.h
         Tests/VectorTests.h
         Tests/ArrayTests.h
-        Tests/IntervalTests.h BinomialTree.h Tests/BinomialTreeTests.h BinomialMinHeap.h)
+        Tests/IntervalTests.h BinomialTree.h Tests/BinomialTreeTests.h BinomialHeap.h Tests/BinomialHeapTests.h)
 add_executable(Templates ${SOURCE_FILES})

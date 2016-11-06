@@ -53,14 +53,15 @@ namespace Templates
             ToProcess.Push(top);
             Node* ToDelete;
 
-            while (ToProcess.Pop(ToDelete))
+            while (!ToProcess.IsEmpty())
             {
+                ToProcess.Pop(ToDelete);
                 typename Vector<Node*>::Iterator moving = ToDelete->rest.Begin();
-                typename Vector<Node*>::Iterator end = ToDelete->rest.End();
-                for (; !moving.AreEqual(end) && moving.Next();)
+                for (;moving.IsValidIterator();moving.Next())
                     ToProcess.Push(*moving.GetValue());
                 delete ToDelete;
             }
+            this->top = NULL;
         }
 
         BinomialTree(T a, T b)
