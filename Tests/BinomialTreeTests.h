@@ -1,16 +1,16 @@
 #ifndef TEMPLATES_BINOMIALTREETESTS_H
 #define TEMPLATES_BINOMIALTREETESTS_H
 
-#include "../BinomialTree.h"
+#include "../BinomialMinHeap.h"
 
 using namespace Templates;
 
 class BinomialTreeTest
 {
 private:
-    static bool comp(const int& f, const int& s)
+    static int comp(const int& f, const int& s)
     {
-        return f < s;
+        return f - s;
     }
 
     //TODO do tests
@@ -18,10 +18,7 @@ private:
 public:
     static void tests()
     {
-        BinomialTree<int, comp> x(1, 3);
-        BinomialTree<int, comp> y(5, 2);
-        x.Merge(y);
-        return;
+        //TODO
     }
 };
 

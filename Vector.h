@@ -24,7 +24,6 @@ namespace Templates
         };
 
         Node* First = NULL;
-        int Length;
     public:
         class Iterator :
                 virtual public Iterators::ForwardIteratorBase<T>,
@@ -82,7 +81,7 @@ namespace Templates
              */
             Iterator Clone()
             {
-                return Iterator(WorkingNode);
+                return Iterator(this->WorkingNode,this->Vect);
             }
 
             /**
@@ -132,6 +131,11 @@ namespace Templates
             virtual bool IsValidIterator() const
             {
                 return Vect != NULL && WorkingNode != NULL && WorkingNode->Next != NULL;
+            }
+
+            virtual bool isEnding() const
+            {
+                return Vect != NULL && WorkingNode != NULL && WorkingNode->Next == NULL;
             }
 
             /**
@@ -321,7 +325,6 @@ namespace Templates
                 Temp = Created;
             }
             First = Temp;
-            this->Length = Capacity;
         }
 
         /**
@@ -340,7 +343,7 @@ namespace Templates
         /**
          * Copy constructor
          */
-        Vector(const Vector& Copy)
+        Vector(Vector& Copy)
         {
             int val;
             T* Array = Copy.ToArray(val);
@@ -351,7 +354,7 @@ namespace Templates
         /**
          * Assignment operator
          */
-        Vector& operator=(const Vector& Second)
+        Vector& operator=(Vector& Second)
         {
             if (this != &Second)
             {
@@ -559,7 +562,6 @@ namespace Templates
             temp->Next = this->First;
             temp->Value = Value;
             this->First = temp;
-            this->Length++;
             return 1;
         }
 
