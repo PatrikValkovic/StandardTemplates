@@ -32,13 +32,14 @@ namespace Templates
             Node* toProccess;
         };
 
-        Node* top;
-
-        BinomialTree() : top(NULL)
-        {}
-
+        Node* top = NULL;
     public:
-        BinomialTree(T val)
+        BinomialTree()
+        {
+            this->top = NULL;
+        }
+
+        BinomialTree(T val) : BinomialTree()
         {
             Node* created = new Node(val);
             this->top = created;
@@ -46,6 +47,7 @@ namespace Templates
 
         ~BinomialTree()
         {
+
             if (top == NULL)
                 return;
 
@@ -57,11 +59,10 @@ namespace Templates
             {
                 ToProcess.Pop(ToDelete);
                 typename Vector<Node*>::Iterator moving = ToDelete->rest.Begin();
-                for (;moving.IsValidIterator();moving.Next())
+                for (; moving.IsValidIterator(); moving.Next())
                     ToProcess.Push(*moving.GetValue());
                 delete ToDelete;
             }
-            this->top = NULL;
         }
 
         BinomialTree(T a, T b)
@@ -88,27 +89,7 @@ namespace Templates
         BinomialTree(const BinomialTree& second)
                 : BinomialTree()
         {
-            if (this == &second)
-                return;
-
-            Stack<Assign> ToProcess;
-            ToProcess.Push(Assign{NULL, second.top});
-            Assign ToCopy;
-
-            while (!ToProcess.IsEmpty())
-            {
-                ToProcess.Pop(ToCopy);
-                Node* newOne = new Node(ToCopy.toProccess->val);
-
-                if(ToCopy.prev != NULL)
-                    ToCopy.prev->rest.Insert(newOne);
-                else
-                    this->top = newOne;
-
-                typename Vector<Node*>::Iterator moving = ToCopy.toProccess->rest.Begin();
-                for (;moving.IsValidIterator();moving.Next())
-                    ToProcess.Push(Assign {newOne,*moving.GetValue()});
-            }
+            *this = second;
         }
 
         BinomialTree& operator=(const BinomialTree& Second)
@@ -117,7 +98,29 @@ namespace Templates
                 return *this;
 
             this->Clear();
-            this->BinomialTree(Second);
+
+            if(Second.top == NULL)
+                return *this;
+
+            Stack<Assign> ToProcess;
+            ToProcess.Push(Assign{NULL, Second.top});
+            Assign ToCopy;
+
+            while (!ToProcess.IsEmpty())
+            {
+                ToProcess.Pop(ToCopy);
+                Node* newOne = new Node(ToCopy.toProccess->val);
+
+                if (ToCopy.prev != NULL)
+                    ToCopy.prev->rest.Insert(newOne);
+                else
+                        this->top = newOne;
+
+                typename Vector<Node*>::Iterator moving = ToCopy.toProccess->rest.Begin();
+                for (; moving.IsValidIterator(); moving.Next())
+                    ToProcess.Push(Assign {newOne, *moving.GetValue()});
+            }
+
             return *this;
         }
 
@@ -147,19 +150,28 @@ namespace Templates
                 this->top = second.top;
                 second.top = NULL;
             }
+            return;
         }
 
         Vector<BinomialTree<T, comp, allowDuplicities>> InnerTrees()
         {
-            Vector<BinomialTree> inner;
-            typename Vector<Node*>::Iterator moving = this->top->rest.Begin();
+            BinomialTree temp = *this;
+            Vector<BinomialTree<T, comp, allowDuplicities>> inner;
+            typename Vector<Node*>::Iterator moving = temp.top->rest.Begin();
             for (; moving.IsValidIterator(); moving.Next())
             {
-                BinomialTree x;
-                x.top = *moving.GetValue();
-                inner.Insert(x);
+                BinomialTree<T, comp, allowDuplicities> innerTree;
+                innerTree.top = *moving.GetValue();
+                inner.Insert(innerTree);
             }
-            return inner;
+            delete temp.top;
+            temp.top = NULL;
+            //flip
+            Vector<BinomialTree<T, comp, allowDuplicities>> ToReturn;
+            typename Vector<BinomialTree<T, comp, allowDuplicities>>::Iterator innerMov = inner.Begin();
+            for(;innerMov.IsValidIterator();innerMov.Next())
+                ToReturn.Insert(*innerMov.GetValue());
+            return ToReturn;
         }
 
         T Top()

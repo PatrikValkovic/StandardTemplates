@@ -52,6 +52,7 @@ namespace Templates
             Iterator()
             {
                 WorkingNode = NULL;
+                Vect = NULL;
             }
 
             /**
@@ -468,7 +469,11 @@ namespace Templates
          */
         inline bool IsEmpty()
         {
-            return Size() == 0;
+#ifdef ADDITIONAL_TESTS
+            if(this->First == NULL)
+                throw new InternalException();
+#endif
+            return this->First->Next == NULL;
         }
 
         /**
