@@ -27,9 +27,7 @@ namespace Templates
             typename List<BinomialTree<T, comp>>::Iterator next = cur;
             typename List<BinomialTree<T, comp>>::Iterator sib = cur;
 
-            for (next.Next(), sib.Next(2);
-                 next.IsValidIterator();
-                 cur.Next(), next.Next(), sib.Next())
+            for (next.Next(), sib.Next(2); next.IsValidIterator();)
             {
                 if ((cur.GetValue()->Level() == next.GetValue()->Level() &&
                      !sib.IsValidIterator()) ||
@@ -41,7 +39,13 @@ namespace Templates
                     next = cur;
                     sib = cur;
                     next.Next();
-                    next.Next(2);
+                    sib.Next(2);
+                }
+                else
+                {
+                    cur.Next();
+                    next.Next();
+                    sib.Next();
                 }
             }
             return;
