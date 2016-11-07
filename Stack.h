@@ -103,20 +103,20 @@ namespace Templates
              */
             virtual bool Next(int HowMany)
             {
-                T* Array = (T*) malloc(sizeof(T) * HowMany);
+                T* Array = new T[HowMany];
                 int i;
                 for (i = 0; i < HowMany; i++)
                     if (!this->WorkingStack->Pop(*(Array + i)))
                         break;
                 if (i == HowMany)
                 {
-                    free(Array);
+                    delete [] (Array);
                     return true;
                 }
 
                 for (int j = i - 1; j >= 0; j--)
                     this->WorkingStack->Push(*(Array + j));
-                free(Array);
+                delete [] Array;
                 return false;
             }
 
@@ -243,13 +243,14 @@ namespace Templates
         /**
          *  Return elements in Stack as array without deleting them
          *  Top element on stack will be first in array
+         *  Array must be freed by delete[]
          */
         T* ToArray(int& count)
         {
             count = this->Size();
             if(count==0)
                 return NULL;
-            T* Array = (T*) malloc(sizeof(T) * count);
+            T* Array = new T[count];
             Node* Temp = this->TopNode;
             for(int i=0;i<count;i++,Temp=Temp->Next)
                 *(Array+i) = Temp->Value;

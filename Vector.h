@@ -82,7 +82,7 @@ namespace Templates
              */
             Iterator Clone()
             {
-                return Iterator(this->WorkingNode,this->Vect);
+                return Iterator(this->WorkingNode, this->Vect);
             }
 
             /**
@@ -310,7 +310,7 @@ namespace Templates
          * Creates new instance of Vector
          */
         Vector() : Vector(0)
-        { }
+        {}
 
         /**
          * Creates new vector with @Capacity. This space could be iterator and is valid.
@@ -349,7 +349,7 @@ namespace Templates
             int val;
             T* Array = Copy.ToArray(val);
             Vector(Array, val);
-            free(Array);
+            delete [] (Array);
         }
 
         /**
@@ -362,8 +362,19 @@ namespace Templates
                 this->Clear();
                 int val;
                 T* Array = Second.ToArray(val);
-                Vector(Array, val);
-                free(Array);
+
+                Node* prev = this->First;
+                Node* created = this->First;
+                for (int a = val-1; a >= 0; a--)
+                {
+                    created = new Node;
+                    created->Value = Array[a];
+                    created->Next = prev;
+                    prev = created;
+                }
+                this->First = created;
+
+                delete [] (Array);
             }
             return *this;
         }
@@ -378,7 +389,7 @@ namespace Templates
         }
 
         /**
-         * Creates array with malloc, where will be stored elements.
+         * Creates array with new[], where will be stored elements.
          * Return pointer to array and Count of elements in parametr.
          * If fails, return NULL.
          */
@@ -391,7 +402,7 @@ namespace Templates
             Count = Size();
             if (Count == 0)
                 return NULL;
-            T* Array = (T*) malloc(sizeof(T) * Count);
+            T* Array = new T[Count];
             if (Array == NULL)
                 return NULL;
 
@@ -470,7 +481,7 @@ namespace Templates
         inline bool IsEmpty()
         {
 #ifdef ADDITIONAL_TESTS
-            if(this->First == NULL)
+            if (this->First == NULL)
                 throw new InternalException();
 #endif
             return this->First->Next == NULL;
@@ -573,7 +584,7 @@ namespace Templates
         int Insert(T* Array, int Count)
         {
             int inserted = 0;
-            for(int a=0;a<Count;a++,Array++)
+            for (int a = 0; a < Count; a++, Array++)
                 inserted += this->Insert(*Array);
             return inserted;
         }

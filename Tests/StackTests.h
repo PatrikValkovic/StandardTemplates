@@ -245,7 +245,7 @@ private:
         assert(!Instance->Pop(val));
         NextArray = Instance->ToArray(val);
         assert(NextArray == NULL);
-        free(NextArray);
+        delete [] NextArray;
         delete Instance;
 
         Instance = new Stack<int>(array, 4);
@@ -253,7 +253,7 @@ private:
         NextArray = Instance->ToArray(val);
         assert(NextArray != NULL && val == 4);
         assert(NextArray[0] == 8 && NextArray[1] == 6 && NextArray[2] == 5 && NextArray[3] == 2);
-        free(NextArray);
+        delete [] (NextArray);
         delete Instance;
 
         Instance = new Stack<int>(array, 4);
@@ -262,7 +262,7 @@ private:
         NextArray = Instance->ToArray(val);
         assert(NextArray != NULL && val == 5);
         assert(NextArray[0]==15 && NextArray[1] == 8 && NextArray[2] == 6 && NextArray[3] == 5 && NextArray[4] == 2);
-        free(NextArray);
+        delete [] (NextArray);
         delete Instance;
 
         Instance = new Stack<int>();
@@ -271,7 +271,7 @@ private:
         NextArray = Instance->ToArray(val);
         assert(NextArray != NULL && val == 4);
         assert(NextArray[0] == 8 && NextArray[1] == 6 && NextArray[2] == 5 && NextArray[3] == 2);
-        free(NextArray);
+        delete [] (NextArray);
         delete Instance;
     }
 

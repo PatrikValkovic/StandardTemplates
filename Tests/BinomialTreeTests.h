@@ -45,7 +45,7 @@ private:
         assert(Top10.Level() == 0);
         auto secondLevel = Top4.InnerTrees();
         auto Top21 = *secondLevel.Begin().GetValue();
-        secondLevel = Top1.InnerTrees(); //TODO FIX
+        secondLevel = Top1.InnerTrees();
         auto secondLevelMove = secondLevel.Begin();
         auto Top3 = *secondLevelMove.GetValue();
         secondLevelMove.Next();
@@ -157,7 +157,7 @@ public:
 
         EightNumbers();
 
-        //EightNumbersSameTwoLevel();
+        EightNumbersSameTwoLevel();
     }
 };
 

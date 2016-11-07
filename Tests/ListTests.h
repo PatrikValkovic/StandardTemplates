@@ -352,14 +352,14 @@ private:
         assert(*(Array + 4) == 2);
         assert(*(Array + 5) == 6);
         delete Instance;
-        free(Array);
+        delete [] Array;
 
         Instance = new List<int>(arr, 6);//{2, 6, 8, 4, 2, 6}
         int** WriteArray = Instance->ToWriteArray(count);
         assert(count == 6);
         **(WriteArray + 1) = 12;//{2, 12, 8, 4, 2, 6}
         **(WriteArray + 4) = 25;//{2, 12, 8, 4, 25, 6}
-        free(WriteArray);
+        delete [] WriteArray;
         Array = Instance->ToArray(count);
         assert(count == 6);
         assert(*Array == 2);
@@ -368,7 +368,7 @@ private:
         assert(*(Array + 3) == 4);
         assert(*(Array + 4) == 25);
         assert(*(Array + 5) == 6);
-        free(Array);
+        delete [] Array;
         delete Instance;
     }
 

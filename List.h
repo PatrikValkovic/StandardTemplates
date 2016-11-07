@@ -717,13 +717,14 @@ namespace Templates
 
         /**
          * Convert list to array
+         * Must be clared by delete[]
          */
         T* ToArray(int& Count)
         {
             Count = Size();
             if(Count==0)
                 return NULL;
-            T* Array = (T*)malloc((sizeof(T)*Count));
+            T* Array = new T[Count];
             if(Array==NULL)
             {
                 Count=0;
@@ -743,13 +744,14 @@ namespace Templates
 
         /**
          * Convert list to array pointing to original source in list
+         * Must be clared by delete []
          */
         T** ToWriteArray(int& Count)
         {
             Count = Size();
             if(Count==0)
                 return NULL;
-            T** Array = (T**)malloc((sizeof(T*)*Count));
+            T** Array = new T*[Count];
             if(Array==NULL)
             {
                 Count=0;

@@ -21,7 +21,7 @@
 
 int main()
 {
-    /*IntervalTests::tests();
+    IntervalTests::tests();
     VectorTest::test();
     QueueTests::test();
     CondQueueTests::test();
@@ -31,7 +31,7 @@ int main()
     StackTests::test();
     ArrayTests::tests();
     BinaryHeapTests::tests();
-    BinarySearchTreeTests::tests();*/
+    BinarySearchTreeTests::tests();
     BinomialTreeTest::tests();
     //BinomialHeapTests::tests();
 

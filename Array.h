@@ -555,7 +555,7 @@ namespace Templates
         }
 
         /**
-         * Convert Array to C-like array
+         * Convert Array to C++-like array (must be cleared by delete [])
          * Return new array, NULL otherwise
          */
         T* ToArray(int& count) const
@@ -563,7 +563,7 @@ namespace Templates
             if (Inserted == 0)
                 return NULL;
             count = Inserted;
-            T* CreatedArray = (T*) malloc(sizeof(T) * this->Inserted);
+            T* CreatedArray = new T[this->Inserted];
             for (int a = 0; a < Inserted; a++)
                 new(CreatedArray + a) T(*Containing[a]);
             return CreatedArray;
@@ -579,7 +579,7 @@ namespace Templates
                 return NULL;
             count = Inserted;
 
-            T** CreatedArray = (T**) malloc(sizeof(T*) * this->Inserted);
+            T** CreatedArray = new T*[this->Inserted];
             CreatedArray = (T**) memcpy(CreatedArray, this->Containing, sizeof(T*) * this->Inserted);
             return CreatedArray;
         }

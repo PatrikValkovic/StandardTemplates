@@ -108,7 +108,7 @@ namespace Templates
             virtual bool Next(int HowMany)
             {
                 bool CanMove = true;
-                T* Values = (T*) malloc(sizeof(T) * HowMany + 1);
+                T* Values = new T[HowMany+1];
                 T* Base = Values;
                 int a = 0;
                 for (; a < HowMany && CanMove; a++)
@@ -122,7 +122,7 @@ namespace Templates
                         Values++;
                     }
                 }
-                free(Base);
+                delete [] Base;
                 return CanMove;
             }
 
@@ -191,7 +191,7 @@ namespace Templates
             int val;
             T* Array = Copy.ToArray(val);
             Queue(Array,val);
-            free(Array);
+            delete [] (Array);
         }
 
         /**
@@ -204,7 +204,7 @@ namespace Templates
                 int val;
                 T* Array = Second.ToArray(val);
                 this->Push(Array,val);
-                free(Array);
+                delete [] (Array);
             }
             return *this;
         }
@@ -230,7 +230,7 @@ namespace Templates
         /**
          * Return count of elements stored in queue.
          */
-        int Size()
+        int Size() const
         {
             Node* Temp = First;
             int count = 0;
@@ -244,13 +244,14 @@ namespace Templates
 
         /**
          * Return elements as array.
+         * Array must be cleared by delete[]
          */
-        T* ToArray(int& Count)
+        T* ToArray(int& Count) const
         {
             int CountOfStoredElements = Size();
             if (CountOfStoredElements == 0)
                 return NULL;
-            T* array = (T*) malloc(sizeof(T) * CountOfStoredElements);
+            T* array = new T[CountOfStoredElements];
             if (array == NULL)
                 return NULL;
 

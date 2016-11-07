@@ -66,7 +66,7 @@ class ArrayTests
         assert(count == 15);
         for (int a = 0; a < count; a++)
             assert(OriginalArray[a] == array[a]);
-        free(array);
+        delete [] array;
         delete Instance;
 
         Instance = new Array<int>(OriginalArray, 15);
@@ -78,8 +78,8 @@ class ArrayTests
         assert(count == 15);
         for (int a = 0; a < count; a++)
             assert(array[a] == a);
-        free(array);
-        free(writablearray);
+        delete [] array;
+        delete [] writablearray;
         delete Instance;
 
     }

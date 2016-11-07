@@ -145,7 +145,7 @@ public:
         assert(Array[0] == 2 && Array[1] == 6 && Array[2] == 8 && Array[3] == 4 && Array[4] == 7);
         assert(Instance->Clear() == 5);
         assert(Instance->IsEmpty());
-        free(Array);
+        delete [] Array;
         Array = Instance->ToArray(Count);
         assert(Array == NULL && Count == 0);
         delete Instance;

@@ -99,7 +99,7 @@ private:
         for (int a = 0; a < count; a++)
             assert(Array[a] == DeleteLeafTestResult[a]);
         delete Instance;
-        free(Array);
+        delete [] (Array);
 
         //delete with left children null
         /**
@@ -126,7 +126,7 @@ private:
         for (int a = 0; a < count; a++)
             assert(Array[a] == DeleteLeftChildrenNullResult[a]);
         delete Instance;
-        free(Array);
+        delete [] (Array);
 
         //delete node with right children null
         /**
@@ -156,7 +156,7 @@ private:
         for (int a = 0; a < count; a++)
             assert(Array[a] == DeleteRightChildrenNullResult[a]);
         delete Instance;
-        free(Array);
+        delete [] (Array);
 
         //left rotate test
         /**
@@ -183,7 +183,7 @@ private:
         for (int a = 0; a < count; a++)
             assert(Array[a] == LeftRotateTestResult[a]);
         delete Instance;
-        free(Array);
+        delete [] (Array);
 
         //right rotate test
         /**
@@ -211,7 +211,7 @@ private:
         for (int a = 0; a < count; a++)
             assert(Array[a] == RightRotateTestResult[a]);
         delete Instance;
-        free(Array);
+        delete [] (Array);
 
         //Rotate in tree
         /**
@@ -239,7 +239,7 @@ private:
         for (int a = 0; a < count; a++)
             assert(Array[a] == RotateInTreeResult[a]);
         delete Instance;
-        free(Array);
+        delete [] (Array);
 
 
         //Delete in tree
@@ -264,7 +264,7 @@ private:
         for (int a = 0; a < count; a++)
             assert(Array[a] == DeletInTreeFirstResult[a]);
         delete Instance;
-        free(Array);
+        delete [] (Array);
 
         //Delete root
         /**
@@ -288,7 +288,7 @@ private:
         for (int a = 0; a < count; a++)
             assert(Array[a] == DeleRootInTreeResult[a]);
         delete Instance;
-        free(Array);
+        delete [] (Array);
     }
 
     static void ToArrayTest()
@@ -307,7 +307,7 @@ private:
         Array = Instance->ToArray(Count); // {50, 538, 1037, 1525, 2024, 2512, 3011, 3499, 3510, 3998 }
         for (int a = 0; a < 10; a++)
             assert(Array[a] == HelpArray[a]);
-        free(Array);
+        delete [] (Array);
         delete Instance;
 
         Instance = new BinarySearchTree<int>(Solve);
@@ -321,7 +321,7 @@ private:
         qsort(&SecondHelpInstance, 100, sizeof(int), comparer);
         for (int a = 0; a < 10; a++)
             assert(Array[a] == SecondHelpInstance[a]);
-        free(Array);
+        delete [] (Array);
         delete Instance;
     }
 
@@ -357,7 +357,7 @@ private:
         for (int a = 0; a < 4; a++)
             assert(Array[a] == ResultSecond[a]);
         delete Instance;
-        free(Array);
+        delete [] (Array);
     }
 
     static void GetTest()
@@ -498,7 +498,7 @@ private:
             assert(CreatedArray[a] == array[a]);
         assert(CreatedArray[9] == 19);
         delete Instance;
-        free(CreatedArray);
+        delete [] (CreatedArray);
     }
 
     static void GetOrCreateCustomClassTests()
@@ -562,7 +562,7 @@ private:
         for (int a = 0; a < count; a++)
             assert(CreatedArray[a].Key == AfterSorted[a]);
         delete Instance;
-        free(CreatedArray);
+        delete [] (CreatedArray);
     }
 
     static void GetAndDeleteTests()
@@ -620,7 +620,7 @@ private:
             assert(CreatedArray[a].Value == RealValue + 1);
         }
         delete Instance;
-        free(CreatedArray);
+        delete [] (CreatedArray);
 
         //delete with left children null
         /**
@@ -657,7 +657,7 @@ private:
             assert(CreatedArray[a].Value == RealValue + 1);
         }
         delete Instance;
-        free(CreatedArray);
+        delete [] (CreatedArray);
 
         //delete node with right children null
         /**
@@ -711,7 +711,7 @@ private:
             assert(CreatedArray[a].Value == RealValue);
         }
         delete Instance;
-        free(CreatedArray);
+        delete [] (CreatedArray);
 
         //left rotate test
         /**
@@ -747,7 +747,7 @@ private:
             assert(CreatedArray[a].Value == RealValue + 1);
         }
         delete Instance;
-        free(CreatedArray);
+        delete [] (CreatedArray);
 
         //right rotate test
         /**
@@ -784,7 +784,7 @@ private:
             assert(CreatedArray[a].Value == RealValue);
         }
         delete Instance;
-        free(CreatedArray);
+        delete [] (CreatedArray);
 
         //Rotate in tree
         /**
@@ -821,7 +821,7 @@ private:
             assert(CreatedArray[a].Value == RealValue);
         }
         delete Instance;
-        free(CreatedArray);
+        delete [] (CreatedArray);
 
 
         //Delete in tree
@@ -870,7 +870,7 @@ private:
             assert(CreatedArray[a].Value == RealValue);
         }
         delete Instance;
-        free(CreatedArray);
+        delete [] (CreatedArray);
 
         //Delete root
         /**
@@ -903,7 +903,7 @@ private:
             assert(CreatedArray[a].Value == RealValue);
         }
         delete Instance;
-        free(CreatedArray);
+        delete [] (CreatedArray);
     }
 
     static void CopyTests()
@@ -938,8 +938,8 @@ private:
         for(int a=0;a<countFirst;a++)
             assert(ArrayFirst[a]==ArraySecond[a]);
         delete Instance;
-        free(ArrayFirst);
-        free(ArraySecond);
+        delete [] (ArrayFirst);
+        delete [] (ArraySecond);
         return;
     }
 
