@@ -1,10 +1,6 @@
 #ifndef __TEMPLATELIST_H_
 #define __TEMPLATELIST_H_
 
-#ifndef _STALIB_
-#include <limits.h>
-#endif
-
 #include "IteratorsDefinitions.h"
 #include "Exceptions.h"
 

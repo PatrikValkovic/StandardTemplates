@@ -2,7 +2,7 @@
 #define TEMPLATES_ARRAY_H_H
 
 #ifndef _STALIB_
-#include <string.h>
+#include <cstring>
 #endif
 
 #ifdef ADDITIONAL_TESTS

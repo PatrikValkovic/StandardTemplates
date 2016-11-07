@@ -1,8 +1,5 @@
 #ifndef TEMPLATES_STACK_H
 #define TEMPLATES_STACK_H
-#ifndef _STALIB_
-#include <stdlib.h>
-#endif
 
 #include "IteratorsDefinitions.h"
 

@@ -1,8 +1,5 @@
 #ifndef TEMPLATES_VECTOR_H
 #define TEMPLATES_VECTOR_H
-#ifndef _STALIB_
-#include <stdlib.h>
-#endif
 
 #include "IteratorsDefinitions.h"
 #include "Exceptions.h"

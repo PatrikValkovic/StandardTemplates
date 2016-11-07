@@ -1,8 +1,6 @@
 #ifndef __PRIORITYQUEUE_H_
 #define __PRIORITYQUEUE_H_
-#ifndef _STALIB_
-#include <stdlib.h>
-#endif
+
 #include "BinaryMinHeap.h"
 
 
