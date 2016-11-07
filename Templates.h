@@ -12,7 +12,7 @@
 #include "BinaryMinHeap.h"
 #include "BinarySearchTree.h"
 #include "BinomialTree.h"
-//#include "BinomialHeap.h"
+#include "BinomialHeap.h"
 #include "Algorithms.h"
 
 #endif //TEMPLATES_TEMPLATES_H

@@ -33,7 +33,7 @@ int main()
     BinaryHeapTests::tests();
     BinarySearchTreeTests::tests();
     BinomialTreeTest::tests();
-    //BinomialHeapTests::tests();
+    BinomialHeapTests::tests();
 
     std::cout << "No errors" << std::endl;
 

@@ -10,7 +10,7 @@ namespace Templates
     //return -1, if first is lower
     //return 0, if are equal
     //return 1, if is second lower
-    //bool(*comp)(const T& first, const T& second)
+    //int(*comp)(const T& first, const T& second)
 
     template<typename T, int(* comp)(const T& first, const T& second), bool allowDuplicities = true>
     class BinomialTree
@@ -153,25 +153,21 @@ namespace Templates
             return;
         }
 
-        Vector<BinomialTree<T, comp, allowDuplicities>> InnerTrees()
+        List<BinomialTree<T, comp, allowDuplicities>> InnerTrees()
         {
             BinomialTree temp = *this;
-            Vector<BinomialTree<T, comp, allowDuplicities>> inner;
+            List<BinomialTree<T, comp, allowDuplicities>> inner;
             typename Vector<Node*>::Iterator moving = temp.top->rest.Begin();
             for (; moving.IsValidIterator(); moving.Next())
             {
                 BinomialTree<T, comp, allowDuplicities> innerTree;
                 innerTree.top = *moving.GetValue();
-                inner.Insert(innerTree);
+                inner.End().InsertBefore(innerTree);
             }
             delete temp.top;
             temp.top = NULL;
             //flip
-            Vector<BinomialTree<T, comp, allowDuplicities>> ToReturn;
-            typename Vector<BinomialTree<T, comp, allowDuplicities>>::Iterator innerMov = inner.Begin();
-            for(;innerMov.IsValidIterator();innerMov.Next())
-                ToReturn.Insert(*innerMov.GetValue());
-            return ToReturn;
+            return inner;
         }
 
         T Top()

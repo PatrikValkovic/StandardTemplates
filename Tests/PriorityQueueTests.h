@@ -11,7 +11,7 @@ private:
         return *First - *Second;
     }
 
-    void tests()
+    void Base()
     {
         using namespace Templates;
         PriorityQueue<int>* Queue;
@@ -170,7 +170,7 @@ public:
         PriorityQueueTests test;
         test.SortingTest();
         test.LaterInserting();
-        test.tests();
+        test.Base();
     }
 };
 
