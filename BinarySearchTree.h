@@ -275,17 +275,18 @@ namespace Templates
                 return 0;
             }
 
-            int Inserted = this->Insert(ToFind);
 #ifdef ADDITIONAL_TESTS
+            int Inserted = this->Insert(ToFind);
             if (Inserted != 1)
                 throw new InternalException(__FILE__, __LINE__);
-#endif
             Inserted = (bool) this->Get(Return, ToFind);
-#ifdef ADDITIONAL_TESTS
             if (Inserted)
                 return 1;
             else
                 throw new InternalException(__FILE__, __LINE__);
+#else
+            this->Insert(ToFind);
+            this->Get(Return, ToFind);
 #endif
             return 1;
         }

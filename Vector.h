@@ -342,11 +342,12 @@ namespace Templates
          * Copy constructor
          */
         Vector(const Vector& Copy)
+                : Vector(0)
         {
             int val;
             T* Array = Copy.ToArray(val);
-            Vector(Array, val);
-            delete [] (Array);
+            this->Insert(Array,val);
+            delete[] (Array);
         }
 
         /**
@@ -581,8 +582,8 @@ namespace Templates
         int Insert(T* Array, int Count)
         {
             int inserted = 0;
-            for (int a = 0; a < Count; a++, Array++)
-                inserted += this->Insert(*Array);
+            for (int a = Count-1; a >= 0; a--)
+                inserted += this->Insert(Array[a]);
             return inserted;
         }
     };

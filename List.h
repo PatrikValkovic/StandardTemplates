@@ -506,7 +506,7 @@ namespace Templates
         List(T* Array, int Count) : List(Count)
         {
             if (Count < 1 || Array == NULL)
-                throw new ::Templates::InvalidArgumentException("Cannot pass null array with count < 1", __LINE__);
+                throw new InvalidArgumentException("Cannot pass null array with count < 1", __LINE__);
 #ifdef ADDITIONAL_TESTS
             if (First == NULL || Last == NULL)
                 throw new InternalException(__FILE__, __LINE__);
