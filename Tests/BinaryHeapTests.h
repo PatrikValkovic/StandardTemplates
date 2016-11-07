@@ -1,7 +1,7 @@
 #ifndef TEMPLATES_BINARYHEAPTESTS_H
 #define TEMPLATES_BINARYHEAPTESTS_H
 
-#include "../BinaryMinHeap.h"
+#include "../BinaryHeap.h"
 
 using namespace Templates;
 
@@ -16,7 +16,7 @@ private:
 
     static void demo()
     {
-        BinaryMinHeap<int>* Instance = new BinaryMinHeap<int>(Sorting);
+        BinaryHeap<int>* Instance = new BinaryHeap<int>(Sorting);
         int val;
         for(int a=0;a<10;a++)
             Instance->Insert(a);

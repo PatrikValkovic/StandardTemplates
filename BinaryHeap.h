@@ -6,7 +6,7 @@
 namespace Templates
 {
     template<typename T>
-    class BinaryMinHeap
+    class BinaryHeap
     {
     private:
         Array <T> *Container;
@@ -94,18 +94,18 @@ namespace Templates
          * return 0 if First and Second are equal
          * return > 0 if First is bigger than Second
          */
-        BinaryMinHeap(int(*SortCallback)(const T *const First, const T *const Second))
+        BinaryHeap(int(*SortCallback)(const T *const First, const T *const Second))
         {
             this->Sorting = SortCallback;
             Container = new Array<T>();
         }
 
-        BinaryMinHeap(const BinaryMinHeap &Second)
+        BinaryHeap(const BinaryHeap &Second)
         {
             this->Container = new Array<T>(*Second.Container);
         }
 
-        BinaryMinHeap &operator=(const BinaryMinHeap &Second)
+        BinaryHeap &operator=(const BinaryHeap &Second)
         {
             if(this==&Second)
                 return *this;
@@ -113,7 +113,7 @@ namespace Templates
             return *this;
         }
 
-        ~BinaryMinHeap()
+        ~BinaryHeap()
         {
             delete Container;
         }
@@ -148,18 +148,39 @@ namespace Templates
             return Container->Delete();
         }
 
-        bool Pop(T &Val)
+        bool IsEmpty()
+        {
+            return this->Container->Size()==0;
+        }
+
+        bool Top(T &val)
         {
             typename Array<T>::Iterator iter;
             if (!Container->TryAt(0, iter))
                 return false;
-            Val = *iter.GetValue();
+            val = *iter.GetValue();
+            return true;
+        }
+
+        bool Pop(T &Val)
+        {
+            if(!this->Top(Val))
+                return false;
 
             this->Container->Swap(Container->Size() - 1, 0);
             this->Container->DeleteFromEnd(1);
             this->DowngradeRepairHeap(0);
 
             return true;
+        }
+
+        void Merge(BinaryHeap& second)
+        {
+            for(int a=0,s=second.Container->Size();a<s;a++)
+                this->Insert((*second.Container)[a]);
+
+            second.Container = new Array<T>();
+            return;
         }
     };
 

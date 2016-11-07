@@ -3,8 +3,6 @@
 
 #include "Exceptions.h"
 
-using Templates::Exception;
-
 namespace Math
 {
     template<typename T>

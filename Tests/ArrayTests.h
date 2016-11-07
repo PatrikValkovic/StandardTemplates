@@ -7,47 +7,49 @@
 
 #include "../Array.h"
 
+
 using namespace Templates;
 
 class ArrayTests
 {
     static void CreatingTests()
     {
-        Array<int> *Instance = NULL;
+        const int alloc = 10;
+        Array<int,alloc> *Instance = NULL;
         int array[] = {1, 3, 5, 7, 9};
 
-        Instance = new Array<int>();
-        assert(Instance->Allocated == Instance->BaseSize);
-        for (int a = 0; a < Instance->BaseSize; a++)
+        Instance = new Array<int,alloc>();
+        assert(Instance->Allocated == alloc);
+        for (int a = 0; a < alloc; a++)
             assert(Instance->Containing[a] == NULL);
         delete Instance;
 
-        Instance = new Array<int>(25);
+        Instance = new Array<int,alloc>(25);
         assert(Instance->Capacity() == 25);
         for (int a = 0; a < 25; a++)
             assert(Instance->Containing[a] == NULL);
         delete Instance;
 
-        Instance = new Array<int>(4);
-        assert(Instance->Capacity() == 4);
+        Instance = new Array<int,alloc>(4);
+        assert(Instance->Capacity() == alloc);
         for (int a = 0; a < 4; a++)
             assert(Instance->Containing[a] == NULL);
         delete Instance;
 
-        Instance = new Array<int>(-5);
-        assert(Instance->Capacity() == Instance->BaseSize);
-        for (int a = 0; a < Instance->BaseSize; a++)
+        Instance = new Array<int,alloc>(-5);
+        assert(Instance->Capacity() == alloc);
+        for (int a = 0; a < alloc; a++)
             assert(Instance->Containing[a] == NULL);
         delete Instance;
 
-        Instance = new Array<int>(1584);
+        Instance = new Array<int,alloc>(1584);
         assert(Instance->Capacity() == 1584);
         for (int a = 0; a < 1584; a++)
             assert(Instance->Containing[a] == NULL);
         delete Instance;
 
-        Instance = new Array<int>(array, 5);
-        assert(Instance->Capacity() == 5);
+        Instance = new Array<int,alloc>(array, 5);
+        assert(Instance->Capacity() == alloc);
         for (int a = 0; a < 5; a++)
             assert(*Instance->Containing[a] == array[a]);
         delete Instance;

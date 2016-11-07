@@ -1,7 +1,7 @@
 #ifndef __PRIORITYQUEUE_H_
 #define __PRIORITYQUEUE_H_
 
-#include "BinaryMinHeap.h"
+#include "BinaryHeap.h"
 
 
 namespace Templates
@@ -10,11 +10,11 @@ namespace Templates
     class PriorityQueue
     {
     private:
-        BinaryMinHeap<T>* Instance;
+        BinaryHeap<T>* Instance;
     public:
         PriorityQueue(int(* SwitchCallback)(const T* const First, const T* const Second))
         {
-            this->Instance = new BinaryMinHeap<T>(SwitchCallback);
+            this->Instance = new BinaryHeap<T>(SwitchCallback);
         }
 
         /**
@@ -22,7 +22,7 @@ namespace Templates
          */
         PriorityQueue(const PriorityQueue& Second)
         {
-            this->Instance = new BinaryMinHeap<T>(*Second.Instance);
+            this->Instance = new BinaryHeap<T>(*Second.Instance);
         }
 
         ~PriorityQueue()
@@ -59,6 +59,11 @@ namespace Templates
         bool Pop(T& Value)
         {
             return this->Instance->Pop(Value);
+        }
+
+        bool Top(T& Val)
+        {
+            return this->Instance->Top(Val);
         }
     };
 }

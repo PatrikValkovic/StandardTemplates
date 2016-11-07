@@ -17,7 +17,7 @@ class ArrayTests;
 
 namespace Templates
 {
-    template<typename T>
+    template<typename T,int BaseSize = 10>
     class Array
     {
 #ifdef ADDITIONAL_TESTS
@@ -26,8 +26,6 @@ namespace Templates
 
 #endif
     private:
-        static const int BaseSize = 10;
-
         int Allocated;
         int Inserted;
 
@@ -308,7 +306,7 @@ namespace Templates
          */
         Array(int Capacity)
         {
-            Capacity = (Capacity <= 0 ? BaseSize : Capacity);
+            Capacity = (Capacity <= BaseSize ? BaseSize : Capacity);
             Containing = (T**) calloc((size_t)Capacity, sizeof(T*));
             Allocated = Capacity;
             Inserted = 0;
@@ -329,6 +327,7 @@ namespace Templates
             int SizeOfSecond = Second.Size();
             for (int a = 0; a < SizeOfSecond; a++)
                 Containing[a] = new T(*Second.Containing[a]);
+            this->Inserted = SizeOfSecond;
         }
 
         /**
@@ -363,7 +362,8 @@ namespace Templates
             this->Expand(Second.Inserted - Allocated);
 
             for (int a = 0; a < Second.Inserted; a++)
-                Containing[a] = new T(Second.Containing[a]);
+                Containing[a] = new T(*Second.Containing[a]);
+            this->Inserted = Second.Inserted;
             return *this;
         }
 
@@ -435,8 +435,8 @@ namespace Templates
         {
             //By could be < 0
 
-            if (By == 0)
-                By = int(Allocated * 0.4 == Allocated ? 2 : Allocated * 0.4);
+            if (By <= 0)
+                By = int(Allocated * 0.5 == 0 ? BaseSize : Allocated * 0.5);
 
             int OldAllocation = Allocated;
             this->Allocated = Allocated + By;
@@ -592,7 +592,7 @@ namespace Templates
         {
             if (Allocated == Inserted)
             {
-                int NewAlloc = int(Allocated * 1.4);
+                int NewAlloc = int(Allocated * 1.5);
                 Expand(NewAlloc - Allocated);
             }
 

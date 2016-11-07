@@ -9,7 +9,7 @@
 #include "List.h"
 #include "PriorityQueue.h"
 #include "Stack.h"
-#include "BinaryMinHeap.h"
+#include "BinaryHeap.h"
 #include "BinarySearchTree.h"
 #include "BinomialTree.h"
 #include "BinomialHeap.h"
