@@ -227,21 +227,36 @@ namespace Templates
          */
         Vector <T> Get(bool(* Callback)(const T* const Value, void* data), void* data = NULL)
         {
-            //TODO maybe short
+            if (this->Root == NULL)
+                return Vector<T>();
+
             Vector<T> vals;
-            Stack<Node*> ToProcess;
-            ToProcess.Push(this->Root);
-            Node* temp;
-            while (!ToProcess.IsEmpty())
+            Stack<Node*> rest;
+            Node* current = this->Root;
+
+            while (current != NULL)
             {
-                ToProcess.Pop(temp);
-                if (temp->Child[0] != NULL)
-                    ToProcess.Push(temp->Child[0]);
-                if (temp->Child[1] != NULL)
-                    ToProcess.Push(temp->Child[1]);
-                if (Callback(&temp->Val, data))
-                    vals.Insert(temp->Val);
+                rest.Push(current);
+                current = current->Child[0];
             }
+
+            while (!rest.IsEmpty())
+            {
+                Node* ToProccess;
+                rest.Pop(ToProccess);
+                if (Callback(&ToProccess->Val, data))
+                    vals.Insert(ToProccess->Val);
+                if (ToProccess->Child[1] != NULL)
+                {
+                    current = ToProccess->Child[1];
+                    while (current != NULL)
+                    {
+                        rest.Push(current);
+                        current = current->Child[0];
+                    }
+                }
+            }
+
             return vals;
         }
 

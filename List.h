@@ -6,9 +6,6 @@
 
 namespace Templates
 {
-    template<typename T>
-    class PriorityQueue;
-
     /**
      * Represent two way linked list
      */

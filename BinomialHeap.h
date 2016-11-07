@@ -87,6 +87,24 @@ namespace Templates
             return true;
         }
 
+        bool Top(T& val)
+        {
+            if (this->Trees.IsEmpty())
+                return false;
+
+            //find lower
+            typename List<BinomialTree<T, comp>>::Iterator moving = this->Trees.Begin();
+            typename List<BinomialTree<T, comp>>::Iterator lower = moving;
+            for (; moving.IsValidIterator(); moving.Next())
+            {
+                int res = comp(lower.GetValue()->Top(), moving.GetValue()->Top());
+                if (res > 0)
+                    lower = moving;
+            }
+            val = lower.GetValue()->Top();
+            return true;
+        }
+
         void Merge(BinomialHeap& Second)
         {
             typename List<BinomialTree<T, comp>>::Iterator movingThis = this->Trees.Begin();
