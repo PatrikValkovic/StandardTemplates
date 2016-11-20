@@ -35,6 +35,8 @@ namespace Templates
 
         Node* First;
         Node* Last;
+        int size;
+
         Node* MergeSort(Node* WhatToSort, int HowMany,
                         bool(*IsFirstBeforeSecond)(const T* const First, const T* const Second))
         {
@@ -276,7 +278,11 @@ namespace Templates
 
                 for (int a = Count - 1; a >= 0; a--)
                     if (Insert(*(Values + a)) != 1)
+                    {
+                        this->ListInstance->size += Count-1-a;
                         return Count - 1 - a;
+                    }
+                this->ListInstance->size += Count;
                 return Count;
             }
 
@@ -304,6 +310,7 @@ namespace Templates
                 Next->Backward = Temp;
                 Back->Forward = Temp;
 
+                this->ListInstance->size++;
                 return 1;
             }
 
@@ -326,6 +333,7 @@ namespace Templates
                     NewNode->Forward = WorkingNode;
                     NewNode->Backward = NULL;
                     WorkingNode->Backward = NewNode;
+                    this->ListInstance->size++;
                     return 1;
                 }
                 else
@@ -337,6 +345,7 @@ namespace Templates
                     NewNode->Backward = Before;
                     Before->Forward = NewNode;
                     After->Backward = NewNode;
+                    this->ListInstance->size++;
                     return 1;
                 }
             }
@@ -392,6 +401,7 @@ namespace Templates
                     Next->Backward=NULL;
                     delete WorkingNode;
                     WorkingNode = Next;
+                    this->ListInstance->size--;
                     return 1;
                 }
                 else
@@ -402,6 +412,7 @@ namespace Templates
                     Backward->Forward = Forward;
                     delete WorkingNode;
                     WorkingNode = Forward;
+                    this->ListInstance->size--;
                     return 1;
                 }
             }
@@ -481,6 +492,7 @@ namespace Templates
             Node* Temp = new Node;
             First = Temp;
             Last = Temp;
+            this->size = 0;
         }
 
         /**
@@ -488,7 +500,6 @@ namespace Templates
          */
         List(int Capacity) : List()
         {
-            List();
             if (Capacity < 1)
                 return;
             for (int a = 0; a < Capacity; a++)
@@ -498,6 +509,7 @@ namespace Templates
                 Temp->Forward = First;
                 First = Temp;
             }
+            this->size = Capacity;
         }
 
         /**
@@ -525,7 +537,7 @@ namespace Templates
         /**
          * Copy constructor
          */
-        List(const List& Copy) : List(Copy.Size())
+        List(const List& Copy) : List()
         {
             if(Copy.Size()==0)
                     return;
@@ -584,6 +596,8 @@ namespace Templates
             if (First == NULL || Last == NULL)
                 throw new InternalException(__FILE__, __LINE__);
 #endif
+            return this->size;
+            /*
             Node* Temp = First;
             int Count = 0;
             while (Temp->Forward != NULL)
@@ -591,7 +605,7 @@ namespace Templates
                 Temp = Temp->Forward;
                 Count++;
             }
-            return Count;
+            return Count;*/
         }
 
         /**
@@ -663,6 +677,7 @@ namespace Templates
             delete First;
             First = Temp;
             deleted++;
+            this->size--;
             return deleted;
         }
 
@@ -693,6 +708,7 @@ namespace Templates
             }
             ToDelete->Backward = Iter.WorkingNode;
             Iter.WorkingNode->Forward = ToDelete;
+            this->size -= deleted;
             return deleted;
         }
 
