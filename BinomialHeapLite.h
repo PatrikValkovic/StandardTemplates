@@ -387,7 +387,7 @@ Templates::BinomialHeapLite<T,comp>::~BinomialHeapLite()
     }
 }
 
-template<typename T, int(*comp)(const T*& first, const T*& second)>
+template<typename T, int(*comp)(const T* &first, const T* &second)>
 Templates::BinomialHeapLite<T*,comp>::~BinomialHeapLite()
 {
     if(this->Trees == NULL)
