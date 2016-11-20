@@ -158,7 +158,7 @@ private:
         delete Instance;
         delete [] (Array);
 
-        //left rotate test
+        //left rotate tests
         /**
          *               30
          *               /
@@ -185,7 +185,7 @@ private:
         delete Instance;
         delete [] (Array);
 
-        //right rotate test
+        //right rotate tests
         /**
          *                90
          *               /  \
@@ -713,7 +713,7 @@ private:
         delete Instance;
         delete [] (CreatedArray);
 
-        //left rotate test
+        //left rotate tests
         /**
          *               30
          *               /
@@ -749,7 +749,7 @@ private:
         delete Instance;
         delete [] (CreatedArray);
 
-        //right rotate test
+        //right rotate tests
         /**
          *                90
          *               /  \
@@ -910,7 +910,7 @@ private:
     {
         BinarySearchTree<int> *Instance = NULL;
 
-        //right rotate test
+        //right rotate tests
         /**
          *                90
          *               /  \
@@ -952,7 +952,7 @@ private:
     {
         BinarySearchTree<int> *Instance = NULL;
 
-        //right rotate test
+        //right rotate tests
         /**
          *                90
          *               /  \

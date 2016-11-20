@@ -6,10 +6,28 @@
 
 namespace Templates
 {
+    namespace BinomialHeapLiteHelp
+    {
+        template<typename K>
+        struct DestHelper
+        {
+            static void Delete(K&)
+            {}
+        };
+        template<typename K>
+        struct DestHelper<K*>
+        {
+            static void Delete(K* t)
+            {
+                delete t;
+            }
+        };
+    }
+
     //return -1, if first is lower
     //return 0, if are equal
     //return 1, if is second lower
-    template<typename T,int(*comp)(const T& first, const T& second)>
+    template<typename T, int (*comp)(const T& first, const T& second)>
     class BinomialHeapLite
     {
     private:
@@ -28,11 +46,11 @@ namespace Templates
 
             static Node* FlipNodes(Node* actual)
             {
-                if(actual==NULL)
+                if (actual == NULL)
                     return NULL;
 
                 Templates::Stack<Node*> toFlip;
-                while(actual != NULL)
+                while (actual != NULL)
                 {
                     toFlip.Push(actual);
                     actual = actual->next;
@@ -40,7 +58,7 @@ namespace Templates
                 Node* temp;
                 toFlip.Pop(actual);
                 Node* toReturn = actual;
-                while(!toFlip.IsEmpty())
+                while (!toFlip.IsEmpty())
                 {
                     toFlip.Pop(temp);
                     actual->next = temp;
@@ -71,14 +89,14 @@ namespace Templates
                 bigger->next = lower->childs;
                 lower->childs = bigger;
                 lower->CountOfChilds++;
-                if(nextBigger != lower)
+                if (nextBigger != lower)
                     lower->next = nextBigger;
             }
 
             void Merge(Tree& second)
             {
-                if(this==&second)
-                    throw new InvalidArgumentException("Cannot merge tree with self",__LINE__);
+                if (this == &second)
+                    throw new InvalidArgumentException("Cannot merge tree with self", __LINE__);
 
                 /**
                  * return < 0 if Second is bigger than First
@@ -126,7 +144,7 @@ namespace Templates
 
         void ValidateList()
         {
-            if(this->Trees == NULL || this->Trees->next == NULL)
+            if (this->Trees == NULL || this->Trees->next == NULL)
             {
                 currentLowerPerson = this->Trees;
                 pointerToLower = &this->Trees;
@@ -140,7 +158,7 @@ namespace Templates
             Node* currentLower = cur;
             Node** pointer = &this->Trees;
 
-            while(next != NULL)
+            while (next != NULL)
             {
                 if ((cur->CountOfChilds == next->CountOfChilds &&
                      sib == NULL) ||
@@ -153,15 +171,15 @@ namespace Templates
                      * return > 0 if First is bigger than Second
                      */
                     int64_t accomp = comp(cur->instance, next->instance);
-                    if(accomp < 0)
+                    if (accomp < 0)
                     {
-                        Tree::MergeNodes(cur,next);
+                        Tree::MergeNodes(cur, next);
                         next = cur->next;
                         sib = next == NULL ? NULL : next->next;
                     }
                     else
                     {
-                        Tree::MergeNodes(next,cur);
+                        Tree::MergeNodes(next, cur);
                         *prev = next;
                         cur = next;
                         next = cur->next;
@@ -173,7 +191,7 @@ namespace Templates
                     prev = &cur->next;
                     cur = cur->next;
                     next = next->next;
-                    if(sib != NULL)
+                    if (sib != NULL)
                         sib = sib->next;
                 }
                 if (comp(cur->instance, currentLower->instance) <= 0)
@@ -232,7 +250,7 @@ namespace Templates
                 this->currentLowerPerson = this->Trees;
                 this->pointerToLower = &this->Trees;
             }
-            else if(this->Trees->next == currentLowerPerson)
+            else if (this->Trees->next == currentLowerPerson)
             {
                 pointerToLower = &this->Trees->next;
             }
@@ -241,8 +259,6 @@ namespace Templates
 
         void Merge(Node* Second)
         {
-            if(this->Trees == Second)
-                throw new InvalidArgumentException("Cannot merge heaps with same nodes",__LINE__);
             Node* inserting;
             Node* thisMoving = this->Trees;
             Node* secondMoving = Node::FlipNodes(Second);
@@ -255,6 +271,9 @@ namespace Templates
             }
             if (Second == NULL)
                 return;
+
+            if (this->Trees == Second)
+                throw new InvalidArgumentException("Cannot merge heaps with same nodes", __LINE__);
 
             if (thisMoving->CountOfChilds < secondMoving->CountOfChilds)
             {
@@ -299,7 +318,23 @@ namespace Templates
 
         BinomialHeapLite& operator=(const BinomialHeapLite& second) = delete;
 
-        ~BinomialHeapLite();
+        ~BinomialHeapLite()
+        {
+            if (this->Trees == NULL)
+                return;
+            Templates::Stack<Node*> nodes;
+            nodes.Push(this->Trees);
+            while (!nodes.IsEmpty())
+            {
+                nodes.Pop(this->Trees);
+                if (this->Trees->next != NULL)
+                    nodes.Push(this->Trees->next);
+                if (this->Trees->childs != NULL)
+                    nodes.Push(this->Trees->childs);
+                BinomialHeapLiteHelp::DestHelper<T>::Delete(this->Trees->instance);
+                delete this->Trees;
+            }
+        }
 
         void Push(T val)
         {
@@ -309,7 +344,7 @@ namespace Templates
             ValidBeginning();
         }
 
-        bool Pop(T &val)
+        bool Pop(T& val)
         {
             if (this->Trees == NULL)
                 return false;
@@ -349,7 +384,7 @@ namespace Templates
             return true;
         }
 
-        bool Top(T &val)
+        bool Top(T& val)
         {
             if (this->Trees != NULL)
             {
@@ -359,7 +394,7 @@ namespace Templates
             return false;
         }
 
-        void Merge(BinomialHeapLite &second)
+        void Merge(BinomialHeapLite& second)
         {
             this->Merge(second.Trees);
             second.Trees = NULL;
@@ -367,43 +402,6 @@ namespace Templates
             second.currentLowerPerson = NULL;
         }
     };
-}
-
-template<typename T, int(*comp)(const T& first, const T& second)>
-Templates::BinomialHeapLite<T,comp>::~BinomialHeapLite()
-{
-    if(this->Trees == NULL)
-        return;
-    Templates::Stack<Node*> nodes;
-    nodes.Push(this->Trees);
-    while(!nodes.IsEmpty())
-    {
-        nodes.Pop(this->Trees);
-        if(this->Trees->next != NULL)
-            nodes.Push(this->Trees->next);
-        if(this->Trees->childs != NULL)
-            nodes.Push(this->Trees->childs);
-        delete this->Trees;
-    }
-}
-
-template<typename T, int(*comp)(const T* &first, const T* &second)>
-Templates::BinomialHeapLite<T*,comp>::~BinomialHeapLite()
-{
-    if(this->Trees == NULL)
-        return;
-    Templates::Stack<Node*> nodes;
-    nodes.Push(this->Trees);
-    while(!nodes.IsEmpty())
-    {
-        nodes.Pop(this->Trees);
-        if(this->Trees->next != NULL)
-            nodes.Push(this->Trees->next);
-        if(this->Trees->childs != NULL)
-            nodes.Push(this->Trees->childs);
-        delete this->Trees->instance;
-        delete this->Trees;
-    }
 }
 
 #endif //TEMPLATES_BIMIALHEAPLITE_H
