@@ -6,28 +6,38 @@
 
 namespace Templates
 {
-    namespace BinomialHeapLiteHelp
+    namespace BinomialHeapLiteDelete
     {
         template<typename K>
-        struct DestHelper
+        struct PointerDeleter
         {
-            static void Delete(K&)
+            void operator()(K&)
             {}
         };
+
         template<typename K>
-        struct DestHelper<K*>
+        struct PointerDeleter<K*>
         {
-            static void Delete(K* t)
+            void operator()(K* t)
             {
                 delete t;
             }
+        };
+
+        template<typename K>
+        struct Default
+        {
+            void operator()(K x)
+            {}
         };
     }
 
     //return -1, if first is lower
     //return 0, if are equal
     //return 1, if is second lower
-    template<typename T, int (*comp)(const T& first, const T& second)>
+    template<typename T,
+            int (* comp)(const T& first, const T& second),
+            typename Deleter = BinomialHeapLiteDelete::Default<T>>
     class BinomialHeapLite
     {
     private:
@@ -324,6 +334,7 @@ namespace Templates
                 return;
             Templates::Stack<Node*> nodes;
             nodes.Push(this->Trees);
+            Deleter d;
             while (!nodes.IsEmpty())
             {
                 nodes.Pop(this->Trees);
@@ -331,7 +342,7 @@ namespace Templates
                     nodes.Push(this->Trees->next);
                 if (this->Trees->childs != NULL)
                     nodes.Push(this->Trees->childs);
-                BinomialHeapLiteHelp::DestHelper<T>::Delete(this->Trees->instance);
+                d(this->Trees->instance);
                 delete this->Trees;
             }
         }

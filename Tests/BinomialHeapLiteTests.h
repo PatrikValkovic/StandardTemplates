@@ -18,7 +18,7 @@ class BinomialHeapLiteTests
     static void pointersUsage()
     {
         using namespace Templates;
-        BinomialHeapLite<int*,comparer> in;
+        BinomialHeapLite<int*,comparer,Templates::BinomialHeapLiteDelete::PointerDeleter<int*>> in;
 
         int* val;
         int list[] = {25, 12, 36, 52, 14, 98, 52, 36, 54, 74, 32};
