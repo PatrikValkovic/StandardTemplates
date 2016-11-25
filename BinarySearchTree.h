@@ -211,15 +211,15 @@ namespace Templates
 
         /**
          * Return element with specific properties
-         * Return true on success, false otherwise
+         * Return 1 on success, 0 otherwise
          */
-        bool Get(T*& Returned, const T& ToFind) const
+        int Get(const T& ToFind, T*& Returned) const
         {
             Node* Result = this->GetNode(ToFind);
             if (Result == NULL)
-                return false;
+                return 0;
             Returned = &(Result->Val);
-            return true;
+            return 1;
         }
 
         /**
@@ -279,7 +279,7 @@ namespace Templates
             int Inserted = this->Insert(ToFind);
             if (Inserted != 1)
                 throw new InternalException(__FILE__, __LINE__);
-            Inserted = (bool) this->Get(Return, ToFind);
+            Inserted = this->Get(ToFind, Return);
             if (Inserted)
                 return 1;
             else

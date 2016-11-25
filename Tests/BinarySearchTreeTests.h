@@ -384,14 +384,14 @@ private:
         Instance = new BinarySearchTree<int>(Solve);
         Instance->Insert(BaseArray, 15);
         ToFind = 15;
-        assert(Instance->Get(ToGet, ToFind));
+        assert(Instance->Get(ToFind, ToGet));
         assert(*ToGet == 15);
         delete Instance;
 
         Instance = new BinarySearchTree<int>(Solve);
         Instance->Insert(BaseArray, 15);
         ToFind = 43;
-        assert(!Instance->Get(ToGet, ToFind));
+        assert(!Instance->Get(ToFind, ToGet));
         delete Instance;
     }
 
