@@ -3,7 +3,7 @@
 #ifndef _STALIB_
 #include <assert.h>
 #endif
-#include "../Stack.h"
+#include "../src/Stack.h"
 
 using namespace Templates;
 

@@ -1,19 +1,19 @@
 #ifndef TEMPLATES_TEMPLATES_H
 #define TEMPLATES_TEMPLATES_H
 
-#include "IteratorsDefinitions.h"
-#include "Array.h"
-#include "Queue.h"
-#include "Vector.h"
-#include "CondQueue.h"
-#include "List.h"
-#include "PriorityQueue.h"
-#include "Stack.h"
-#include "BinaryHeap.h"
-#include "BinarySearchTree.h"
-#include "BinomialTree.h"
-#include "BinomialHeap.h"
-#include "BinomialHeapLite.h"
-#include "Algorithms.h"
+#include "src/IteratorsDefinitions.h"
+#include "src/Array.h"
+#include "src/Queue.h"
+#include "src/Vector.h"
+#include "src/CondQueue.h"
+#include "src/List.h"
+#include "src/PriorityQueue.h"
+#include "src/Stack.h"
+#include "src/BinaryHeap.h"
+#include "src/BinarySearchTree.h"
+#include "src/BinomialTree.h"
+#include "src/BinomialHeap.h"
+#include "src/BinomialHeapLite.h"
+#include "src/Algorithms.h"
 
 #endif //TEMPLATES_TEMPLATES_H

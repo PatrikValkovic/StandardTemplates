@@ -5,7 +5,7 @@
 #include <assert.h>
 #endif
 
-#include "../Array.h"
+#include "../src/Array.h"
 
 
 using namespace Templates;

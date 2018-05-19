@@ -1,7 +1,7 @@
 #ifndef TEMPLATES_BINOMIALTREETESTS_H
 #define TEMPLATES_BINOMIALTREETESTS_H
 
-#include "../BinomialTree.h"
+#include "../src/BinomialTree.h"
 
 using namespace Templates;
 

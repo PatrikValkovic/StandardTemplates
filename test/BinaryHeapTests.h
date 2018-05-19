@@ -1,7 +1,7 @@
 #ifndef TEMPLATES_BINARYHEAPTESTS_H
 #define TEMPLATES_BINARYHEAPTESTS_H
 
-#include "../BinaryHeap.h"
+#include "../src/BinaryHeap.h"
 
 using namespace Templates;
 

@@ -3,7 +3,7 @@
 
 #include <assert.h>
 #include <unwind.h>
-#include "../BinarySearchTree.h"
+#include "../src/BinarySearchTree.h"
 
 using namespace Templates;
 
@@ -158,7 +158,7 @@ private:
         delete Instance;
         delete [] (Array);
 
-        //left rotate tests
+        //left rotate test
         /**
          *               30
          *               /
@@ -185,7 +185,7 @@ private:
         delete Instance;
         delete [] (Array);
 
-        //right rotate tests
+        //right rotate test
         /**
          *                90
          *               /  \
@@ -713,7 +713,7 @@ private:
         delete Instance;
         delete [] (CreatedArray);
 
-        //left rotate tests
+        //left rotate test
         /**
          *               30
          *               /
@@ -749,7 +749,7 @@ private:
         delete Instance;
         delete [] (CreatedArray);
 
-        //right rotate tests
+        //right rotate test
         /**
          *                90
          *               /  \
@@ -910,7 +910,7 @@ private:
     {
         BinarySearchTree<int> *Instance = NULL;
 
-        //right rotate tests
+        //right rotate test
         /**
          *                90
          *               /  \
@@ -952,7 +952,7 @@ private:
     {
         BinarySearchTree<int> *Instance = NULL;
 
-        //right rotate tests
+        //right rotate test
         /**
          *                90
          *               /  \

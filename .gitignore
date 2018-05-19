@@ -32,3 +32,5 @@
 proccessed.cpp
 Debug
 .idea
+cmake-build-debug
+.gitignore

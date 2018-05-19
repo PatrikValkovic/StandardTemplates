@@ -1,7 +1,7 @@
 #ifndef TEMPLATES_INTERVALTESTS_H
 #define TEMPLATES_INTERVALTESTS_H
 
-#include "../Interval.h"
+#include "../src/Interval.h"
 
 using namespace Math;
 

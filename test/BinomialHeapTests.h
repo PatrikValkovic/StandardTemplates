@@ -1,7 +1,7 @@
 #ifndef TEMPLATES_BINOMIALHEAP_H
 #define TEMPLATES_BINOMIALHEAP_H
 
-#include "../BinomialHeap.h"
+#include "../src/BinomialHeap.h"
 
 class BinomialHeapTests
 {
