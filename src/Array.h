@@ -425,7 +425,7 @@ namespace Templates
         T& GetElementAtIndex(int index) const
         {
             if (index >= Inserted || index < 0)
-                throw new() OutOfRangeException("Operator is out of range in Array", __LINE__);
+                throw new OutOfRangeException("Operator is out of range in Array", __LINE__);
 
             return *Containing[index];
         }

@@ -24,7 +24,6 @@ set(SOURCE_FILES
         src/BinomialHeap.h
         src/BinomialHeapLite.h)
 set(TEST_FILES
-        main.cpp
         test/AlgorithmsTests.h
         test/BinaryHeapTests.h
         test/BinarySearchTreeTests.h
@@ -42,9 +41,6 @@ set(TEST_FILES
 set(TEST_SOURCES
         test/TravisTests.cpp
         test/ArrayTests.cpp)
-
-
-add_executable(old_tests ${SOURCE_FILES} ${TEST_FILES} ${LIB_FILES})
 
 enable_testing()
 foreach (name ${TEST_SOURCES})
