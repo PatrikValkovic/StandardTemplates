@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.3)
 project(Templates)
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -Wall -O0 -g")
 
+
+set(LIB_FILES
+        libs/catch.h)
 set(SOURCE_FILES
-        main.cpp
         src/Algorithms.h
         src/BinaryHeap.h
         src/BinarySearchTree.h
@@ -19,6 +20,11 @@ set(SOURCE_FILES
         src/Vector.h
         src/Array.h
         src/Interval.h
+        src/BinomialTree.h
+        src/BinomialHeap.h
+        src/BinomialHeapLite.h)
+set(TEST_FILES
+        main.cpp
         test/AlgorithmsTests.h
         test/BinaryHeapTests.h
         test/BinarySearchTreeTests.h
@@ -29,5 +35,20 @@ set(SOURCE_FILES
         test/StackTests.h
         test/VectorTests.h
         test/ArrayTests.h
-        test/IntervalTests.h src/BinomialTree.h test/BinomialTreeTests.h src/BinomialHeap.h test/BinomialHeapTests.h src/BinomialHeapLite.h test/BinomialHeapLiteTests.h)
-add_executable(Templates ${SOURCE_FILES})
+        test/IntervalTests.h
+        test/BinomialTreeTests.h
+        test/BinomialHeapTests.h
+        test/BinomialHeapLiteTests.h)
+set(TEST_SOURCES
+        test/TravisTests.cpp
+        test/ArrayTests.cpp)
+
+
+add_executable(old_tests ${SOURCE_FILES} ${TEST_FILES} ${LIB_FILES})
+
+enable_testing()
+foreach (name ${TEST_SOURCES})
+    get_filename_component(basename "${name}" NAME_WE)
+    add_executable(${basename} ${name} ${SOURCE_FILES} ${LIB_FILES})
+    ADD_TEST(NAME ${basename} COMMAND $<TARGET_FILE:${basename}>)
+endforeach ()
