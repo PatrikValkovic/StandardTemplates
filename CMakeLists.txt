@@ -44,7 +44,11 @@ set(TEST_SOURCES
         test/ArrayTests/DeleteTests.cpp
         test/ArrayTests/ShiftingTests.cpp
         test/ArrayTests/ToArrayTests.cpp
-        test/ArrayTests/IteratorsTests.cpp)
+        test/ArrayTests/IteratorsTests.cpp
+        test/ArrayTests/IteratorsDeleteTests.cpp
+        test/ArrayTests/SwapTests.cpp
+        test/ArrayTests/PushTests.cpp
+        test/ArrayTests/IteratorInsertTests.cpp)
 
 find_program( VALGRIND_PROGRAM valgrind )
 set( CTEST_MEMORYCHECK_COMMAND ${VALGRIND_PROGRAM})
