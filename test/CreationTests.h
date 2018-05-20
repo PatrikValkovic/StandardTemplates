@@ -1,49 +1,46 @@
-#define CATCH_CONFIG_MAIN
-#include "../libs/catch.h"
-#define private public
-#include "../Templates.h"
+#ifndef TEMPLATES_DEBUGTESTS_H
+#define TEMPLATES_DEBUGTESTS_H
+
+#ifndef _STALIB_
+#include <assert.h>
+#endif
+
+#include "../src/Array.h"
+
+
 using namespace Templates;
 
-
-const int alloc = 10;
-int array[] = {1, 3, 5, 7, 9};
-
-TEST_CASE("Should create empty Array") {
-    Array<int,alloc> instance;
-    REQUIRE(instance.Allocated == alloc);
-    for (int a = 0; a < alloc; a++)
-        REQUIRE(instance.Containing[a] == NULL);
-}
-
-TEST_CASE("Should create Array with capacity"){
-    Array<int,alloc> instance(4);
-    REQUIRE(instance.Capacity() == alloc);
-    for (int a = 0; a < 4; a++)
-        REQUIRE(instance.Containing[a] == NULL);
-}
-
-TEST_CASE("Should create Array with more capacity"){
-    Array<int,alloc> instance(25);
-    REQUIRE(instance.Capacity() == 25);
-    for (int a = 0; a < 25; a++)
-        REQUIRE(instance.Containing[a] == NULL);
-}
-
-TEST_CASE("Should create Array with negative capacity"){
-    Array<int,alloc> instance(-5);
-    REQUIRE(instance.Capacity() == alloc);
-    for (int a = 0; a < alloc; a++)
-        REQUIRE(instance.Containing[a] == NULL);
-}
-
-
-class ArrayTests
+class CreationTests
 {
     static void CreatingTests()
     {
         const int alloc = 10;
         Array<int,alloc> *Instance = NULL;
         int array[] = {1, 3, 5, 7, 9};
+
+        Instance = new Array<int,alloc>();
+        assert(Instance->Allocated == alloc);
+        for (int a = 0; a < alloc; a++)
+            assert(Instance->Containing[a] == NULL);
+        delete Instance;
+
+        Instance = new Array<int,alloc>(25);
+        assert(Instance->Capacity() == 25);
+        for (int a = 0; a < 25; a++)
+            assert(Instance->Containing[a] == NULL);
+        delete Instance;
+
+        Instance = new Array<int,alloc>(4);
+        assert(Instance->Capacity() == alloc);
+        for (int a = 0; a < 4; a++)
+            assert(Instance->Containing[a] == NULL);
+        delete Instance;
+
+        Instance = new Array<int,alloc>(-5);
+        assert(Instance->Capacity() == alloc);
+        for (int a = 0; a < alloc; a++)
+            assert(Instance->Containing[a] == NULL);
+        delete Instance;
 
         Instance = new Array<int,alloc>(1584);
         assert(Instance->Capacity() == 1584);
@@ -690,3 +687,5 @@ public:
         SwapTests();
     }
 };
+
+#endif //TEMPLATES_DEBUGTESTS_H

@@ -33,14 +33,18 @@ set(TEST_FILES
         test/QueueTests.h
         test/StackTests.h
         test/VectorTests.h
-        test/ArrayTests.h
+        test/CreationTests.h
         test/IntervalTests.h
         test/BinomialTreeTests.h
         test/BinomialHeapTests.h
         test/BinomialHeapLiteTests.h)
 set(TEST_SOURCES
         test/TravisTests.cpp
-        test/ArrayTests.cpp)
+        test/ArrayTests/CreationTests.cpp
+        test/ArrayTests/DeleteTests.cpp
+        test/ArrayTests/ShiftingTests.cpp
+        test/ArrayTests/ToArrayTests.cpp
+        test/ArrayTests/IteratorsTests.cpp)
 
 find_program( VALGRIND_PROGRAM valgrind )
 set( CTEST_MEMORYCHECK_COMMAND ${VALGRIND_PROGRAM})
