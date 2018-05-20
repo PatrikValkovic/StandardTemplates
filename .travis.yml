@@ -1,10 +1,19 @@
 language: cpp
+compiler: gcc
 
-compiler:
-  - clang
-  - gcc
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y valgrind
+  - pip install --user cpp-coveralls
 
 script:
   - cmake CMakeLists.txt
   - make
   - ctest -V
+  - ctest -T memcheck --output-on-failure
+
+after_success:
+  - coveralls --include src --gcov-options '\-lp'
+
+notifications:
+  email: false
