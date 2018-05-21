@@ -9,7 +9,6 @@ before_install:
 script:
   - cmake CMakeLists.txt
   - make
-  - ctest -V
   - ctest -T memcheck --output-on-failure
 
 after_success:

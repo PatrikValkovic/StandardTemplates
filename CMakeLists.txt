@@ -50,6 +50,7 @@ set(TEST_SOURCES
         test/ArrayTests/PushTests.cpp
         test/ArrayTests/IteratorInsertTests.cpp)
 
+
 find_program( VALGRIND_PROGRAM valgrind )
 set( CTEST_MEMORYCHECK_COMMAND ${VALGRIND_PROGRAM})
 set(MEMORYCHECK_COMMAND_OPTIONS "${MEMORYCHECK_COMMAND_OPTIONS} --leak-check=full")
