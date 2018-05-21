@@ -1,7 +1,7 @@
-#ifndef TEMPLATES_BINOMIALHEAPLITETESTS_H
-#define TEMPLATES_BINOMIALHEAPLITETESTS_H
-
-#include "../src/BinomialHeapLite.h"
+#define CATCH_CONFIG_MAIN
+#include <assert.h>
+#include "../libs/catch.h"
+#include "../Templates.h"
 
 class BinomialHeapLiteTests
 {
@@ -77,4 +77,6 @@ public:
     }
 };
 
-#endif //TEMPLATES_BINOMIALHEAPLITETESTS_H
+TEST_CASE("Binomial heap lite tests"){
+    BinomialHeapLiteTests::tests();
+}

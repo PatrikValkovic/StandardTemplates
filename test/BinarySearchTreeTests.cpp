@@ -1,9 +1,7 @@
-#ifndef TEMPLATES_BINARYSEARCHTREETESTS_H
-#define TEMPLATES_BINARYSEARCHTREETESTS_H
-
+#define CATCH_CONFIG_MAIN
 #include <assert.h>
-#include <unwind.h>
-#include "../src/BinarySearchTree.h"
+#include "../libs/catch.h"
+#include "../Templates.h"
 
 using namespace Templates;
 
@@ -1006,7 +1004,6 @@ public:
     }
 };
 
-
-#endif //TEMPLATES_BINARYSEARCHTREETESTS_H
-
-
+TEST_CASE("Binary search tree tests"){
+    BinarySearchTreeTests::tests();
+}

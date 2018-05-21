@@ -1,29 +1,29 @@
-#ifndef TEMPLATES_BINOMIALHEAP_H
-#define TEMPLATES_BINOMIALHEAP_H
+#define CATCH_CONFIG_MAIN
+#include <assert.h>
+#include "../libs/catch.h"
+#include "../Templates.h"
 
-#include "../src/BinomialHeap.h"
-
-class BinomialHeapTests
+class PriorityQueueTests
 {
 private:
-    static int comp(const int& f, const int& s)
+    static int Valid(const int* const First, const int* const Second)
     {
-        return f - s;
+        return *First - *Second;
     }
 
-    static void Base()
+    void Base()
     {
         using namespace Templates;
-        BinomialHeap<int,comp>* Queue;
+        PriorityQueue<int>* Queue;
         int val;
 
-        Queue = new BinomialHeap<int,comp>;
+        Queue = new PriorityQueue<int>(Valid);
         assert(Queue->Push(5));
         assert(Queue->Pop(val) && val == 5);
         assert(!Queue->Pop(val));
         delete Queue;
 
-        Queue = new BinomialHeap<int,comp>;
+        Queue = new PriorityQueue<int>(Valid);
         assert(Queue->Push(5));
         assert(Queue->Push(1));
         assert(Queue->Pop(val) && val == 1);
@@ -31,7 +31,7 @@ private:
         assert(!Queue->Pop(val));
         delete Queue;
 
-        Queue = new BinomialHeap<int,comp>;
+        Queue = new PriorityQueue<int>(Valid);
         assert(Queue->Push(1));
         assert(Queue->Push(5));
         assert(Queue->Pop(val) && val == 1);
@@ -39,7 +39,7 @@ private:
         assert(!Queue->Pop(val));
         delete Queue;
 
-        Queue = new BinomialHeap<int,comp>;
+        Queue = new PriorityQueue<int>(Valid);
         assert(Queue->Push(5));
         assert(Queue->Push(1));
         assert(Queue->Push(3));
@@ -49,7 +49,7 @@ private:
         assert(!Queue->Pop(val));
         delete Queue;
 
-        Queue = new BinomialHeap<int,comp>;
+        Queue = new PriorityQueue<int>(Valid);
         assert(Queue->Push(1));
         assert(Queue->Push(3));
         assert(Queue->Push(5));
@@ -59,7 +59,7 @@ private:
         assert(!Queue->Pop(val));
         delete Queue;
 
-        Queue = new BinomialHeap<int,comp>;
+        Queue = new PriorityQueue<int>(Valid);
         assert(Queue->Push(5));
         assert(Queue->Push(3));
         assert(Queue->Push(1));
@@ -69,7 +69,7 @@ private:
         assert(!Queue->Pop(val));
         delete Queue;
 
-        Queue = new BinomialHeap<int,comp>;
+        Queue = new PriorityQueue<int>(Valid);
         assert(Queue->Push(1));
         assert(Queue->Push(5));
         assert(Queue->Push(3));
@@ -79,7 +79,7 @@ private:
         assert(!Queue->Pop(val));
         delete Queue;
 
-        Queue = new BinomialHeap<int,comp>;
+        Queue = new PriorityQueue<int>(Valid);
         assert(Queue->Push(3));
         assert(Queue->Push(5));
         assert(Queue->Push(1));
@@ -89,7 +89,7 @@ private:
         assert(!Queue->Pop(val));
         delete Queue;
 
-        Queue = new BinomialHeap<int,comp>;
+        Queue = new PriorityQueue<int>(Valid);
         assert(Queue->Push(3));
         assert(Queue->Push(1));
         assert(Queue->Push(5));
@@ -100,14 +100,14 @@ private:
         delete Queue;
     }
 
-    static void SortingTest()
+    void SortingTest()
     {
         using namespace Templates;
-        BinomialHeap<int,comp>* Queue;
+        PriorityQueue<int>* Queue;
         int val;
         int list[] = {25, 12, 36, 52, 14, 98, 52, 36, 54, 74, 32};
 
-        Queue = new BinomialHeap<int, comp>;
+        Queue = new PriorityQueue<int>(Valid);
         for (int a = 0; a < 11; a++)
             Queue->Push(list[a]);
 
@@ -128,14 +128,14 @@ private:
         return;
     };
 
-    static void LaterInserting()
+    void LaterInserting()
     {
         using namespace Templates;
-        BinomialHeap<int,comp>* Queue;
+        PriorityQueue<int>* Queue;
         int val;
         int list[] = {25, 12, 36, 52, 14, 98, 52, 36, 54, 74, 32};
 
-        Queue = new BinomialHeap<int,comp>();
+        Queue = new PriorityQueue<int>(Valid);
         for (int a = 0; a < 11; a++)
             Queue->Push(list[a]);
 
@@ -164,107 +164,16 @@ private:
         delete Queue;
     }
 
-    static void EightNumbers()
-    {
-        /**
-         *                  -8
-         *                 / |
-         *                /| |
-         *               / | |
-         *              1  4 10
-         *             /|  |
-         *            / |  |
-         *           3  9  21
-         *           |
-         *           5
-         */
-        BinomialHeap<int, comp> heap;
-        heap.Push(5);
-        heap.Push(3);
-        heap.Push(9);
-        heap.Push(1);
-        heap.Push(-8);
-        heap.Push(10);
-        heap.Push(4);
-        heap.Push(21);
-        int val;
-        assert(heap.Pop(val));
-        assert(val == -8);
-        assert(heap.Pop(val));
-        assert(val == 1);
-        assert(heap.Pop(val));
-        assert(val == 3);
-        assert(heap.Pop(val));
-        assert(val == 4);
-        assert(heap.Pop(val));
-        assert(val == 5);
-        assert(heap.Pop(val));
-        assert(val == 9);
-        assert(heap.Pop(val));
-        assert(val == 10);
-        assert(heap.Pop(val));
-        assert(val == 21);
-        assert(!heap.Pop(val));
-    }
-
-    static void FourNumbers()
-    {
-        /**
-         *            1
-         *           /|
-         *          3  9
-         *          |
-         *          5
-         */
-        BinomialHeap<int, comp> heap;
-        heap.Push(5);
-        heap.Push(3);
-        heap.Push(9);
-        heap.Push(1);
-        int val;
-        assert(heap.Pop(val));
-        assert(val == 1);
-        assert(heap.Pop(val));
-        assert(val == 3);
-        assert(heap.Pop(val));
-        assert(val == 5);
-        assert(heap.Pop(val));
-        assert(val == 9);
-        assert(!heap.Pop(val));
-    }
-
-    static void TwoNumbers()
-    {
-        /**
-         *      3
-         *      |
-         *      5
-         */
-        BinomialHeap<int, comp> heap;
-        heap.Push(5);
-        heap.Push(3);
-        int val;
-        assert(heap.Pop(val));
-        assert(val == 3);
-        assert(heap.Pop(val));
-        assert(val == 5);
-        assert(!heap.Pop(val));
-    }
 public:
-    static void tests()
+    static void test()
     {
-        TwoNumbers();
-
-        FourNumbers();
-
-        EightNumbers();
-
-        Base();
-
-        SortingTest();
-
-        LaterInserting();
+        PriorityQueueTests test;
+        test.SortingTest();
+        test.LaterInserting();
+        test.Base();
     }
 };
 
-#endif //TEMPLATES_BINOMIALHEAP_H
+TEST_CASE("Priority queue tests"){
+    PriorityQueueTests::test();
+}

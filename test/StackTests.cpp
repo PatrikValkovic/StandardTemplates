@@ -1,9 +1,7 @@
-#ifndef TEMPLATES_STACKTESTS_H
-#define TEMPLATES_STACKTESTS_H
-#ifndef _STALIB_
+#define CATCH_CONFIG_MAIN
 #include <assert.h>
-#endif
-#include "../src/Stack.h"
+#include "../libs/catch.h"
+#include "../Templates.h"
 
 using namespace Templates;
 
@@ -317,4 +315,6 @@ public:
     }
 };
 
-#endif //TEMPLATES_STACKTESTS_H
+TEST_CASE("Stack tests"){
+    StackTests::test();
+}

@@ -1,11 +1,7 @@
-#ifndef TEMPLATES_VECTORTESTS_H
-#define TEMPLATES_VECTORTESTS_H
-
-#ifndef _STALIB_
+#define CATCH_CONFIG_MAIN
 #include <assert.h>
-#endif
-
-#include "../src/Vector.h"
+#include "../libs/catch.h"
+#include "../Templates.h"
 
 class VectorTest
 {
@@ -274,4 +270,6 @@ public:
     }
 };
 
-#endif //TEMPLATES_VECTORTESTS_H
+TEST_CASE("Vector tests"){
+    VectorTest::test();
+}

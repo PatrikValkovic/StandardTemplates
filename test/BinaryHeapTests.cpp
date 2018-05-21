@@ -1,7 +1,7 @@
-#ifndef TEMPLATES_BINARYHEAPTESTS_H
-#define TEMPLATES_BINARYHEAPTESTS_H
-
-#include "../src/BinaryHeap.h"
+#define CATCH_CONFIG_MAIN
+#include <assert.h>
+#include "../libs/catch.h"
+#include "../Templates.h"
 
 using namespace Templates;
 
@@ -33,4 +33,7 @@ public:
         demo();
     }
 };
-#endif //TEMPLATES_BINARYHEAPTESTS_H
+
+TEST_CASE("Binary heap tests"){
+    BinaryHeapTests::tests();
+}

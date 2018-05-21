@@ -1,12 +1,7 @@
-#ifndef TEMPLATES_ALGORITHMSTESTS_H
-#define TEMPLATES_ALGORITHMSTESTS_H
-
-#ifndef _STALIB_
+#define CATCH_CONFIG_MAIN
 #include <assert.h>
-#endif
-
-#include "../src/Vector.h"
-#include "../src/Algorithms.h"
+#include "../libs/catch.h"
+#include "../Templates.h"
 
 bool FindSix(const int* const Val, void* data)
 {
@@ -60,4 +55,6 @@ public:
     }
 };
 
-#endif //TEMPLATES_ALGORITHMSTESTS_H
+TEST_CASE("Algorithm tests"){
+    AlgorithmsTests::test();
+}

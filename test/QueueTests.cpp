@@ -1,11 +1,7 @@
-#ifndef TEMPLATES_QUEUETESTS_H
-#define TEMPLATES_QUEUETESTS_H
-
-#ifndef _STALIB_
+#define CATCH_CONFIG_MAIN
 #include <assert.h>
-#endif
-
-#include "../src/Queue.h"
+#include "../libs/catch.h"
+#include "../Templates.h"
 
 class QueueTests
 {
@@ -149,4 +145,6 @@ public:
 	}
 };
 
-#endif //TEMPLATES_QUEUETESTS_H
+TEST_CASE("Queue tests"){
+	QueueTests::test();
+}

@@ -1,7 +1,7 @@
-#ifndef TEMPLATES_INTERVALTESTS_H
-#define TEMPLATES_INTERVALTESTS_H
-
-#include "../src/Interval.h"
+#define CATCH_CONFIG_MAIN
+#include <assert.h>
+#include "../libs/catch.h"
+#include "../Templates.h"
 
 using namespace Math;
 
@@ -47,5 +47,6 @@ public:
     }
 };
 
-
-#endif //TEMPLATES_INTERVALTESTS_H
+TEST_CASE("interval tests"){
+    IntervalTests::tests();
+}

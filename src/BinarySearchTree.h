@@ -286,7 +286,7 @@ namespace Templates
                 throw new InternalException(__FILE__, __LINE__);
 #else
             this->Insert(ToFind);
-            this->Get(Return, ToFind);
+            this->Get(ToFind, Return);
 #endif
             return 1;
         }

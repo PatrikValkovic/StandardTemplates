@@ -1,11 +1,7 @@
-#ifndef TEMPLATES_CONDQUEUETESTS_H
-#define TEMPLATES_CONDQUEUETESTS_H
-
-#ifndef _STALIB_
+#define CATCH_CONFIG_MAIN
 #include <assert.h>
-#endif
-
-#include "../src/CondQueue.h"
+#include "../libs/catch.h"
+#include "../Templates.h"
 
 static bool MyValidation(const int* const x)
 {
@@ -104,4 +100,6 @@ public:
     }
 };
 
-#endif //TEMPLATES_CONDQUEUETESTS_H
+TEST_CASE("Conditional queue tests"){
+    CondQueueTests::test();
+}

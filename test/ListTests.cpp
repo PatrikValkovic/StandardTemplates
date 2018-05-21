@@ -1,11 +1,7 @@
-#ifndef __LISTSTESTS_H_
-#define __LISTSTESTS_H_
-
-#ifndef _STALIB_
+#define CATCH_CONFIG_MAIN
 #include <assert.h>
-#endif
-
-#include "../src/List.h"
+#include "../libs/catch.h"
+#include "../Templates.h"
 
 class ListTests
 {
@@ -475,4 +471,6 @@ public:
     }
 };
 
-#endif
+TEST_CASE("List tests"){
+    ListTests::test();
+}

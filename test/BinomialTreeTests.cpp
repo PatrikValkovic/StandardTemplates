@@ -1,7 +1,7 @@
-#ifndef TEMPLATES_BINOMIALTREETESTS_H
-#define TEMPLATES_BINOMIALTREETESTS_H
-
-#include "../src/BinomialTree.h"
+#define CATCH_CONFIG_MAIN
+#include <assert.h>
+#include "../libs/catch.h"
+#include "../Templates.h"
 
 using namespace Templates;
 
@@ -161,4 +161,6 @@ public:
     }
 };
 
-#endif //TEMPLATES_BINOMIALTREETESTS_H
+TEST_CASE("Binomial tree tests"){
+    BinomialTreeTest::tests();
+}

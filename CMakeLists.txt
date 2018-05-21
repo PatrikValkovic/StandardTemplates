@@ -24,21 +24,20 @@ set(SOURCE_FILES
         src/BinomialHeap.h
         src/BinomialHeapLite.h)
 set(TEST_FILES
-        test/AlgorithmsTests.h
-        test/BinaryHeapTests.h
-        test/BinarySearchTreeTests.h
-        test/CondQueueTests.h
-        test/ListTests.h
-        test/PriorityQueueTests.h
-        test/QueueTests.h
-        test/StackTests.h
-        test/VectorTests.h
-        test/CreationTests.h
-        test/IntervalTests.h
-        test/BinomialTreeTests.h
-        test/BinomialHeapTests.h
-        test/BinomialHeapLiteTests.h)
-set(TEST_SOURCES
+        test/AlgorithmsTests.cpp
+        test/BinaryHeapTests.cpp
+        test/BinarySearchTreeTests.cpp
+        test/CondQueueTests.cpp
+        test/ListTests.cpp
+        test/PriorityQueueTests.cpp
+        test/QueueTests.cpp
+        test/StackTests.cpp
+        test/VectorTests.cpp
+        test/IntervalTests.cpp
+        test/BinomialTreeTests.cpp
+        test/BinomialHeapTests.cpp
+        test/BinomialHeapLiteTests.cpp)
+set(TEST_SOURCES ${TEST_FILES}
         test/TravisTests.cpp
         test/ArrayTests/CreationTests.cpp
         test/ArrayTests/DeleteTests.cpp
