@@ -281,8 +281,8 @@ namespace Templates
                 if (index + Count > Instance->Size())
                     return Instance->DeleteFromEnd(Instance->Inserted - index - 1);
 
-                Instance->Shift(index + Count + 1, -Count);
-                return Count;
+                int count = Instance->Shift(index + Count + 1, -Count);
+                return count < 0 ? -count : count;
             }
 
             /**

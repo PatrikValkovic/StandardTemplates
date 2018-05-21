@@ -70,11 +70,12 @@ TEST_CASE("Array iterator should move backward more positions"){
     Array<int> instance(OriginalArray, 15);
     iter = instance.End();
     REQUIRE(iter.Back(4));
-    for (int a = 10; a >= 0; a--)
+    for (int a = 11; a > 0; a--)
     {
         REQUIRE(*iter.GetValue() == OriginalArray[a]);
         REQUIRE(iter.Back());
     }
+    REQUIRE(*iter.GetValue() == OriginalArray[0]);
     REQUIRE(!iter.Back());
 }
 
