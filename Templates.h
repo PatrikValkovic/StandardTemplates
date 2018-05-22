@@ -1,6 +1,7 @@
 #ifndef TEMPLATES_TEMPLATES_H
 #define TEMPLATES_TEMPLATES_H
 
+#include "src/Basis.h"
 #include "src/IteratorsDefinitions.h"
 #include "src/Array.h"
 #include "src/Queue.h"

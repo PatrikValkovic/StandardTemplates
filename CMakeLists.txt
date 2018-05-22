@@ -22,7 +22,7 @@ set(SOURCE_FILES
         src/Interval.h
         src/BinomialTree.h
         src/BinomialHeap.h
-        src/BinomialHeapLite.h)
+        src/BinomialHeapLite.h src/Basis.h)
 set(TEST_FILES
         test/AlgorithmsTests.cpp
         test/BinaryHeapTests.cpp
@@ -45,9 +45,16 @@ set(TEST_SOURCES ${TEST_FILES}
         test/ArrayTests/ToArrayTests.cpp
         test/ArrayTests/IteratorsTests.cpp
         test/ArrayTests/IteratorsDeleteTests.cpp
-        test/ArrayTests/SwapTests.cpp
+        test/ArrayTests/ArraySwapTests.cpp
         test/ArrayTests/PushTests.cpp
-        test/ArrayTests/IteratorInsertTests.cpp)
+        test/ArrayTests/IteratorInsertTests.cpp
+        test/SwapTests.cpp
+        test/Meta/AreSameTests.cpp
+        test/Meta/TrueFalseTests.cpp
+        test/Meta/AddConstTests.cpp
+        test/Meta/AsRefTests.cpp
+        test/Meta/AsRRefTests.cpp
+        test/Meta/RemoveReferenceTests.cpp)
 
 
 find_program( VALGRIND_PROGRAM valgrind )
