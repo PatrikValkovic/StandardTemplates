@@ -22,7 +22,8 @@ set(SOURCE_FILES
         src/Interval.h
         src/BinomialTree.h
         src/BinomialHeap.h
-        src/BinomialHeapLite.h src/Basis.h)
+        src/BinomialHeapLite.h
+        src/Basis.h)
 set(TEST_FILES
         test/AlgorithmsTests.cpp
         test/BinaryHeapTests.cpp
@@ -54,8 +55,9 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Meta/AddConstTests.cpp
         test/Meta/AsRefTests.cpp
         test/Meta/AsRRefTests.cpp
-        test/Meta/RemoveReferenceTests.cpp)
-
+        test/Meta/RemoveReferenceTests.cpp
+        test/Meta/EnableIfTests.cpp
+        test/Meta/IsConstructibleDefault.cpp)
 
 find_program( VALGRIND_PROGRAM valgrind )
 set( CTEST_MEMORYCHECK_COMMAND ${VALGRIND_PROGRAM})

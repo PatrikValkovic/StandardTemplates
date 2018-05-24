@@ -1,10 +1,13 @@
 #ifndef TEMPLATES_BASIS_H
 #define TEMPLATES_BASIS_H
 
+#include <type_traits>
 namespace Templates
 {
     namespace Meta
     {
+        void _void_f(){}
+
         struct true_type {
             static const bool value = true;
         };
@@ -12,7 +15,7 @@ namespace Templates
             static const bool value = false;
         };
 
-        template<typename T, typename V>
+        template<typename T, typename V = void>
         struct are_same : false_type {};
         template<typename T>
         struct are_same<T,T> : true_type {};
@@ -69,11 +72,34 @@ namespace Templates
         struct remove_reference<T&&>{
             using type = T;
         };
+
+        template <bool, typename T = void>
+        struct enable_if
+        {};
+        template <typename T>
+        struct enable_if<true, T> {
+            typedef T type;
+        };
+
+        struct __is_constructible_default_impl{
+
+            template<typename T, typename = decltype(T())>
+            static true_type test(int)
+            {return {};}
+
+            template<typename T>
+            static false_type test(...)
+            {return {};}
+        };
+
+        template<typename T>
+        struct is_constructible_default : decltype(__is_constructible_default_impl::test<T>(0))
+        {};
     }
 
 
     template<typename T>
-    inline T& move(T param)
+    inline typename Meta::remove_reference<T>::type&& move(T &param)
     {
         return param;
     }
