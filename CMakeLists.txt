@@ -57,7 +57,8 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Meta/AsRRefTests.cpp
         test/Meta/RemoveReferenceTests.cpp
         test/Meta/EnableIfTests.cpp
-        test/Meta/IsConstructibleDefault.cpp)
+        test/Meta/IsConstructibleDefault.cpp
+        test/Meta/DeclvalTests.cpp)
 
 find_program( VALGRIND_PROGRAM valgrind )
 set( CTEST_MEMORYCHECK_COMMAND ${VALGRIND_PROGRAM})

@@ -91,10 +91,12 @@ namespace Templates
             static false_type test(...)
             {return {};}
         };
-
         template<typename T>
         struct is_constructible_default : decltype(__is_constructible_default_impl::test<T>(0))
         {};
+
+        template<typename T>
+        inline typename as_rref<T>::type declval();
     }
 
 
