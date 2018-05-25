@@ -97,6 +97,18 @@ namespace Templates
 
         template<typename T>
         inline typename as_rref<T>::type declval();
+
+        template<bool, bool ...Args>
+        struct and_ : false_type{};
+        template<bool ...Args>
+        struct and_<true,Args...>{
+            static const bool value = and_<Args...>::value;
+        };
+        template<>
+        struct and_<true> : true_type {};
+        template<>
+        struct and_<false> : false_type {};
+
     }
 
 
