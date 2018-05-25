@@ -60,7 +60,9 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Meta/IsConstructibleDefault.cpp
         test/Meta/DeclvalTests.cpp
         test/Meta/AndTests.cpp
-        test/Meta/OrTests.cpp)
+        test/Meta/OrTests.cpp
+        test/Meta/IsConstructibleMovable.cpp
+        test/Meta/IsConstructibleCopyable.cpp)
 
 find_program( VALGRIND_PROGRAM valgrind )
 set( CTEST_MEMORYCHECK_COMMAND ${VALGRIND_PROGRAM})
