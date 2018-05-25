@@ -109,6 +109,19 @@ namespace Templates
         template<>
         struct and_<false> : false_type {};
 
+        template<bool, bool ...Args>
+        struct or_ : false_type{};
+        template<bool ...Args>
+        struct or_<true,Args...> : true_type{};
+        template<bool ...Args>
+        struct or_<false,Args...> {
+            static const bool value = or_<Args...>::value;
+        };
+        template<>
+        struct or_<true> : true_type {};
+        template<>
+        struct or_<false> : false_type {};
+
     }
 
 
