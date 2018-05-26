@@ -1,10 +1,6 @@
 #ifndef TEMPLATES_ARRAY_H_H
 #define TEMPLATES_ARRAY_H_H
 
-#ifndef _STALIB_
-#include <cstring>
-#endif
-
 #ifdef ADDITIONAL_TESTS
 
 class ArrayTests;
@@ -307,7 +303,7 @@ namespace Templates
         Array(int Capacity)
         {
             Capacity = (Capacity <= BaseSize ? BaseSize : Capacity);
-            Containing = (T**) calloc((size_t)Capacity, sizeof(T*));
+            Containing = (T**) calloc(Capacity, sizeof(T*));
             Allocated = Capacity;
             Inserted = 0;
         }

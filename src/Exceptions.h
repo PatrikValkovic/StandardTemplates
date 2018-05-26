@@ -1,9 +1,6 @@
 #ifndef TEMPLATES_EXCEPTIONS_H
 #define TEMPLATES_EXCEPTIONS_H
 
-#ifndef _STALIB_
-#include <iostream>
-#endif
 
 namespace Templates
 {
@@ -13,9 +10,10 @@ namespace Templates
         const char *Message;
         int LineNumber;
 
-        virtual std::ostream &ToString(std::ostream &os) const
+        virtual const char* ToString() const
         {
-            return os << "Error in " << this->Message << " on line " << this->LineNumber << std::endl;
+            // return os << "Error in " << this->Message << " on line " << this->LineNumber << std::endl;
+			return this->Message;
         }
 
     public:
@@ -27,12 +25,6 @@ namespace Templates
 
         virtual ~Exception()
         { }
-
-    private:
-        friend std::ostream &operator<<(std::ostream &os, const Exception &e)
-        {
-            return (&e)->ToString(os);
-        }
     };
 
     class InvalidArgumentException : public Exception
@@ -59,12 +51,6 @@ namespace Templates
 
     class OutOfRangeException : public Exception
     {
-    protected:
-        virtual std::ostream &ToString(std::ostream &os)
-        {
-            return os << this->Message << std::endl;
-        }
-
     public:
         OutOfRangeException() : Exception("Index is out of range.", -1)
         { }
@@ -127,12 +113,6 @@ namespace Templates
 
     class InternalException : public Exception
     {
-    protected:
-        virtual std::ostream &ToString(std::ostream &os)
-        {
-            return os << this->Message << std::endl;
-        }
-
     public:
         InternalException() : Exception("Index is out of range.", -1)
         { }

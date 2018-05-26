@@ -113,7 +113,7 @@ namespace Templates
                  * return 0 if First and Second are equal
                  * return > 0 if First is bigger than Second
                  */
-                int64_t accomp = comp(this->top->instance, second.top->instance);
+                long int accomp = comp(this->top->instance, second.top->instance);
                 if (accomp < 0)
                 {
                     MergeNodes(this->top, second.top);
@@ -180,7 +180,7 @@ namespace Templates
                      * return 0 if First and Second are equal
                      * return > 0 if First is bigger than Second
                      */
-                    int64_t accomp = comp(cur->instance, next->instance);
+                    long int accomp = comp(cur->instance, next->instance);
                     if (accomp < 0)
                     {
                         Tree::MergeNodes(cur, next);
@@ -233,7 +233,7 @@ namespace Templates
                  * return 0 if First and Second are equal
                  * return > 0 if First is bigger than Second
                  */
-                int64_t accomp = comp(cur->instance, next->instance);
+                long int accomp = comp(cur->instance, next->instance);
                 if (accomp < 0)
                 {
                     Tree::MergeNodes(cur, next);
@@ -381,7 +381,7 @@ namespace Templates
                  * return 0 if First and Second are equal
                  * return > 0 if First is bigger than Second
                  */
-                int64_t res = comp(currentLower->instance, current->instance);
+                long int res = comp(currentLower->instance, current->instance);
                 if (res > 0)
                 {
                     currentLower = current;

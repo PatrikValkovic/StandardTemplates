@@ -1,11 +1,6 @@
 #ifndef TEMPLATES_BINOMIALMINHEAP_H
 #define TEMPLATES_BINOMIALMINHEAP_H
 
-#ifdef ADDITIONAL_TESTS
-#include <iostream>
-using namespace std;
-#endif
-
 #include "List.h"
 #include "BinomialTree.h"
 
