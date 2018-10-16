@@ -47,3 +47,59 @@ public:
 TEST_CASE("Should assert false even with movable constructor","[Meta][is_constructible_copyable]"){
     REQUIRE(!is_constructible_copyable<T4>::value);
 }
+
+
+class T5{
+public:
+    T5() = default;
+    T5(const T5&) = delete;
+    T5(T5&&) = default;
+};
+
+TEST_CASE("Should assert false even if all other constructors are defined","[Meta][is_constructible_copyable]"){
+    REQUIRE(!is_constructible_copyable<T5>::value);
+}
+
+//buildin types
+
+TEST_CASE("Is int copyable constructible","[Meta][is_constructible_copyable]"){
+    REQUIRE(is_constructible_copyable<int>::value);
+}
+
+TEST_CASE("Is pointer copyable constructible","[Meta][is_constructible_copyable]"){
+    REQUIRE(is_constructible_copyable<int*>::value);
+}
+
+TEST_CASE("Is reference copyable constructible","[Meta][is_constructible_copyable]"){
+    REQUIRE(is_constructible_copyable<int&>::value);
+}
+
+TEST_CASE("Is rreference copyable constructible","[Meta][is_constructible_copyable]"){
+    REQUIRE(!is_constructible_copyable<int&&>::value);
+}
+
+
+//own types
+class D
+{
+public:
+    D() = delete;
+    D(const D&) = delete;
+    D(D&&) = delete;
+};
+
+TEST_CASE("Is all deleted copyable constructible","[Meta][is_constructible_copyable]"){
+    REQUIRE(!is_constructible_copyable<D>::value);
+}
+
+TEST_CASE("Is pointer to all deleted copyable constructible","[Meta][is_constructible_copyable]"){
+    REQUIRE(is_constructible_copyable<D*>::value);
+}
+
+TEST_CASE("Is reference to all deleted copyable constructible","[Meta][is_constructible_copyable]"){
+    REQUIRE(is_constructible_copyable<D&>::value);
+}
+
+TEST_CASE("Is rreference to all deleted copyable constructible","[Meta][is_constructible_copyable]"){
+    REQUIRE(!is_constructible_copyable<D&&>::value);
+}

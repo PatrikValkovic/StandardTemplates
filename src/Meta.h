@@ -72,7 +72,7 @@ namespace Templates
         template<typename T>
         struct add_const_ref
         {
-            using type = add_const<as_ref<T>>;
+            using type = typename add_const<as_ref<T>>::type;
         };
 
         template<typename T>
@@ -133,9 +133,17 @@ namespace Templates
             { return {}; }
         };
         template<typename T>
-        struct is_constructible_movable : decltype(__is_constructible_movable_impl::test<T>(0))
-        {
-        };
+        struct is_constructible_movable :
+                decltype(__is_constructible_movable_impl::test<T>(0))
+        {};
+        template<typename T>
+        struct is_constructible_movable<T&> :
+                true_type
+        {};
+        template<typename T>
+        struct is_constructible_movable<T&&> :
+                true_type
+        {};
 
         struct __is_constructable_copyable_impl
         {
@@ -148,7 +156,12 @@ namespace Templates
             { return {}; }
         };
         template<typename T>
-        struct is_constructible_copyable : decltype(__is_constructable_copyable_impl::test<T>(0))
+        struct is_constructible_copyable :
+                decltype(__is_constructable_copyable_impl::test<T>(0))
+        {};
+
+        template<typename T>
+        struct is_constructible_copyable<T&> : true_type
         {};
 
         struct __is_assignable_copy_impl

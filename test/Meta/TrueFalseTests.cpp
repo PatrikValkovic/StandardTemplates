@@ -4,11 +4,11 @@
 
 using namespace Templates::Meta;
 
-TEST_CASE("False type is false", "[Meta][false_type]")
+TEST_CASE("False type is false", "[Meta][truefalse]")
 {
     REQUIRE(!false_type::value);
 }
-TEST_CASE("ATrue type is true", "[Meta][true_type]")
+TEST_CASE("ATrue type is true", "[Meta][truefalse]")
 {
     REQUIRE(true_type::value);
 }
