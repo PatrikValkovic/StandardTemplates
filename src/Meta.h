@@ -135,19 +135,16 @@ namespace Templates
         template<typename T>
         struct enable_if<true, T>{typedef T type;};
 
-        //TODO tests
         template<typename T>
         struct is_lvalue_reference : false_type{};
         template<typename T>
         struct is_lvalue_reference<T&> : true_type {};
 
-        //TODO tests
         template<typename T>
         struct is_rvalue_reference : false_type{};
         template<typename T>
         struct is_rvalue_reference<T&&> : true_type {};
 
-        //TODO tests
         template<typename T>
         struct is_reference :
                     or_<
@@ -165,7 +162,6 @@ namespace Templates
             using type=T;
         };
 
-        //TODO tests
         template<typename T>
         inline typename __declval_rref<T>::type declval();
 

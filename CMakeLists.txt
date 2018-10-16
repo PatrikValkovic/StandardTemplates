@@ -67,6 +67,9 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Meta/DeclvalTests.cpp
         test/Meta/AndTests.cpp
         test/Meta/OrTests.cpp
+        test/Meta/IsLValueReferenceTests.cpp
+        test/Meta/IsRValueReferenceTests.cpp
+        test/Meta/IsReferenceTests.cpp
         test/Meta/IsAssignableTests.cpp
         test/Meta/IsConstructibleMovable.cpp
         test/Meta/IsConstructibleCopyable.cpp
