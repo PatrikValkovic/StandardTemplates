@@ -32,7 +32,7 @@ script:
   - ctest -T memcheck --output-on-failure
 
 after_success:
-  - if [ "$COMPILER" = "g++-6"        ]; then coveralls --include src --gcov-options '\-lp'; fi
+  - if [ "$COMPILER" = "g++-6"        ]; then coveralls --include src --gcov-options '\-lp' &> /dev/null; fi
 
 notifications:
   email: false
