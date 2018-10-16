@@ -148,23 +148,21 @@ namespace Templates
         struct is_rvalue_reference<T&&> : true_type {};
 
         //TODO tests
-        template<typename T, typename = void>
-        struct is_reference : false_type{};
         template<typename T>
-        struct is_reference<T, enable_if<
+        struct is_reference :
                     or_<
                         is_lvalue_reference<T>::value,
                         is_rvalue_reference<T>::value
-                    >::value
-                >> : true_type {};
+                    >
+        {};
 
         template<typename T, bool = is_reference<T>::value>
         struct __declval_rref{
-            using type=T;
+            using type= typename as_rref<T>::type;
         };
         template<typename T>
-        struct __declval_rref<T,true>{
-            using type= typename as_rref<T>::type;
+        struct __declval_rref<T, true>{
+            using type=T;
         };
 
         //TODO tests
@@ -232,32 +230,35 @@ namespace Templates
         struct is_constructible_copyable<T&> : true_type
         {};
 
-        struct __is_assignable_copy_impl
+        struct __is_assignable_impl
         {
-            template<typename T, typename = decltype(declval<T>().operator=(static_cast<const T&>(declval<T>())))>
+            template<typename T, typename U,
+                    typename = decltype(declval<T>() = declval<U>())
+                    >
             static true_type test(int)
             { return {}; }
 
-            template<typename T>
+            template<typename, typename>
             static false_type test(...)
             { return {}; }
         };
-        template<typename T>
-        struct is_assignable_copy : decltype(__is_assignable_copy_impl::test<T>(0))
+        template<typename T, typename U>
+        struct is_assignable : decltype(__is_assignable_impl::test<T, U>(0))
         {};
 
-        struct __is_assignable_move_impl
-        {
-            template<typename T, typename = decltype(declval<T>().operator=(declval<T>()))>
-            static true_type test(int)
-            { return {}; }
 
-            template<typename T>
-            static false_type test(...)
-            { return {}; }
-        };
         template<typename T>
-        struct is_assignable_move : decltype(__is_assignable_move_impl::test<T>(0))
+        struct is_assignable_copy : is_assignable<
+                typename as_ref<T>::type,
+                typename as_const_ref<T>::type
+            >
+        {};
+
+        template<typename T>
+        struct is_assignable_move : is_assignable<
+                typename as_ref<T>::type,
+                typename as_rref<T>::type
+            >
         {};
 
     }

@@ -33,3 +33,23 @@ TEST_CASE("Should not add const to const integer const pointer", "[Meta][add_con
 {
     REQUIRE(are_same<const int * const,add_const<const int * const>::type>::value);
 }
+
+TEST_CASE("Add const to integer reference", "[Meta][add_const]")
+{
+    REQUIRE(are_same<const int&,add_const<int&>::type>::value);
+}
+
+TEST_CASE("Should not add const to integer const reference", "[Meta][add_const]")
+{
+    REQUIRE(are_same<const int&,add_const<const int&>::type>::value);
+}
+
+TEST_CASE("Add const to integer rreference", "[Meta][add_const]")
+{
+    REQUIRE(are_same<const int&&,add_const<int&&>::type>::value);
+}
+
+TEST_CASE("Should not add const to integer const rreference", "[Meta][add_const]")
+{
+    REQUIRE(are_same<const int&&,add_const<const int&&>::type>::value);
+}

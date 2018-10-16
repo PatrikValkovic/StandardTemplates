@@ -8,6 +8,14 @@ TEST_CASE("Should return rreference type","[Meta][declval]"){
     REQUIRE(are_same<decltype(declval<int>()), int&&>::value);
 }
 
+TEST_CASE("Should return reference from reference type","[Meta][declval]"){
+    REQUIRE(are_same<decltype(declval<int&>()), int&>::value);
+}
+
+TEST_CASE("Should return rreference from rreference type","[Meta][declval]"){
+    REQUIRE(are_same<decltype(declval<int&&>()), int&&>::value);
+}
+
 TEST_CASE("Should return rreference type transformed to reference","[Meta][declval]"){
     REQUIRE(are_same<as_ref<decltype(declval<int>())>::type, int&>::value);
 }

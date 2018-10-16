@@ -1,4 +1,5 @@
 #define CATCH_CONFIG_MAIN
+#include <type_traits>
 #include "../libs/catch.h"
 
 
@@ -14,4 +15,3 @@ TEST_CASE("Should create Array")
     REQUIRE(Factorial(3) == 6);
     REQUIRE(Factorial(10) == 3628800);
 }
-

@@ -58,6 +58,7 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Meta/AreSameTests.cpp
         test/Meta/TrueFalseTests.cpp
         test/Meta/AddConstTests.cpp
+        test/Meta/AsConstRefTests.cpp
         test/Meta/AsRefTests.cpp
         test/Meta/AsRRefTests.cpp
         test/Meta/RemoveReferenceTests.cpp
@@ -66,10 +67,12 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Meta/DeclvalTests.cpp
         test/Meta/AndTests.cpp
         test/Meta/OrTests.cpp
+        test/Meta/IsAssignableTests.cpp
         test/Meta/IsConstructibleMovable.cpp
         test/Meta/IsConstructibleCopyable.cpp
-        test/Meta/IsAssignableTests.cpp
-		test/MallocFreeTests.cpp
+        test/Meta/IsAssignableCopyTests.cpp
+        test/Meta/IsAssignableMoveTests.cpp
+        test/MallocFreeTests.cpp
         test/UniquePointerTests.cpp)
 
 find_program( VALGRIND_PROGRAM valgrind )
