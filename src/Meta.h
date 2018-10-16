@@ -17,6 +17,35 @@ namespace Templates
             static const bool value = false;
         };
 
+        template<bool, bool ...Args>
+        struct and_ : false_type{};
+        template<bool ...Args>
+        struct and_<true,Args...>{
+            static const bool value = and_<Args...>::value;
+        };
+        template<>
+        struct and_<true> : true_type {};
+        template<>
+        struct and_<false> : false_type {};
+
+        template<bool, bool ...Args>
+        struct or_ : false_type{};
+        template<bool ...Args>
+        struct or_<true,Args...> : true_type{};
+        template<bool ...Args>
+        struct or_<false,Args...> {
+            static const bool value = or_<Args...>::value;
+        };
+        template<>
+        struct or_<true> : true_type {};
+        template<>
+        struct or_<false> : false_type {};
+
+        template<bool T>
+        struct not_{
+            static const bool value = !T;
+        };
+
         template<typename T, typename V = void>
         struct are_same : false_type
         {
@@ -35,6 +64,16 @@ namespace Templates
         struct add_const<const T>
         {
             using type = const T;
+        };
+        template<typename T>
+        struct add_const<T&>
+        {
+            using type = const T&;
+        };
+        template<typename T>
+        struct add_const<T&&>
+        {
+            using type = const T&&;
         };
 
         template<typename T>
@@ -70,9 +109,9 @@ namespace Templates
         };
 
         template<typename T>
-        struct add_const_ref
+        struct as_const_ref
         {
-            using type = typename add_const<as_ref<T>>::type;
+            using type = typename add_const<typename as_ref<T>::type>::type;
         };
 
         template<typename T>
@@ -91,19 +130,48 @@ namespace Templates
             using type = T;
         };
 
-
-        template<typename T>
-        inline typename as_rref<T>::type declval();
-
         template<bool, typename T = void>
-        struct enable_if
-        {
+        struct enable_if{};
+        template<typename T>
+        struct enable_if<true, T>{typedef T type;};
+
+        //TODO tests
+        template<typename T>
+        struct is_lvalue_reference : false_type{};
+        template<typename T>
+        struct is_lvalue_reference<T&> : true_type {};
+
+        //TODO tests
+        template<typename T>
+        struct is_rvalue_reference : false_type{};
+        template<typename T>
+        struct is_rvalue_reference<T&&> : true_type {};
+
+        //TODO tests
+        template<typename T, typename = void>
+        struct is_reference : false_type{};
+        template<typename T>
+        struct is_reference<T, enable_if<
+                    or_<
+                        is_lvalue_reference<T>::value,
+                        is_rvalue_reference<T>::value
+                    >::value
+                >> : true_type {};
+
+        template<typename T, bool = is_reference<T>::value>
+        struct __declval_rref{
+            using type=T;
         };
         template<typename T>
-        struct enable_if<true, T>
-        {
-            typedef T type;
+        struct __declval_rref<T,true>{
+            using type= typename as_rref<T>::type;
         };
+
+        //TODO tests
+        template<typename T>
+        inline typename __declval_rref<T>::type declval();
+
+
 
         struct __is_constructible_default_impl
         {
@@ -191,35 +259,6 @@ namespace Templates
         template<typename T>
         struct is_assignable_move : decltype(__is_assignable_move_impl::test<T>(0))
         {};
-
-        template<bool, bool ...Args>
-        struct and_ : false_type{};
-        template<bool ...Args>
-        struct and_<true,Args...>{
-            static const bool value = and_<Args...>::value;
-        };
-        template<>
-        struct and_<true> : true_type {};
-        template<>
-        struct and_<false> : false_type {};
-
-        template<bool, bool ...Args>
-        struct or_ : false_type{};
-        template<bool ...Args>
-        struct or_<true,Args...> : true_type{};
-        template<bool ...Args>
-        struct or_<false,Args...> {
-            static const bool value = or_<Args...>::value;
-        };
-        template<>
-        struct or_<true> : true_type {};
-        template<>
-        struct or_<false> : false_type {};
-
-        template<bool T>
-        struct not_{
-            static const bool value = !T;
-        };
 
     }
 }
