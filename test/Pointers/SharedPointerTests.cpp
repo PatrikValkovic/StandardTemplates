@@ -277,3 +277,36 @@ TEST_CASE("SharedPointer entity not deleted after copy constructor", "[SharedPoi
     b.Release();
     SHOULD_BE_DELETED = false;
 }
+
+TEST_CASE("Calling assigned operator on the same instance should not be problem", "[SharedPointer]")
+{
+    SharedPointer<int> a(new int(5));
+    a = a;
+
+    REQUIRE(*a == 5);
+}
+
+TEST_CASE("Calling move assigned operator on the same instance should not be problem", "[SharedPointer]")
+{
+    SharedPointer<int> a(new int(5));
+    a = move(a);
+
+    REQUIRE(*a == 5);
+}
+
+TEST_CASE("Calling asterisk operator on the const SharedPointer", "[SharedPointer]")
+{
+    const SharedPointer<int> a(new int(5));
+    REQUIRE(*a == 5);
+}
+
+TEST_CASE("Should call bracket operator on const SharedPointer", "[SharedPointer]")
+{
+    int* arr = new int[10];
+    for(int i=0;i<10;i++)
+        arr[i] = i;
+    const SharedPointer<int[]> a(arr);
+
+    for(int i=0;i<10;i++)
+        REQUIRE(a[i] == i);
+}

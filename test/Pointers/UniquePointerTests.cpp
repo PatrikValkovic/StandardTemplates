@@ -226,3 +226,27 @@ TEST_CASE("UniquePointer should work on array", "[UniquePointer]")
     a.Release();
     REQUIRE(a.Get() == nullptr);
 }
+
+TEST_CASE("Calling assignment on same instance of UniquePointer should not be problem", "[UniquePointer]")
+{
+    UniquePointer<int> a = make_unique<int>(5);
+    a = move(a);
+    REQUIRE(*a == 5);
+}
+
+TEST_CASE("Should call asterisk operator on const UniquePointer", "[UniquePointer]")
+{
+    const UniquePointer<int> a = make_unique<int>(5);
+    REQUIRE(*a == 5);
+}
+
+TEST_CASE("Should call bracket operator on const UniquePointer", "[UniquePointer]")
+{
+    int* arr = new int[10];
+    for(int i=0;i<10;i++)
+        arr[i] = i;
+    const UniquePointer<int[]> a(arr);
+
+    for(int i=0;i<10;i++)
+        REQUIRE(a[i] == i);
+}
