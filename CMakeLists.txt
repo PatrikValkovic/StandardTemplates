@@ -9,6 +9,7 @@ endif()
 set(LIB_FILES
         libs/catch.h)
 set(SOURCE_FILES
+        Templates.h
         src/Algorithms.h
         src/BinaryHeap.h
         src/BinarySearchTree.h
@@ -19,7 +20,6 @@ set(SOURCE_FILES
         src/PriorityQueue.h
         src/Queue.h
         src/Stack.h
-        Templates.h
         src/Vector.h
         src/Array.h
         src/Interval.h
@@ -77,8 +77,8 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Meta/IsAssignableCopyTests.cpp
         test/Meta/IsAssignableMoveTests.cpp
         test/MallocFreeTests.cpp
-        test/UniquePointerTests.cpp
-        test/SharedPointerTests.cpp)
+        test/Pointers/UniquePointerTests.cpp
+        test/Pointers/SharedPointerTests.cpp)
 
 find_program( VALGRIND_PROGRAM valgrind )
 set( CTEST_MEMORYCHECK_COMMAND ${VALGRIND_PROGRAM})

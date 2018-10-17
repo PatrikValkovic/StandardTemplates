@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_MAIN
-#include "../libs/catch.h"
-#include "../Templates.h"
+#include "../../libs/catch.h"
+#include "../../Templates.h"
 
 using namespace Templates;
 

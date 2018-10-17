@@ -1,7 +1,7 @@
-#ifndef TEMPLATES_SHAREPOINTER_H
-#define TEMPLATES_SHAREPOINTER_H
+#ifndef TEMPLATES_SHAREDPOINTER_H
+#define TEMPLATES_SHAREDPOINTER_H
 
-#include "SharedPointer.h"
+#include "Basis.h"
 
 namespace Templates
 {

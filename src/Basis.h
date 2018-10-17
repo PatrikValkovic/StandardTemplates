@@ -62,6 +62,21 @@ namespace Templates
         __swap_impl<T>::swap(first, second);
     }
 
+
+    template<typename T>
+    struct __defaultDeleter{
+        static void perform(T* p){
+            delete p;
+        }
+    };
+    template<typename T>
+    struct __defaultDeleter<T[]>{
+        static void perform(T* p){
+            delete [] p;
+        }
+    };
+
+
 	//TODO rename later
 	template<typename T=void>
 	T* malloc_own(unsigned long int size){

@@ -5,19 +5,6 @@
 
 namespace Templates
 {
-    template<typename T>
-    struct __defaultDeleter{
-        static void perform(T* p){
-            delete p;
-        }
-    };
-    template<typename T>
-    struct __defaultDeleter<T[]>{
-        static void perform(T* p){
-            delete [] p;
-        }
-    };
-
     template<typename _T, typename DELETER = __defaultDeleter<_T>>
     class UniquePointer
     {
