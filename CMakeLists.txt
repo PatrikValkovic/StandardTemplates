@@ -28,7 +28,8 @@ set(SOURCE_FILES
         src/BinomialHeapLite.h
         src/Basis.h
 		src/Meta.h
-        src/SmartPointers.h)
+        src/UniquePointer.h
+        src/SharedPointer.h)
 set(TEST_FILES
         test/AlgorithmsTests.cpp
         test/BinaryHeapTests.cpp
@@ -76,7 +77,8 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Meta/IsAssignableCopyTests.cpp
         test/Meta/IsAssignableMoveTests.cpp
         test/MallocFreeTests.cpp
-        test/UniquePointerTests.cpp)
+        test/UniquePointerTests.cpp
+        test/SharedPointerTests.cpp)
 
 find_program( VALGRIND_PROGRAM valgrind )
 set( CTEST_MEMORYCHECK_COMMAND ${VALGRIND_PROGRAM})

@@ -16,6 +16,7 @@
 #include "src/BinomialHeap.h"
 #include "src/BinomialHeapLite.h"
 #include "src/Algorithms.h"
-#include "src/SmartPointers.h"
+#include "src/UniquePointer.h"
+#include "src/SharedPointer.h"
 
 #endif //TEMPLATES_TEMPLATES_H
