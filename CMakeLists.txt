@@ -46,16 +46,8 @@ set(TEST_FILES
         test/BinomialHeapLiteTests.cpp)
 set(TEST_SOURCES ${TEST_FILES}
         test/TravisTests.cpp
-        test/ArrayTests/ArrayCreationTests.cpp
-        test/ArrayTests/DeleteTests.cpp
-        test/ArrayTests/ShiftingTests.cpp
-        test/ArrayTests/ToArrayTests.cpp
-        test/ArrayTests/IteratorsTests.cpp
-        test/ArrayTests/IteratorsDeleteTests.cpp
-        test/ArrayTests/ArraySwapTests.cpp
-        test/ArrayTests/PushTests.cpp
-        test/ArrayTests/IteratorInsertTests.cpp
         test/SwapTests.cpp
+        test/MallocFreeTests.cpp
         test/Meta/AreSameTests.cpp
         test/Meta/TrueFalseTests.cpp
         test/Meta/AddConstTests.cpp
@@ -76,9 +68,18 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Meta/IsConstructibleCopyable.cpp
         test/Meta/IsAssignableCopyTests.cpp
         test/Meta/IsAssignableMoveTests.cpp
-        test/MallocFreeTests.cpp
         test/Pointers/UniquePointerTests.cpp
-        test/Pointers/SharedPointerTests.cpp)
+        test/Pointers/SharedPointerTests.cpp
+        test/ArrayTests/ArrayAssignmentTests.cpp
+        test/ArrayTests/ArrayCreationTests.cpp
+        test/ArrayTests/DeleteTests.cpp
+        test/ArrayTests/ShiftingTests.cpp
+        test/ArrayTests/ToArrayTests.cpp
+        test/ArrayTests/IteratorsTests.cpp
+        test/ArrayTests/IteratorsDeleteTests.cpp
+        test/ArrayTests/ArraySwapTests.cpp
+        test/ArrayTests/PushTests.cpp
+        test/ArrayTests/IteratorInsertTests.cpp)
 
 find_program( VALGRIND_PROGRAM valgrind )
 set( CTEST_MEMORYCHECK_COMMAND ${VALGRIND_PROGRAM})

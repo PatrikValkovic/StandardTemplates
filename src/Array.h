@@ -331,7 +331,7 @@ namespace Templates
          * Initialize new instance and fill it with values in array.
          * The Array create copy of the values.
          */
-        Array(T* array, int count) : Array(count)
+        Array(const T* array, int count) : Array(count)
         {
             T* internalPointer = _array.Raw();
             for (int i = 0; i < count; i++, array++, internalPointer++)
@@ -367,12 +367,23 @@ namespace Templates
             if (this == &second)
                 return *this;
 
-            Delete();
-            this->Expand(second._inserted - _allocated);
+            Array tmp(second._array.Raw(), second.Size());
+            swap(*this, tmp);
 
-            for (int a = 0; a < second._inserted; a++)
-                Containing[a] = new T(*second.Containing[a]);
-            this->_inserted = second._inserted;
+            return *this;
+        }
+
+        Array& operator=(Array&& second)
+        {
+            if (this == &second)
+                return *this;
+
+            {
+                Array tmp(move(*this));
+            }
+
+            swap(*this, second);
+
             return *this;
         }
 
