@@ -46,7 +46,7 @@ set(TEST_FILES
         test/BinomialHeapLiteTests.cpp)
 set(TEST_SOURCES ${TEST_FILES}
         test/TravisTests.cpp
-        test/ArrayTests/CreationTests.cpp
+        test/ArrayTests/ArrayCreationTests.cpp
         test/ArrayTests/DeleteTests.cpp
         test/ArrayTests/ShiftingTests.cpp
         test/ArrayTests/ToArrayTests.cpp

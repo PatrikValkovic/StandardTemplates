@@ -76,6 +76,13 @@ namespace Templates
         }
     };
 
+    template<typename T>
+    struct __deleterWithoutDestruction{
+        static void perform(T* p){
+            ::operator delete(p);
+        }
+    };
+
 
 	//TODO rename later
 	template<typename T=void>

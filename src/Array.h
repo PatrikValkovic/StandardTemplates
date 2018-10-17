@@ -1,30 +1,24 @@
 #ifndef TEMPLATES_ARRAY_H_H
 #define TEMPLATES_ARRAY_H_H
 
-#ifdef ADDITIONAL_TESTS
-
-class ArrayTests;
-
-#endif
-
 #include "Exceptions.h"
 #include "IteratorsDefinitions.h"
 #include "Interval.h"
+#include "UniquePointer.h"
 
 namespace Templates
 {
-    template<typename T,int BaseSize = 10>
+    template<typename T>
     class Array
     {
-#ifdef ADDITIONAL_TESTS
-
-        friend class ::ArrayTests;
-
-#endif
     private:
-        int Allocated;
-        int Inserted;
+        static const int BASE_SIZE = 8;
 
+        int _allocated{};
+        int _inserted{};
+        UniquePointer<T, __deleterWithoutDestruction<T>> _array;
+
+        //TODO get rid of
         T** Containing;
     public:
         class Iterator : public virtual Iterators::DeletingBackwardIteratorBase<T>,
@@ -40,7 +34,7 @@ namespace Templates
             Iterator()
             {
                 index = -1;
-                Instance = NULL;
+                Instance = nullptr;
             }
 
             /**
@@ -70,7 +64,7 @@ namespace Templates
              */
             virtual bool IsValidIterator() const
             {
-                return index >= 0 && Instance != NULL && index < Instance->Inserted;
+                return index >= 0 && Instance != nullptr && index < Instance->_inserted;
             }
 
             /**
@@ -90,7 +84,7 @@ namespace Templates
             virtual T* GetValue()
             {
                 if (!IsValidIterator())
-                    return NULL;
+                    return nullptr;
                 return Instance->Containing[this->index];
             }
 
@@ -113,7 +107,7 @@ namespace Templates
              */
             virtual bool Next()
             {
-                if (index + 1 < 0 || index + 1 > Instance->Inserted)
+                if (index + 1 < 0 || index + 1 > Instance->_inserted)
                     return false;
                 index++;
                 return true;
@@ -126,7 +120,7 @@ namespace Templates
              */
             virtual bool Next(int HowMany)
             {
-                if (index + HowMany < 0 || index + HowMany > Instance->Inserted)
+                if (index + HowMany < 0 || index + HowMany > Instance->_inserted)
                     return false;
                 index += HowMany;
                 return true;
@@ -138,7 +132,7 @@ namespace Templates
              */
             virtual bool Back()
             {
-                if (index - 1 < 0 || index - 1 > Instance->Inserted)
+                if (index - 1 < 0 || index - 1 > Instance->_inserted)
                     return false;
                 index--;
                 return true;
@@ -150,7 +144,7 @@ namespace Templates
              */
             virtual bool Back(int HowMany)
             {
-                if (index - HowMany < 0 || index - HowMany > Instance->Inserted)
+                if (index - HowMany < 0 || index - HowMany > Instance->_inserted)
                     return false;
                 index -= HowMany;
                 return true;
@@ -162,7 +156,7 @@ namespace Templates
              */
             bool JumpToBegin()
             {
-                if (Instance == NULL)
+                if (Instance == nullptr)
                     return false;
                 index = 0;
                 return true;
@@ -191,7 +185,7 @@ namespace Templates
              */
             int InsertBefore(const T& Value)
             {
-                if (Instance->Inserted == this->index)
+                if (Instance->_inserted == this->index)
                     return Instance->Push(Value);
 
                 if (Instance->Shift(index, 1) == 0)
@@ -227,7 +221,7 @@ namespace Templates
              */
             int InsertBefore(const T* const Values, int Count)
             {
-                if (Instance->Inserted == this->index)
+                if (Instance->_inserted == this->index)
                     return Instance->Push(Values, Count);
 
                 if (!Instance->Shift(index, Count))
@@ -247,10 +241,10 @@ namespace Templates
              */
             virtual int DeleteBefore(int Count = 1)
             {
-                if (this->Instance == NULL)
+                if (this->Instance == nullptr)
                     return 0;
 
-                if (this->index == Instance->Inserted)
+                if (this->index == Instance->_inserted)
                     return Instance->DeleteFromEnd(Count);
 
                 if (!IsValidIterator())
@@ -275,7 +269,7 @@ namespace Templates
                     return 0;
 
                 if (index + Count > Instance->Size())
-                    return Instance->DeleteFromEnd(Instance->Inserted - index - 1);
+                    return Instance->DeleteFromEnd(Instance->_inserted - index - 1);
 
                 int count = Instance->Shift(index + Count + 1, -Count);
                 return count < 0 ? -count : count;
@@ -290,7 +284,7 @@ namespace Templates
             {
                 if (!this->IsValidIterator())
                     return 0;
-                if (this->index == Instance->Inserted - 1)
+                if (this->index == Instance->_inserted - 1)
                     return Instance->DeleteFromEnd(1);
                 Instance->Shift(index + 1, -1);
                 return 1;
@@ -298,42 +292,61 @@ namespace Templates
         };
 
         /**
-         * Inicialize new instance with @Capacity
+         * Initialize new instance with default size BASE_SIZE
          */
-        Array(int Capacity)
-        {
-            Capacity = (Capacity <= BaseSize ? BaseSize : Capacity);
-            Containing = (T**) calloc(Capacity, sizeof(T*));
-            Allocated = Capacity;
-            Inserted = 0;
-        }
-
-        /**
-         * Initialize new instance with default size 10
-         */
-        Array() : Array(BaseSize)
+        Array() : Array(BASE_SIZE)
         {}
 
         /**
-         * Initialize new instance with same values as second Array
-         * Creates deep copy
+         * Inicialize new instance with @Capacity
          */
-        Array(const Array& Second) : Array(Second.Size())
+        explicit Array(int capacity) : _allocated(0), _inserted(0), _array(nullptr)
         {
-            int SizeOfSecond = Second.Size();
-            for (int a = 0; a < SizeOfSecond; a++)
-                Containing[a] = new T(*Second.Containing[a]);
-            this->Inserted = SizeOfSecond;
+
+            capacity = (capacity <= 0 ? BASE_SIZE : capacity);
+            _array = UniquePointer<T, __deleterWithoutDestruction<T>>(
+                    (T*)::operator new(sizeof(T) * capacity)
+            );
+            _allocated = capacity;
+            _inserted = 0;
         }
 
         /**
-         * Initialize new instance and fill it with values in array
+         * Initialize new instance with same values as second Array.
+         * Creates copy of values from the second array.
+         */
+        Array(const Array& second) : Array(second._array.Raw(), second._inserted)
+        {}
+
+        /**
+         * Move constructor, initializate Array from the values of other array.
+         * The second instance will be cleared
+         */
+        Array(Array&& second) noexcept : Array()
+        {
+            swap(second, *this);
+        }
+
+        /**
+         * Initialize new instance and fill it with values in array.
+         * The Array create copy of the values.
          */
         Array(T* array, int count) : Array(count)
         {
-            for (int a = 0; a < count; a++, array++)
-                this->Containing[a] = new T(*array);
-            Inserted = count;
+            T* internalPointer = _array.Raw();
+            for (int i = 0; i < count; i++, array++, internalPointer++)
+                try
+                {
+                    new (internalPointer) T(*array);
+                }
+                catch(...)
+                {
+                    i--;
+                    for(;i >= 0; i--)
+                        _array[i].~T();
+                    throw;
+                }
+            _inserted = count;
         }
 
         /**
@@ -341,25 +354,25 @@ namespace Templates
          */
         ~Array()
         {
-            Delete();
-            free(Containing);
+            for (; _inserted > 0;)
+                _array[--_inserted].~T();
         }
 
         /**
          * Copy all elements from second array to this
          * Creates deep copy of second array
          */
-        Array& operator=(const Array& Second)
+        Array& operator=(const Array& second)
         {
-            if (this == &Second)
+            if (this == &second)
                 return *this;
 
             Delete();
-            this->Expand(Second.Inserted - Allocated);
+            this->Expand(second._inserted - _allocated);
 
-            for (int a = 0; a < Second.Inserted; a++)
-                Containing[a] = new T(*Second.Containing[a]);
-            this->Inserted = Second.Inserted;
+            for (int a = 0; a < second._inserted; a++)
+                Containing[a] = new T(*second.Containing[a]);
+            this->_inserted = second._inserted;
             return *this;
         }
 
@@ -368,12 +381,12 @@ namespace Templates
          */
         int Size() const
         {
-            return Inserted;
+            return _inserted;
         }
 
         int Capacity() const
         {
-            return Allocated;
+            return _allocated;
         }
 
         /**
@@ -390,7 +403,7 @@ namespace Templates
          */
         Iterator End()
         {
-            return Iterator(this, Inserted);
+            return Iterator(this, _inserted);
         }
 
         /**
@@ -408,7 +421,7 @@ namespace Templates
          */
         bool TryAt(int index, Iterator& Out)
         {
-            if (index >= Inserted || index < 0)
+            if (index >= _inserted || index < 0)
                 return false;
 
             Out = Iterator(this, index);
@@ -418,12 +431,12 @@ namespace Templates
 
     private:
 
-        T& GetElementAtIndex(int index) const
+        T& GetElementAtIndex(int index)
         {
-            if (index >= Inserted || index < 0)
-                throw new OutOfRangeException("Operator is out of range in Array", __LINE__);
+            if (index >= _inserted || index < 0)
+                throw OutOfRangeException("Operator is out of array range", __LINE__);
 
-            return *Containing[index];
+            return _array[index];
         }
 
 
@@ -432,11 +445,11 @@ namespace Templates
             //By could be < 0
 
             if (By <= 0)
-                By = int(Allocated * 0.5 == 0 ? BaseSize : Allocated * 0.5);
+                By = int(_allocated * 0.5 == 0 ? BASE_SIZE : _allocated * 0.5);
 
-            int OldAllocation = Allocated;
-            this->Allocated = Allocated + By;
-            Containing = (T**) realloc(Containing, sizeof(T*) * (Allocated));
+            int OldAllocation = _allocated;
+            this->_allocated = _allocated + By;
+            Containing = (T**) realloc(Containing, sizeof(T*) * (_allocated));
 
             if (By > 0)
                 memset(Containing + OldAllocation, 0, sizeof(T*) * (By));
@@ -450,9 +463,9 @@ namespace Templates
             if (To < 10)
                 To = 10;
 
-            int OldAllocation = Allocated;
-            this->Allocated = To;
-            Containing = (T**) realloc(Containing, sizeof(T*) * (Allocated));
+            int OldAllocation = _allocated;
+            this->_allocated = To;
+            Containing = (T**) realloc(Containing, sizeof(T*) * (_allocated));
             if (To > OldAllocation)
                 memset(Containing + OldAllocation, 0, sizeof(T*) * (To - OldAllocation));
         }
@@ -464,9 +477,9 @@ namespace Templates
          */
         int Shift(int index, int PlacesToShift)
         {
-            if (index < 0 || index >= Inserted)
+            if (index < 0 || index >= _inserted)
                 return 0;
-            if (PlacesToShift == 0 || Inserted == 0)
+            if (PlacesToShift == 0 || _inserted == 0)
                 return 0;
 
             if (index + PlacesToShift < 0)
@@ -476,18 +489,18 @@ namespace Templates
                 for (int a = index + PlacesToShift; a < index; a++)
                     delete Containing[a];
 
-            else if (Inserted + PlacesToShift > Allocated)
-                ExpandTo(Inserted + PlacesToShift);
+            else if (_inserted + PlacesToShift > _allocated)
+                ExpandTo(_inserted + PlacesToShift);
 
-            memmove(Containing + index + PlacesToShift, Containing + index, sizeof(T*) * (Inserted - index));
+            memmove(Containing + index + PlacesToShift, Containing + index, sizeof(T*) * (_inserted - index));
 
-            Math::Interval<int> Original(index, Allocated);
-            Math::Interval<int> MovedTo(index + PlacesToShift, Inserted + PlacesToShift);
+            Math::Interval<int> Original(index, _allocated);
+            Math::Interval<int> MovedTo(index + PlacesToShift, _inserted + PlacesToShift);
             Math::Interval<int> ToDelete = Original - MovedTo;
             memset(Containing + ToDelete.GetBegin(), 0,
                    sizeof(T*) * (ToDelete.GetEnd() - ToDelete.GetBegin()));
 
-            this->Inserted += PlacesToShift;
+            this->_inserted += PlacesToShift;
 
             return PlacesToShift;
         }
@@ -515,7 +528,7 @@ namespace Templates
          */
         int Delete(int Count)
         {
-            if (Count >= Inserted)
+            if (Count >= _inserted)
                 return Delete();
 
             int deleted = (-1) * this->Shift(Count, -Count);
@@ -529,23 +542,23 @@ namespace Templates
          */
         int Delete()
         {
-            for (int a = 0; a < Inserted; a++)
-                delete Containing[a];
-            int deleted = Inserted;
-            ExpandTo(10);
-            Inserted = 0;
-            return deleted;
+
+            _inserted = 0;
+            Array tmp;
+            swap(*this, tmp);
+
+            return 0;
         }
 
         int DeleteFromEnd(int Count)
         {
             int deleted = 0;
-            for (int i = Inserted - 1, a = 0; a < Count && i >= 0; a++, i--)
+            for (int i = _inserted - 1, a = 0; a < Count && i >= 0; a++, i--)
             {
                 delete Containing[i];
-                Containing[i] = NULL;
+                Containing[i] = nullptr;
                 deleted++;
-                Inserted--;
+                _inserted--;
             }
             return deleted;
         }
@@ -556,11 +569,11 @@ namespace Templates
          */
         T* ToArray(int& count) const
         {
-            if (Inserted == 0)
-                return NULL;
-            count = Inserted;
-            T* CreatedArray = new T[this->Inserted];
-            for (int a = 0; a < Inserted; a++)
+            if (_inserted == 0)
+                return nullptr;
+            count = _inserted;
+            T* CreatedArray = new T[this->_inserted];
+            for (int a = 0; a < _inserted; a++)
                 new(CreatedArray + a) T(*Containing[a]);
             return CreatedArray;
         }
@@ -571,12 +584,12 @@ namespace Templates
          */
         T** ToWriteArray(int& count)
         {
-            if (Inserted == 0)
-                return NULL;
-            count = Inserted;
+            if (_inserted == 0)
+                return nullptr;
+            count = _inserted;
 
-            T** CreatedArray = new T*[this->Inserted];
-            CreatedArray = (T**) memcpy(CreatedArray, this->Containing, sizeof(T*) * this->Inserted);
+            T** CreatedArray = new T*[this->_inserted];
+            CreatedArray = (T**) memcpy(CreatedArray, this->Containing, sizeof(T*) * this->_inserted);
             return CreatedArray;
         }
 
@@ -586,14 +599,14 @@ namespace Templates
          */
         int Push(const T& Value)
         {
-            if (Allocated == Inserted)
+            if (_allocated == _inserted)
             {
-                int NewAlloc = int(Allocated * 1.5);
-                Expand(NewAlloc - Allocated);
+                int NewAlloc = int(_allocated * 1.5);
+                Expand(NewAlloc - _allocated);
             }
 
-            Containing[Inserted] = new T(Value);
-            Inserted++;
+            Containing[_inserted] = new T(Value);
+            _inserted++;
             return 1;
         }
 
@@ -603,16 +616,16 @@ namespace Templates
          */
         int Push(const T* const Values, int Count)
         {
-            if (Allocated < Inserted + Count)
+            if (_allocated < _inserted + Count)
             {
-                int NewAlloc = Inserted + Count;
+                int NewAlloc = _inserted + Count;
 
-                Expand(NewAlloc - Allocated);
+                Expand(NewAlloc - _allocated);
             }
 
             for (int a = 0; a < Count; a++)
-                Containing[Inserted + a] = new T(Values[a]);
-            Inserted += Count;
+                Containing[_inserted + a] = new T(Values[a]);
+            _inserted += Count;
             return Count;
         }
 
@@ -622,12 +635,12 @@ namespace Templates
          */
         int ShrinkToFit()
         {
-            int NewSize = Inserted > 10 ? Inserted : 10;
+            int NewSize = _inserted > 10 ? _inserted : 10;
             this->Containing = (T**) realloc(this->Containing, sizeof(T*) * NewSize);
-            this->Allocated = NewSize;
-            if (Allocated > Inserted)
-                memset(this->Containing + Inserted, 0, sizeof(T*) * (NewSize - Inserted));
-            return Inserted;
+            this->_allocated = NewSize;
+            if (_allocated > _inserted)
+                memset(this->Containing + _inserted, 0, sizeof(T*) * (NewSize - _inserted));
+            return _inserted;
         }
 
         /**
@@ -635,7 +648,7 @@ namespace Templates
          */
         bool Swap(int FirstIndex, int SecondIndex)
         {
-            if (FirstIndex < 0 || FirstIndex >= Inserted || SecondIndex < 0 || SecondIndex >= Inserted ||
+            if (FirstIndex < 0 || FirstIndex >= _inserted || SecondIndex < 0 || SecondIndex >= _inserted ||
                 FirstIndex == SecondIndex)
                 return false;
 
@@ -644,7 +657,20 @@ namespace Templates
             Containing[SecondIndex] = temp;
             return true;
         }
+
+        void Swap(Array &second) noexcept {
+            using Templates::swap;
+            swap(_allocated, second._allocated);
+            swap(_inserted, second._inserted);
+            swap(_array, second._array);
+        }
     };
+
+    template<typename T>
+    void swap(Array<T>& first,Array<T>& second)
+    {
+        first.Swap(second);
+    }
 }
 
 #endif //TEMPLATES_ARRAY_H_H
