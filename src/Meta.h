@@ -130,6 +130,17 @@ namespace Templates
             using type = T;
         };
 
+        template<typename T>
+        struct remove_array
+        {
+            using type = T;
+        };
+        template<typename T>
+        struct remove_array<T[]>
+        {
+            using type = T;
+        };
+
         template<bool, typename T = void>
         struct enable_if{};
         template<typename T>

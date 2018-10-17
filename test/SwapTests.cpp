@@ -2,6 +2,8 @@
 #include "../libs/catch.h"
 #include "../Templates.h"
 
+using namespace Templates;
+
 class OnlyMovable
 {
 public:
@@ -28,14 +30,14 @@ TEST_CASE("Should call only move semantic", "[swap]")
 {
     OnlyMovable a;
     OnlyMovable b;
-    Templates::swap(a,b);
+    swap(a,b);
 }
 
 TEST_CASE("Should call only copy semantic", "[swap]")
 {
     OnlyCopy a;
     OnlyCopy b;
-    Templates::swap(a,b);
+    swap(a,b);
 }
 
 class CopyAndMovable
@@ -63,6 +65,40 @@ TEST_CASE("Should call move semantic even if copy semantic implemented", "[swap]
 {
     CopyAndMovable a;
     CopyAndMovable b;
-    Templates::swap(a,b);
+    swap(a,b);
 }
 
+TEST_CASE("Should swap integers", "[swap]")
+{
+    int a=5;
+    int b=4;
+    swap(a,b);
+    REQUIRE(a == 4);
+    REQUIRE(b == 5);
+}
+
+TEST_CASE("Should swap pointers", "[swap]")
+{
+    int* a= new int(5);
+    int* b= new int (4);
+    int* c = a;
+    int *d = b;
+    swap(a,b);
+    REQUIRE(*a == 4);
+    REQUIRE(*b == 5);
+    REQUIRE(a == d);
+    REQUIRE(b == c);
+}
+
+TEST_CASE("Should swap reference", "[swap]")
+{
+    int a=5;
+    int b=4;
+    int &c = a;
+    int &d = b;
+    swap(c,d);
+    REQUIRE(a == 4);
+    REQUIRE(b == 5);
+    REQUIRE(c == 4);
+    REQUIRE(d == 5);
+}

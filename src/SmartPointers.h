@@ -6,8 +6,22 @@
 namespace Templates
 {
     template<typename T>
+    struct __defaultDeleter{
+        static void perform(T* p){
+            delete p;
+        }
+    };
+    template<typename T>
+    struct __defaultDeleter<T[]>{
+        static void perform(T* p){
+            delete [] p;
+        }
+    };
+
+    template<typename _T, typename DELETER = __defaultDeleter<_T>>
     class UniquePointer
     {
+        using T = typename Meta::remove_array<_T>::type;
     private:
         T* _raw;
     public:
@@ -42,10 +56,26 @@ namespace Templates
             return *this;
         }
 
-        T operator*()
+        T& operator*()
         {
             return *this->Get();
         }
+
+        const T& operator*() const
+        {
+            return *this->Get();
+        }
+
+        T& operator[](int i)
+        {
+            return this->Get()[i];
+        }
+
+        const T& operator[](int i) const
+        {
+            return this->Get()[i];
+        }
+
 
         T* operator->() const noexcept
         {
@@ -59,7 +89,7 @@ namespace Templates
 
         void Release()
         {
-            delete this->_raw;
+            DELETER::perform(this->_raw);
             this->_raw = nullptr;
         }
 
@@ -81,7 +111,7 @@ namespace Templates
     };
 
     template<typename T, typename ...ARGS>
-    UniquePointer<T>&& make_unique(ARGS... args)
+    UniquePointer<T> make_unique(ARGS... args)
     {
         return UniquePointer<T>(new T(args...));
     }

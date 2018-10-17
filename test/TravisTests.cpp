@@ -1,5 +1,4 @@
 #define CATCH_CONFIG_MAIN
-#include <type_traits>
 #include "../libs/catch.h"
 
 
