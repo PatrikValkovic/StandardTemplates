@@ -80,7 +80,7 @@ TEST_CASE("Should swap integers", "[swap]")
 TEST_CASE("Should swap pointers", "[swap]")
 {
     int* a= new int(5);
-    int* b= new int (4);
+    int* b= new int(4);
     int* c = a;
     int *d = b;
     swap(a,b);
@@ -88,6 +88,8 @@ TEST_CASE("Should swap pointers", "[swap]")
     REQUIRE(*b == 5);
     REQUIRE(a == d);
     REQUIRE(b == c);
+    delete a;
+    delete b;
 }
 
 TEST_CASE("Should swap reference", "[swap]")
