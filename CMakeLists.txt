@@ -70,18 +70,19 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Meta/IsAssignableMoveTests.cpp
         test/Pointers/UniquePointerTests.cpp
         test/Pointers/SharedPointerTests.cpp
-        test/ArrayTests/ArrayAssignmentTests.cpp
         test/ArrayTests/ArrayCreationTests.cpp
+        test/ArrayTests/ArrayAssignmentTests.cpp
+        test/ArrayTests/ArrayPushTests.cpp
+        test/ArrayTests/ArraySwapTests.cpp
+        test/ArrayTests/ArrayIntResizeTests.cpp
+        test/ArrayTests/ArrayCustomResizeTests.cpp
+        test/ArrayTests/ArrayToArrayTests.cpp
+
         test/ArrayTests/DeleteTests.cpp
         test/ArrayTests/ShiftingTests.cpp
-        test/ArrayTests/ToArrayTests.cpp
         test/ArrayTests/IteratorsTests.cpp
         test/ArrayTests/IteratorsDeleteTests.cpp
-        test/ArrayTests/ArraySwapTests.cpp
-        test/ArrayTests/ArrayPushTests.cpp
-        test/ArrayTests/IteratorInsertTests.cpp
-        test/ArrayTests/ArrayIntResizeTests.cpp
-        test/ArrayTests/ArrayCustomResizeTests.cpp)
+        test/ArrayTests/IteratorInsertTests.cpp)
 
 find_program( VALGRIND_PROGRAM valgrind )
 set( CTEST_MEMORYCHECK_COMMAND ${VALGRIND_PROGRAM})

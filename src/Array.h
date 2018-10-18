@@ -740,35 +740,25 @@ namespace Templates
         }
 
         /**
-         * Convert Array to C++-like array (must be cleared by delete [])
-         * Return new array, NULL otherwise
-         * TODO return instance
+         * Return internal C-like array.
+         * @param count Output parameter holding number of elements
+         * @return Internal C-like array. Array can't be deleted.
          */
-        T* ToArray(int& count) const
+        const T* ToArray(int& count) const
         {
-            if (_inserted == 0)
-                return nullptr;
             count = _inserted;
-            T* CreatedArray = new T[this->_inserted];
-            for (int a = 0; a < _inserted; a++)
-                new(CreatedArray + a) T(*Containing[a]);
-            return CreatedArray;
+            return _array.Raw();
         }
 
         /**
-         * Create array, that can be edited
-         * Return editable array, NULL otherwise
-         * TODO delete
+         * Return internal C-like array.
+         * @param count Output parameter holding number of elements.
+         * @return Internal C-like array. Array can't be deleted.
          */
-        T** ToWriteArray(int& count)
+        T* ToArray(int& count)
         {
-            if (_inserted == 0)
-                return nullptr;
             count = _inserted;
-
-            T** CreatedArray = new T*[this->_inserted];
-            CreatedArray = (T**) memcpy(CreatedArray, this->Containing, sizeof(T*) * this->_inserted);
-            return CreatedArray;
+            return _array.Raw();
         }
 
         /**
