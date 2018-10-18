@@ -79,7 +79,9 @@ set(TEST_SOURCES ${TEST_FILES}
         test/ArrayTests/IteratorsDeleteTests.cpp
         test/ArrayTests/ArraySwapTests.cpp
         test/ArrayTests/ArrayPushTests.cpp
-        test/ArrayTests/IteratorInsertTests.cpp)
+        test/ArrayTests/IteratorInsertTests.cpp
+        test/ArrayTests/ArrayIntResizeTests.cpp
+        test/ArrayTests/ArrayCustomResizeTests.cpp)
 
 find_program( VALGRIND_PROGRAM valgrind )
 set( CTEST_MEMORYCHECK_COMMAND ${VALGRIND_PROGRAM})

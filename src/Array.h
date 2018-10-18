@@ -374,7 +374,7 @@ namespace Templates
             return *this;
         }
 
-        Array& operator=(Array&& second)
+        Array& operator=(Array&& second) noexcept
         {
             if (this == &second)
                 return *this;
@@ -474,21 +474,22 @@ namespace Templates
          */
         void ResizeBy(int by)
         {
-            this->Resize(_inserted + by);
+            this->Resize(_allocated + by);
         }
 
         /**
          * Resize the array to contain specific number of elements.
-         * If the parametr is smaller then current size, overlapping elements will be destroyd.
+         * If the parameter is smaller then current size, overlapping elements will be destroyd.
          * @param to
          */
         void Resize(int to)
         {
-            while (_inserted > to)
-                _array[--_inserted].~T();
+            if(to < 0)
+                throw OutOfRangeException("Cannot resize to negative value");
 
             Array tmp(to);
-            tmp.Push(_array.Raw(), _inserted);
+            tmp.Push(_array.Raw(), _inserted > to ? to : _inserted);
+
             swap(*this, tmp);
         }
 
