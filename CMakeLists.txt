@@ -78,7 +78,7 @@ set(TEST_SOURCES ${TEST_FILES}
         test/ArrayTests/IteratorsTests.cpp
         test/ArrayTests/IteratorsDeleteTests.cpp
         test/ArrayTests/ArraySwapTests.cpp
-        test/ArrayTests/PushTests.cpp
+        test/ArrayTests/ArrayPushTests.cpp
         test/ArrayTests/IteratorInsertTests.cpp)
 
 find_program( VALGRIND_PROGRAM valgrind )

@@ -13,6 +13,7 @@ namespace Templates
     {
     private:
         static const int BASE_SIZE = 8;
+        static const int EXPANDING_COEFICIENT = 2;
 
         int _allocated{};
         int _inserted{};
@@ -401,47 +402,241 @@ namespace Templates
         }
 
         /**
-         * Return iterator to begin of array
+         * Return iterator to begin of array.
+         * The iterator can't be valid, if the array is empty.
          */
         Iterator Begin()
         {
-            return Iterator(this, 0);
+            return this->At(0);
         }
 
         /**
-         * Return iterator referencing one element after last one
-         * This iterator will not be valid
+         * Return iterator referencing one element after last one.
+         * This iterator will not be valid.
          */
         Iterator End()
         {
-            return Iterator(this, _inserted);
+            return this->At(_inserted);
         }
 
         /**
-         * Return iterator at specific position in array
-         * Iterator might not be valid
+         * Return iterator at specific position in array.
+         * Position is validated, so it is valid, unless you want end of the array (one element after the last one).
          */
         Iterator At(int index)
         {
+            if(index < 0 || index > _inserted)
+                throw OutOfRangeException("", __LINE__);
+
             return Iterator(this, index);
         }
 
         /**
-         * Try to create iterator at specific position in array
-         * Return false, if is index out of range
+         * Try to create iterator at specific position in array.
+         * Return false, if is index out of range.
+         * Can return end iterator and thus invalid one. In all other cases the iterator is valid.
+         * @param index Index of element to return
+         * @param out Input parameter - iterator
+         * @return True if the position is valid and thus iterator is valid, false otherwise
          */
-        bool TryAt(int index, Iterator& Out)
+        bool TryAt(int index, Iterator& out)
         {
-            if (index >= _inserted || index < 0)
+            if (index > _inserted || index < 0)
                 return false;
 
-            Out = Iterator(this, index);
+            out = At(index);
             return true;
         }
 
+        /**
+        * Return element at @i-th index.
+        * Throw exception, if is index out of range
+        */
+        T& operator[](int i)
+        {
+            return GetElementAtIndex(i);
+        }
+
+        /**
+         * Return element at @i-th index.
+         * Throw exception, if is index out of range
+         */
+        const T& operator[](int i) const
+        {
+            return GetElementAtIndex(i);
+        }
+
+        /**
+         * Resize the array by specific number of elements.
+         * Can be used to expand or shrink the array.
+         * Resize is based on capacity, on on the size.
+         * @param by How much resize the array. If positive, the array will expand. If negative, the array will shrink.
+         */
+        void ResizeBy(int by)
+        {
+            this->Resize(_inserted + by);
+        }
+
+        /**
+         * Resize the array to contain specific number of elements.
+         * If the parametr is smaller then current size, overlapping elements will be destroyd.
+         * @param to
+         */
+        void Resize(int to)
+        {
+            while (_inserted > to)
+                _array[--_inserted].~T();
+
+            Array tmp(to);
+            tmp.Push(_array.Raw(), _inserted);
+            swap(*this, tmp);
+        }
+
+        /**
+         * Shrink the array so its capacity is same as the size.
+         */
+        void ShrinkToFit()
+        {
+            this->Resize(_inserted);
+        }
+
+        /**
+         * Delete {@code count} elements from the {@code index}.
+         * @param index From which element delete
+         * @param count How many elements delete
+         * @return Number of deleted elements
+         */
+        int Delete(int index, int count)
+        {
+            //TODO implement
+        }
+
+        /**
+         * Delete {@code count} elements from the {@code index}.
+         * Save version make sure, that the array remains valid if exception occurs.
+         * Save version needs more memory than the unsafe one.
+         * @param index From which element delete
+         * @param count How many elements delete
+         * @return Number of deleted elements
+         */
+        int DeleteSafe(int index, int count)
+        {
+            //TODO implement
+        }
+
+
+        /**
+         * Delete {@code count} elements from the end.
+         * In case the destructor throws a exception, the array stays in valid state.
+         * @param count Number of elements to delete
+         * @return Number of deleted elements
+         */
+        int DeleteFromEnd(int count)
+        {
+            //TODO implement safe
+        }
+
+        /**
+         * Delete {@code count} elements from the beginning of the array.
+         * In case the destuctor throws a exception, the array may stay in unvalid state.
+         * @param count Number of elements to delete
+         * @return Number of deleted elements
+         */
+        int DeleteFromBegin(int count)
+        {
+            return this->Delete(0, count);
+        }
+
+        /**
+         * Delete {@code count} elements from the beginning of the array.
+         * In case the destuctor throws a exception, the array stay in valid state.
+         * Safe method needs more memory than the unsafe one.
+         * @param count Number of elements to delete
+         * @return Number of deleted elements
+         */
+        int DeleteFromBeginSave(int count)
+        {
+            return this->DeleteSafe(0, count);
+        }
+
+        /**
+         * Delete all the elements in the array, but the allocated capacity stay.
+         * @return
+         */
+        int Delete()
+        {
+            return this->DeleteFromEnd(_inserted);
+        }
+
+
+        /**
+         * Insert element at the specific index.
+         * Other elements are shifted right.
+         * In case the copy constructor throws a exception, the array may stay in invalid state.
+         * The index is validated, but you can use this method to insert element at the end of the array.
+         * @param index Position where to put the element.
+         * @param element Element to insert.
+         * @return 1 if the element was inserted, 0 otherwise.
+         */
+        int Insert(int index, const T& element)
+        {
+            return this->Insert(index, &element, 1);
+        }
+
+        /**
+         * Insert elements at the specific index.
+         * Other elements are shifted right.
+         * In case the copy constructor throws a exception, the array may stay in invalid state.
+         * The index is validated, but you can use this method to insert elements at the end of the array.
+         * @param index Position where to put the element.
+         * @param element Element to insert.
+         * @return Number of inserted elements.
+         */
+        int Insert(int position, const T* elements, int count)
+        {
+            //TODO implement
+        }
+
+        /**
+         * Insert element at the specific index.
+         * Other elements are shifted right.
+         * In case the copy constructor throws a exception, the stay in valid state.
+         * The safe version needs more space than the unsafe one.
+         * The index is validated, but you can use this method to insert element at the end of the array.
+         * @param index Position where to put the element.
+         * @param element Element to insert.
+         * @return 1 if the element was inserted, 0 otherwise.
+         */
+        int InsertSafe(int position, const T& element)
+        {
+            return this->InsertSafe(position, &element, 1);
+        }
+
+        /**
+         * Insert elements at the specific index.
+         * Other elements are shifted right.
+         * In case the copy constructor throws a exception, the array stay in valid state.
+         * The safe version needs more space than the unsafe one.
+         * The index is validated, but you can use this method to insert elements at the end of the array.
+         * @param index Position where to put the element.
+         * @param element Element to insert.
+         * @return Number of inserted elements.
+         */
+        int InsertSafe(int position, const T* elements, int count)
+        {
+            //TODO implement
+        }
+
+
+
+        //TODO implement emplace
+
+
+
+
+
 
     private:
-
         T& GetElementAtIndex(int index)
         {
             if (index >= _inserted || index < 0)
@@ -450,22 +645,31 @@ namespace Templates
             return _array[index];
         }
 
+        const T& GetElementAtIndex(int index) const
+        {
+            if (index >= _inserted || index < 0)
+                throw OutOfRangeException("Operator is out of array range", __LINE__);
 
-        void Expand(int By = 0)
+            return _array[index];
+        }
+
+        //TODO delete
+        void Expand(int by = 0)
         {
             //By could be < 0
 
-            if (By <= 0)
-                By = int(_allocated * 0.5 == 0 ? BASE_SIZE : _allocated * 0.5);
+            if (by <= 0)
+                by = int(_allocated * 0.5 == 0 ? BASE_SIZE : _allocated * 0.5);
 
             int OldAllocation = _allocated;
-            this->_allocated = _allocated + By;
+            this->_allocated = _allocated + by;
             Containing = (T**) realloc(Containing, sizeof(T*) * (_allocated));
 
-            if (By > 0)
-                memset(Containing + OldAllocation, 0, sizeof(T*) * (By));
+            if (by > 0)
+                memset(Containing + OldAllocation, 0, sizeof(T*) * (by));
         }
 
+        //TODO delete
         void ExpandTo(int To)
         {
             if (To <= 0)
@@ -485,6 +689,7 @@ namespace Templates
          * Shift array by @PlacesToShift
          * can shift forward or backward
          * delete shifting space
+         * TODO delete
          */
         int Shift(int index, int PlacesToShift)
         {
@@ -519,64 +724,24 @@ namespace Templates
     public:
 
         /**
-         * Return element at @ith index.
-         * Throw exception, if is index out of range
-         */
-        T& operator[](int i)
-        {
-            return GetElementAtIndex(i);
-        }
-
-        const T& operator[](int i) const
-        {
-            return GetElementAtIndex(i);
-        }
-
-        /**
-         * Delete @Count values from array
-         * Dont change capacity
+         * Delete {@code count} values from array
+         * Don't change capacity
          * Return count of deleted elements
+         * TODO delete
          */
-        int Delete(int Count)
+        int Delete(int count)
         {
-            if (Count >= _inserted)
+            if (count >= _inserted)
                 return Delete();
 
-            int deleted = (-1) * this->Shift(Count, -Count);
-            return deleted;
-        }
-
-        /**
-         * Delete all elements in array
-         * Also change capacity of array to default value
-         * Return count of deleted elements
-         */
-        int Delete()
-        {
-
-            _inserted = 0;
-            Array tmp;
-            swap(*this, tmp);
-
-            return 0;
-        }
-
-        int DeleteFromEnd(int Count)
-        {
-            int deleted = 0;
-            for (int i = _inserted - 1, a = 0; a < Count && i >= 0; a++, i--)
-            {
-                delete Containing[i];
-                Containing[i] = nullptr;
-                deleted++;
-                _inserted--;
-            }
+            int deleted = (-1) * this->Shift(count, -count);
             return deleted;
         }
 
         /**
          * Convert Array to C++-like array (must be cleared by delete [])
          * Return new array, NULL otherwise
+         * TODO return instance
          */
         T* ToArray(int& count) const
         {
@@ -592,6 +757,7 @@ namespace Templates
         /**
          * Create array, that can be edited
          * Return editable array, NULL otherwise
+         * TODO delete
          */
         T** ToWriteArray(int& count)
         {
@@ -608,65 +774,69 @@ namespace Templates
          * Insert @Value in the end of Array
          * Return 1 if success, otherwise 0
          */
-        int Push(const T& Value)
+        int Push(const T& value)
         {
-            if (_allocated == _inserted)
-            {
-                int NewAlloc = int(_allocated * 1.5);
-                Expand(NewAlloc - _allocated);
-            }
-
-            Containing[_inserted] = new T(Value);
-            _inserted++;
-            return 1;
+            return this->Push(&value, 1);
         }
 
         /**
          * Insert @Count values from @Values array
          * Return count of inserted elements, 0 if error was detected
          */
-        int Push(const T* const Values, int Count)
+        int Push(const T * values, int count)
         {
-            if (_allocated < _inserted + Count)
-            {
-                int NewAlloc = _inserted + Count;
+            int newCapacity = _allocated;
+            if(newCapacity < _inserted + count)
+                newCapacity *= EXPANDING_COEFICIENT;
+            if(newCapacity < _inserted + count)
+                newCapacity = _inserted + count;
 
-                Expand(NewAlloc - _allocated);
+            if(newCapacity != _allocated)
+            {
+                Array tmp(newCapacity);
+                tmp.Push(_array.Raw(), _inserted);
+                swap(*this, tmp);
             }
 
-            for (int a = 0; a < Count; a++)
-                Containing[_inserted + a] = new T(Values[a]);
-            _inserted += Count;
-            return Count;
+            T* interArray = _array.Raw()+_inserted;
+            int i = 0;
+            for(i=0;i<count;i++,values++, interArray++){
+                try
+                {
+                    new (interArray) T(*values);
+                    _inserted++;
+                }
+                catch(...)
+                {
+                    while(i > 0)
+                    {
+                        --i;
+                        _array[--_inserted].~T();
+                    }
+                    throw;
+                }
+            }
+            return i;
         }
 
         /**
-         * Set size of array to best fit count of values already in
-         * Return new capacity of array
+         * Swap elements at specific indexes.
+         * The indexes are validated. In case of invalid indexes, {@code OutOfRange} exception is throwed.
+         * @param FirstIndex Index of the first element
+         * @param SecondIndex Index of the second element
          */
-        int ShrinkToFit()
+        void Swap(int FirstIndex, int SecondIndex)
         {
-            int NewSize = _inserted > 10 ? _inserted : 10;
-            this->Containing = (T**) realloc(this->Containing, sizeof(T*) * NewSize);
-            this->_allocated = NewSize;
-            if (_allocated > _inserted)
-                memset(this->Containing + _inserted, 0, sizeof(T*) * (NewSize - _inserted));
-            return _inserted;
-        }
+            if (FirstIndex < 0 || FirstIndex >= _inserted)
+                throw OutOfRangeException("The index of the first element is not valid", __LINE__);
+            if(SecondIndex < 0 || SecondIndex >= _inserted)
+                throw OutOfRangeException("The index of the second element is not valid", __LINE__);
 
-        /**
-         * Swap elements at speciic indexes
-         */
-        bool Swap(int FirstIndex, int SecondIndex)
-        {
-            if (FirstIndex < 0 || FirstIndex >= _inserted || SecondIndex < 0 || SecondIndex >= _inserted ||
-                FirstIndex == SecondIndex)
-                return false;
+            if(FirstIndex == SecondIndex)
+                return;
 
-            T* temp = Containing[FirstIndex];
-            Containing[FirstIndex] = Containing[SecondIndex];
-            Containing[SecondIndex] = temp;
-            return true;
+            using Templates::swap;
+            swap(_array[FirstIndex], _array[SecondIndex]);
         }
 
         void Swap(Array &second) noexcept {
