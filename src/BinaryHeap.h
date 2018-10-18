@@ -155,10 +155,9 @@ namespace Templates
 
         bool Top(T &val)
         {
-            typename Array<T>::Iterator iter;
-            if (!Container->TryAt(0, iter))
+            if(Container->Size()==0)
                 return false;
-            val = *iter.GetValue();
+            val = (*Container)[0];
             return true;
         }
 

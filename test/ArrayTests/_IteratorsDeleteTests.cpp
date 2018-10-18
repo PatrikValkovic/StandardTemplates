@@ -1,9 +1,9 @@
 #define CATCH_CONFIG_MAIN
 #include "../../libs/catch.h"
-#define private public
 #include "../../Templates.h"
 using namespace Templates;
 
+/*
 int OriginalArray[15] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29};
 Array<int>::Iterator iter;
 
@@ -11,7 +11,7 @@ TEST_CASE("Array iterator should delete item at the beginning"){
     Array<int> instance(OriginalArray, 15);
     iter = instance.Begin();
     REQUIRE(iter.DeleteThis() == 1);
-    REQUIRE(*iter.GetValue() == 3);
+    REQUIRE(*iter.GetPointer() == 3);
     REQUIRE(instance.Size() == 14);
     REQUIRE(instance.Capacity() >= 14);
 }
@@ -20,7 +20,7 @@ TEST_CASE("Array iterator should not delete item at the end"){
     Array<int> instance(OriginalArray, 15);
     iter = instance.End();
     REQUIRE(iter.DeleteThis() == 0);
-    REQUIRE(iter.GetValue() == NULL);
+    REQUIRE(iter.GetPointer() == NULL);
     REQUIRE(instance.Size() == 15);
     REQUIRE(instance.Capacity() >= 15);
 }
@@ -29,7 +29,7 @@ TEST_CASE("Array iterator should delete item at position"){
     Array<int> instance(OriginalArray, 15);
     iter = instance.At(5);
     REQUIRE(iter.DeleteThis() == 1);
-    REQUIRE(*iter.GetValue() == 13);
+    REQUIRE(*iter.GetPointer() == 13);
     REQUIRE(instance.Size() == 14);
     REQUIRE(instance.Capacity() >= 15);
 }
@@ -38,7 +38,7 @@ TEST_CASE("Array iterator should not delete items before if at beginning"){
     Array<int> instance(OriginalArray, 15);
     iter = instance.Begin();
     REQUIRE(iter.DeleteBefore(5) == 0);
-    REQUIRE(*iter.GetValue() == 1);
+    REQUIRE(*iter.GetPointer() == 1);
     REQUIRE(instance.Size() == 15);
 }
 
@@ -50,7 +50,7 @@ TEST_CASE("Array iterator should delete some items before from the end"){
     iter = instance.Begin();
     for (int a = 0; a < 10; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
 }
@@ -63,7 +63,7 @@ TEST_CASE("Array iterator should delete all items before"){
     iter = instance.Begin();
     for (int a = 5; a < 15; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
 }
@@ -76,7 +76,7 @@ TEST_CASE("Array iterator should delete all items before with overlap"){
     iter = instance.Begin();
     for (int a = 5; a < 15; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
 }
@@ -96,12 +96,12 @@ TEST_CASE("Array iterator should delete some items after beginning"){
     iter = instance.Begin();
     for (int a = 0; a < 1; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
     for (int a = 6; a < 15; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
 }
@@ -113,12 +113,12 @@ TEST_CASE("Array iterator should delete some items after beginning and access wi
     REQUIRE(instance.Size() == 10);
     for (int a = 0; a < 1; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
     for (int a = 6; a < 15; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
 }
@@ -130,12 +130,12 @@ TEST_CASE("Array iterator should delete one items after beginning"){
     REQUIRE(instance.Size() == 14);
     for (int a = 0; a < 1; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
     for (int a = 2; a < 15; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
 }
@@ -164,7 +164,7 @@ TEST_CASE("Array iterator should not delete one item after end"){
     for (int a = 14; a >= 0; a--)
     {
         REQUIRE(iter.Back());
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
     }
 }
 
@@ -176,7 +176,7 @@ TEST_CASE("Array iterator should not delete one item after end with same iterato
     for (int a = 14; a >= 0; a--)
     {
         REQUIRE(iter.Back());
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
     }
 }
 
@@ -189,7 +189,7 @@ TEST_CASE("Array iterator should not delete some item after end"){
     for (int a = 14; a >= 0; a--)
     {
         REQUIRE(iter.Back());
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
     }
 }
 
@@ -202,7 +202,7 @@ TEST_CASE("Array iterator should not delete all items after end"){
     for (int a = 14; a >= 0; a--)
     {
         REQUIRE(iter.Back());
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
     }
 }
 
@@ -215,7 +215,7 @@ TEST_CASE("Array iterator should not delete all items after end with overlap"){
     for (int a = 14; a >= 0; a--)
     {
         REQUIRE(iter.Back());
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
     }
 }
 
@@ -227,12 +227,12 @@ TEST_CASE("Array iterator should delete one item after specific position"){
     iter = instance.Begin();
     for (int a = 0; a < 6; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
     for (int a = 7; a < 15; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
 }
@@ -242,17 +242,17 @@ TEST_CASE("Array iterator should delete one item after specific position with sa
     iter = instance.At(5);
     REQUIRE(iter.DeleteAfter() == 1);
     REQUIRE(instance.Size() == 14);
-    REQUIRE(*iter.GetValue() == OriginalArray[5]);
+    REQUIRE(*iter.GetPointer() == OriginalArray[5]);
     REQUIRE(iter.Next());
     for (int a = 7; a < 15; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
-    iter.JumpToBegin();
+    iter.ToBegin();
     for (int a = 0; a < 5; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
 }
@@ -265,12 +265,12 @@ TEST_CASE("Array iterator should delete some item after specific position"){
     iter = instance.Begin();
     for (int a = 0; a < 6; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
     for (int a = 11; a < 15; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
 }
@@ -283,7 +283,7 @@ TEST_CASE("Array iterator should not delete all items after specific position"){
     iter = instance.Begin();
     for (int a = 0; a < 15; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
 }
@@ -296,7 +296,9 @@ TEST_CASE("Array iterator should not delete all items after specific position wi
     iter = instance.Begin();
     for (int a = 0; a < 6; a++)
     {
-        REQUIRE(*iter.GetValue() == OriginalArray[a]);
+        REQUIRE(*iter.GetPointer() == OriginalArray[a]);
         REQUIRE(iter.Next());
     }
 }
+
+*/

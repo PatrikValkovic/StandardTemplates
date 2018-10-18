@@ -38,17 +38,6 @@ namespace Templates
         { }
     };
 
-    class VectorException : public Exception
-    {
-    public:
-        VectorException(const char *Message, int LineNumber)
-                : Exception(Message, LineNumber)
-        { }
-
-        virtual ~VectorException()
-        { }
-    };
-
     class OutOfRangeException : public Exception
     {
     public:
@@ -75,28 +64,6 @@ namespace Templates
         { }
 
         virtual ~QueueException()
-        { }
-    };
-
-    class ListException : public Exception
-    {
-    public:
-        ListException(const char *File, const int Line) :
-                Exception(File, Line)
-        { }
-
-        virtual ~ListException()
-        { }
-    };
-
-    class ArrayException : public Exception
-    {
-    public:
-        ArrayException(const char *File, const int Line) :
-                Exception(File, Line)
-        { }
-
-        virtual ~ArrayException()
         { }
     };
 
@@ -128,6 +95,23 @@ namespace Templates
         virtual ~InternalException()
         { }
     };
+
+
+    class InvalidIteratorException : public Exception
+    {
+    public:
+        InvalidIteratorException() : InvalidIteratorException("Iterator is not valid.", -1)
+        { }
+
+        InvalidIteratorException(const char *Message)
+                : InvalidIteratorException(Message, -1)
+        { }
+
+        InvalidIteratorException(const char *Message, int LineNumber)
+                : Exception(Message, LineNumber)
+        { }
+    };
+
 }
 
 namespace Math
