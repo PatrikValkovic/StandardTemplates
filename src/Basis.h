@@ -95,9 +95,21 @@ namespace Templates
 	}
 	
 	template<typename T>
-	void free_own(T* ptr){
-		::operator delete((void*)ptr);
-	}	
+	void free_own(T* ptr)
+    {
+        ::operator delete((void*) ptr);
+    }
+
+
+    template<typename T>
+    const T& max(const T& l, const T& r){
+        return l < r ? r : l;
+    }
+
+    template<typename T>
+    const T& min(const T& l, const T& r){
+        return l < r ? l : r;
+    }
 }
 
 

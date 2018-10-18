@@ -568,6 +568,36 @@ namespace Templates
         {
             return this->DeleteFromEnd(_inserted);
         }
+        /**
+         * Method that can delete or/and add elements into array.
+         * Safe version of method make sure that the array is not changed in case of exception.
+         * Safe version needs more memory and is slower then the unsafe version.
+         *
+         * First, the elements from the index will be removed.
+         * Then, in place of the deleted items new elements are inserted.
+         * If inserted array is smaller or bigger then the size of deleted sequence, then rest of the array will be moved left or right to fill the gab.
+         * @param index Index where to delete or put the elements.
+         * @param elements_to_delete How many elements delete.
+         * @param arr Array with the new elements
+         * @param elements_to_insert How many elements insert to the array.
+         */
+        void SpliceSafe(int index, int elements_to_delete, const T* arr, int elements_to_insert)
+        {
+            if(index < 0 || index > _inserted)
+                throw OutOfRangeException("Index is out of range", __LINE__);
+
+            elements_to_delete = index + elements_to_delete > _inserted ? _inserted - index : elements_to_delete;
+            elements_to_insert = max(elements_to_insert, 0);
+            int to_allocate = _inserted - elements_to_delete + elements_to_insert;
+            to_allocate = max(to_allocate, _allocated);
+
+            Array tmp(to_allocate);
+            tmp.Push(_array.Raw(), index);
+            tmp.Push(arr, elements_to_insert);
+            tmp.Push(_array.Raw() + index + elements_to_delete, _inserted - elements_to_delete - index);
+
+            swap(*this, tmp);
+        }
 
 
         /**

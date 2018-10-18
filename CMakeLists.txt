@@ -77,6 +77,8 @@ set(TEST_SOURCES ${TEST_FILES}
         test/ArrayTests/ArrayIntResizeTests.cpp
         test/ArrayTests/ArrayCustomResizeTests.cpp
         test/ArrayTests/ArrayToArrayTests.cpp
+        test/ArrayTests/ArrayGeneralSplitIntsTests.cpp
+        test/ArrayTests/ArrayGeneralSplitCustomTests.cpp
 
         test/ArrayTests/DeleteTests.cpp
         test/ArrayTests/ShiftingTests.cpp
