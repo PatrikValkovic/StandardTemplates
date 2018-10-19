@@ -72,15 +72,17 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Pointers/SharedPointerTests.cpp
         test/ArrayTests/ArrayCreationTests.cpp
         test/ArrayTests/ArrayAssignmentTests.cpp
+        test/ArrayTests/ArrayAccessTests.cpp
         test/ArrayTests/ArrayPushTests.cpp
         test/ArrayTests/ArraySwapTests.cpp
         test/ArrayTests/ArrayIntResizeTests.cpp
         test/ArrayTests/ArrayCustomResizeTests.cpp
         test/ArrayTests/ArrayToArrayTests.cpp
-        test/ArrayTests/ArrayGeneralSplitIntsTests.cpp
-        test/ArrayTests/ArrayGeneralSplitCustomTests.cpp
-
-        test/ArrayTests/DeleteTests.cpp
+        test/ArrayTests/ArrayGeneralSpliceSafeIntsTests.cpp
+        test/ArrayTests/ArrayGeneralSpliceSafeCustomTests.cpp
+        test/ArrayTests/ArrayGeneralSpliceIntsTests.cpp
+        test/ArrayTests/ArrayDeleteTests.cpp
+        test/ArrayTests/ArrayDeleteSafeTests.cpp
         #test/ArrayTests/_IteratorsTests.cpp
         #test/ArrayTests/_IteratorsDeleteTests.cpp
         #test/ArrayTests/_IteratorInsertTests.cpp

@@ -461,3 +461,29 @@ TEST_CASE("Array of ints should safe delete four values and insert three values 
         REQUIRE(instance[a] == SecondArray[a-11]);
 }
 //endregion
+
+TEST_CASE("SafeSplice with negative index should throw a exception", "[Array][SpliceSafe]") {
+    Array<int> instance(OriginalArray, 15);
+    try
+    {
+        instance.SpliceSafe(-2, 3, nullptr, 0);
+        REQUIRE(false);
+    }
+    catch(OutOfRangeException&)
+    {
+        REQUIRE(true);
+    }
+}
+
+TEST_CASE("SafeSplice with big index should throw a exception", "[Array][SpliceSafe]") {
+    Array<int> instance(OriginalArray, 15);
+    try
+    {
+        instance.SpliceSafe(20, 3, nullptr, 0);
+        REQUIRE(false);
+    }
+    catch(OutOfRangeException&)
+    {
+        REQUIRE(true);
+    }
+}

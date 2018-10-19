@@ -15,6 +15,16 @@ TEST_CASE("Array should push one value", "[Array][Push]"){
     REQUIRE(instance[15] == 31);
 }
 
+TEST_CASE("Array should resize based on the input size if big array is pushed", "[Array][Push]"){
+    Array<int> instance(OriginalArray, 2);
+    REQUIRE(instance.Push(OriginalArray+2, 13)==13);
+    REQUIRE(instance.Size()==15);
+    REQUIRE(instance.Capacity() >= 15);
+    for(int i=0;i<15;i++)
+        REQUIRE(instance[i] == OriginalArray[i]);
+}
+
+
 static int COUNTER = 0;
 static int SHOULD_THROW = ~0;
 class T1

@@ -15,8 +15,8 @@ namespace Templates
         static const int BASE_SIZE = 8;
         static const int EXPANDING_COEFICIENT = 2;
 
-        int _allocated{};
-        int _inserted{};
+        int _allocated;
+        int _inserted;
         UniquePointer<T, __deleterWithoutDestruction<T>> _array;
 
     public:
@@ -144,7 +144,7 @@ namespace Templates
          * Check if is array empty.
          * @return True if is array empty, false otherwise.
          */
-        bool IsEmpty()
+        bool IsEmpty() const
         {
             return this->Size() == 0;
         }
@@ -214,18 +214,18 @@ namespace Templates
          */
         void Delete(int count)
         {
-            this->Delete(0, count);
+            this->DeleteFromBegin(count);
         }
 
         /**
          * Delete {@code count} elements from the beginning.
-         * Save version make sure, that the array remains valid if exception occurs.
-         * Save version needs more memory than the unsafe one.
+         * Safe version make sure, that the array remains valid if exception occurs.
+         * Safe version needs more memory than the unsafe one.
          * @param count How many elements delete
          */
         void DeleteSafe(int count)
         {
-            this->Delete(0, count);
+            this->DeleteFromBeginSafe(count);
         }
 
         /**
@@ -240,8 +240,8 @@ namespace Templates
 
         /**
          * Delete {@code count} elements from the {@code index}.
-         * Save version make sure, that the array remains valid if exception occurs.
-         * Save version needs more memory than the unsafe one.
+         * Safe version make sure, that the array remains valid if exception occurs.
+         * Safe version needs more memory than the unsafe one.
          * @param index From which element delete
          * @param count How many elements delete
          */
@@ -257,17 +257,19 @@ namespace Templates
          */
         void DeleteFromEnd(int count)
         {
+            count = max(count, 0);
             this->Delete(max(0, _inserted-count), count);
         }
 
         /**
          * Delete {@code count} elements from the end.
          * In case of exception, the array stays in the old state.
-         * Save version needs more memory than the unsafe one.
+         * Safe version needs more memory than the unsafe one.
          * @param count Number of elements to delete
          */
         void DeleteFromEndSafe(int count)
         {
+            count = max(count, 0);
             this->DeleteSafe(max(0, _inserted-count), count);
         }
 
@@ -287,7 +289,7 @@ namespace Templates
          * Safe method needs more memory than the unsafe one.
          * @param count Number of elements to delete
          */
-        void DeleteFromBeginSave(int count)
+        void DeleteFromBeginSafe(int count)
         {
             return this->DeleteSafe(0, count);
         }
@@ -391,6 +393,7 @@ namespace Templates
             if(index < 0 || index > _inserted)
                 throw OutOfRangeException("Index is out of range", __LINE__);
 
+            elements_to_delete = max(elements_to_delete, 0);
             elements_to_delete = index + elements_to_delete > _inserted ? _inserted - index : elements_to_delete;
             elements_to_insert = max(elements_to_insert, 0);
             int to_allocate = _inserted - elements_to_delete + elements_to_insert;
@@ -411,6 +414,7 @@ namespace Templates
          * The index is validated, but you can use this method to insert element at the end of the array.
          * @param index Position where to put the element.
          * @param element Element to insert.
+         * TODO cover
          */
         void Insert(int index, const T& element)
         {
@@ -424,6 +428,7 @@ namespace Templates
          * The index is validated, but you can use this method to insert elements at the end of the array.
          * @param index Position where to put the element.
          * @param element Element to insert.
+         * TODO cover
          */
         void Insert(int position, const T* elements, int count)
         {
@@ -437,6 +442,7 @@ namespace Templates
          * The safe version needs more space than the unsafe one.
          * The index is validated, but you can use this method to insert element at the end of the array.
          * @param index Position where to put the element.
+         * TODO cover
          */
         void InsertSafe(int position, const T& element)
         {
@@ -450,6 +456,7 @@ namespace Templates
          * The safe version needs more space than the unsafe one.
          * The index is validated, but you can use this method to insert elements at the end of the array.
          * @param index Position where to put the element.
+         * TODO cover
          */
         void InsertSafe(int position, const T* elements, int count)
         {

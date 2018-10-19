@@ -9,11 +9,13 @@ int array[] = {1, 3, 5, 7, 9};
 TEST_CASE("Should create empty Array", "[Array][Creation]") {
     Array<int> instance;
     REQUIRE(instance.Capacity() > 0);
+    REQUIRE(instance.IsEmpty());
 }
 
 TEST_CASE("Should create Array with capacity", "[Array][Creation]"){
     Array<int> instance(4);
     REQUIRE(instance.Capacity() == 4);
+    REQUIRE(instance.IsEmpty());
 }
 
 TEST_CASE("Should create Array with more capacity", "[Array][Creation]"){
@@ -39,6 +41,7 @@ TEST_CASE("Should create Array with huge capacity", "[Array][Creation]"){
 TEST_CASE("Should create Array with default values", "[Array][Creation]"){
     Array<int> instance(array, 5);
     REQUIRE(instance.Capacity() >= 5);
+    REQUIRE(!instance.IsEmpty());
     REQUIRE(instance.Size() == 5);
     for (int a = 0; a < 5; a++)
         REQUIRE(instance[a] == array[a]);
