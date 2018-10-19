@@ -20,6 +20,10 @@ namespace Templates
         UniquePointer<T, __deleterWithoutDestruction<T>> _array;
 
     public:
+
+        using Iterator = T*;
+        using ConstantIterator = const T*;
+
         /**
          * Initialize new instance with default size.
          */
@@ -565,6 +569,41 @@ namespace Templates
             swap(_inserted, second._inserted);
             swap(_array, second._array);
         }
+
+        /**
+         * Get iterator at the beginning of the array.
+         */
+        Iterator Begin() noexcept
+        {
+            return _array.Raw();
+        }
+
+        /**
+         * Get iterator at the end of the array.
+         * The iterator is not valid, it points one element after the end of the array.
+         */
+        Iterator End() noexcept
+        {
+            return _array.Raw() + _inserted;
+        }
+
+        /**
+         * Get iterator at the beginning of the array.
+         */
+        ConstantIterator Begin() const noexcept
+        {
+            return _array.Raw();
+        }
+
+        /**
+         * Get iterator at the end of the array.
+         * The iterator is not valid, it points one element after the end of the array.
+         */
+        ConstantIterator End() const noexcept
+        {
+            return _array.Raw() + _inserted;
+        }
+
     };
 
     /**

@@ -84,6 +84,7 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Array/ArrayDeleteSafeTests.cpp
         test/Array/ArrayInsertTests.cpp
         test/Array/ArrayInsertSafeTests.cpp
+        test/Array/ArrayIteratorTests.cpp
 
         test/Vector/VectorTests.cpp
 
