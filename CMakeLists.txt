@@ -83,6 +83,8 @@ set(TEST_SOURCES ${TEST_FILES}
         test/ArrayTests/ArrayGeneralSpliceIntsTests.cpp
         test/ArrayTests/ArrayDeleteTests.cpp
         test/ArrayTests/ArrayDeleteSafeTests.cpp
+        test/ArrayTests/ArrayInsertTests.cpp
+        test/ArrayTests/ArrayInsertSafeTests.cpp
         #test/ArrayTests/_IteratorsTests.cpp
         #test/ArrayTests/_IteratorsDeleteTests.cpp
         #test/ArrayTests/_IteratorInsertTests.cpp

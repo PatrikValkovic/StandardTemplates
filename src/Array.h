@@ -52,7 +52,7 @@ namespace Templates
          * Move constructor, initialize Array from the values of other array.
          * The second instance will be cleared.
          */
-        Array(Array&& second) noexcept : Array()
+        Array(Array&& second) : Array()
         {
             swap(second, *this);
         }
@@ -414,7 +414,6 @@ namespace Templates
          * The index is validated, but you can use this method to insert element at the end of the array.
          * @param index Position where to put the element.
          * @param element Element to insert.
-         * TODO cover
          */
         void Insert(int index, const T& element)
         {
@@ -428,11 +427,10 @@ namespace Templates
          * The index is validated, but you can use this method to insert elements at the end of the array.
          * @param index Position where to put the element.
          * @param element Element to insert.
-         * TODO cover
          */
         void Insert(int position, const T* elements, int count)
         {
-            this->Splice(position, 0, elements, count);
+            this->Splice(position, elements, count);
         }
 
         /**
@@ -442,7 +440,6 @@ namespace Templates
          * The safe version needs more space than the unsafe one.
          * The index is validated, but you can use this method to insert element at the end of the array.
          * @param index Position where to put the element.
-         * TODO cover
          */
         void InsertSafe(int position, const T& element)
         {
@@ -456,11 +453,10 @@ namespace Templates
          * The safe version needs more space than the unsafe one.
          * The index is validated, but you can use this method to insert elements at the end of the array.
          * @param index Position where to put the element.
-         * TODO cover
          */
         void InsertSafe(int position, const T* elements, int count)
         {
-            this->SpliceSafe(position, 0, elements, count);
+            this->SpliceSafe(position, elements, count);
         }
 
 
@@ -516,11 +512,7 @@ namespace Templates
                 newCapacity = _inserted + count;
 
             if(newCapacity != _allocated)
-            {
-                Array tmp(newCapacity);
-                tmp.Push(_array.Raw(), _inserted);
-                swap(*this, tmp);
-            }
+                this->Resize(newCapacity);
 
             T* interArray = _array.Raw()+_inserted;
             int i = 0;
