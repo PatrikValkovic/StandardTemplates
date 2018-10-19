@@ -39,7 +39,6 @@ set(TEST_FILES
         test/PriorityQueueTests.cpp
         test/QueueTests.cpp
         test/StackTests.cpp
-        test/VectorTests.cpp
         test/IntervalTests.cpp
         test/BinomialTreeTests.cpp
         test/BinomialHeapTests.cpp
@@ -70,24 +69,27 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Meta/IsAssignableMoveTests.cpp
         test/Pointers/UniquePointerTests.cpp
         test/Pointers/SharedPointerTests.cpp
-        test/ArrayTests/ArrayCreationTests.cpp
-        test/ArrayTests/ArrayAssignmentTests.cpp
-        test/ArrayTests/ArrayAccessTests.cpp
-        test/ArrayTests/ArrayPushTests.cpp
-        test/ArrayTests/ArraySwapTests.cpp
-        test/ArrayTests/ArrayIntResizeTests.cpp
-        test/ArrayTests/ArrayCustomResizeTests.cpp
-        test/ArrayTests/ArrayToArrayTests.cpp
-        test/ArrayTests/ArrayGeneralSpliceSafeIntsTests.cpp
-        test/ArrayTests/ArrayGeneralSpliceSafeCustomTests.cpp
-        test/ArrayTests/ArrayGeneralSpliceIntsTests.cpp
-        test/ArrayTests/ArrayDeleteTests.cpp
-        test/ArrayTests/ArrayDeleteSafeTests.cpp
-        test/ArrayTests/ArrayInsertTests.cpp
-        test/ArrayTests/ArrayInsertSafeTests.cpp
-        #test/ArrayTests/_IteratorsTests.cpp
-        #test/ArrayTests/_IteratorsDeleteTests.cpp
-        #test/ArrayTests/_IteratorInsertTests.cpp
+        test/Array/ArrayCreationTests.cpp
+        test/Array/ArrayAssignmentTests.cpp
+        test/Array/ArrayAccessTests.cpp
+        test/Array/ArrayPushTests.cpp
+        test/Array/ArraySwapTests.cpp
+        test/Array/ArrayIntResizeTests.cpp
+        test/Array/ArrayCustomResizeTests.cpp
+        test/Array/ArrayToArrayTests.cpp
+        test/Array/ArrayGeneralSpliceSafeIntsTests.cpp
+        test/Array/ArrayGeneralSpliceSafeCustomTests.cpp
+        test/Array/ArrayGeneralSpliceIntsTests.cpp
+        test/Array/ArrayDeleteTests.cpp
+        test/Array/ArrayDeleteSafeTests.cpp
+        test/Array/ArrayInsertTests.cpp
+        test/Array/ArrayInsertSafeTests.cpp
+
+        test/Vector/VectorTests.cpp
+
+        #test/Array/_IteratorsTests.cpp
+        #test/Array/_IteratorsDeleteTests.cpp
+        #test/Array/_IteratorInsertTests.cpp
         )
 
 find_program( VALGRIND_PROGRAM valgrind )

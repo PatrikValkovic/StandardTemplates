@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include <assert.h>
-#include "../libs/catch.h"
-#include "../Templates.h"
+#include "../../libs/catch.h"
+#include "../../Templates.h"
 
 class VectorTest
 {
