@@ -514,14 +514,14 @@ namespace Templates
         }
 
 
-        Vector<T>&& ToArray() const
+        Array<T> ToArray() const
         {
-            Vector tmp(this->Size());
+            Array<T> tmp(this->Size());
 
-            Vector::Iterator b = this->Begin();
-            Vector::Iterator e = this->End();
+            ConstantIterator b = this->Begin();
+            ConstantIterator e = this->End();
             for(;b != e;b++)
-                tmp.PushBack(*b);
+                tmp.Push(*b);
 
             return move(tmp);
         }

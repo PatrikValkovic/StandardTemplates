@@ -59,8 +59,9 @@ namespace Templates
             {
                 ToProcess.Pop(ToDelete);
                 typename Vector<Node*>::Iterator moving = ToDelete->rest.Begin();
-                for (; moving.IsValidIterator(); moving.Next())
-                    ToProcess.Push(*moving.GetValue());
+                typename Vector<Node*>::Iterator e = ToDelete->rest.End();
+                for (; moving != e; moving++)
+                    ToProcess.Push(*moving);
                 delete ToDelete;
             }
         }
@@ -117,8 +118,9 @@ namespace Templates
                         this->top = newOne;
 
                 typename Vector<Node*>::Iterator moving = ToCopy.toProccess->rest.Begin();
-                for (; moving.IsValidIterator(); moving.Next())
-                    ToProcess.Push(Assign {newOne, *moving.GetValue()});
+                typename Vector<Node*>::Iterator e = ToCopy.toProccess->rest.End();
+                for (; moving != e; moving++)
+                    ToProcess.Push(Assign {newOne, *moving});
             }
 
             return *this;
@@ -158,10 +160,11 @@ namespace Templates
             BinomialTree temp = *this;
             List<BinomialTree<T, comp, allowDuplicities>> inner;
             typename Vector<Node*>::Iterator moving = temp.top->rest.Begin();
-            for (; moving.IsValidIterator(); moving.Next())
+            typename Vector<Node*>::Iterator e = temp.top->rest.End();
+            for (; moving != e; moving++)
             {
                 BinomialTree<T, comp, allowDuplicities> innerTree;
-                innerTree.top = *moving.GetValue();
+                innerTree.top = *moving;
                 inner.End().InsertBefore(innerTree);
             }
             delete temp.top;

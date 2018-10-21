@@ -417,7 +417,12 @@ namespace Templates
         {
             Vector<T> ArrayTemp;
             ToArrayRecursive(ArrayTemp, this->Root);
-            return ArrayTemp.ToArray(Count);
+            Array<T> arr = ArrayTemp.ToArray();
+            T* array = new T[arr.Size()];
+            Count = arr.Size();
+            for(int i=0;i<Count;i++)
+                array[i] = arr[i];
+            return array;
         }
 
         /**

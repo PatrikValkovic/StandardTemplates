@@ -25,27 +25,27 @@ private:
 
     void FindTest()
     {
-        using namespace Templates;
+        /*using namespace Templates;
         Vector<int>* Instance;
         Vector<int>::Iterator Iter;
-        int list[] = {1,6,8,4,2,3,5,7};
+        int list[] = {1,6,8,4,2,3,5,7};*/
 
-        Instance = new Vector<int>(list,8);
+        /*Instance = new Vector<int>(list,8);
         Iter = Instance->Begin();
         assert(!Find(&Iter,FindTwelve));
         Iter = Instance->Begin();
         assert(Find(&Iter,FindSix));
         assert(*Iter.GetValue()==6);
-        delete Instance;
+        delete Instance;*/
 
-        Instance = new Vector<int>(list,8);
+        /*Instance = new Vector<int>(list,8);
         Iter = Instance->Begin();
         int val = 5;
         assert(Find(&Iter,FindValue,&val));
-        assert(*Iter.GetValue()==5);
+        assert(*Iter==5);
         val = 24;
         assert(!Find(&Iter,FindValue,&val));
-        delete Instance;
+        delete Instance;*/
     }
 public:
     static void test()
