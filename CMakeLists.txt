@@ -109,3 +109,5 @@ foreach (name ${TEST_SOURCES})
     add_executable(${basename} ${name} ${SOURCE_FILES} ${LIB_FILES})
     ADD_TEST(NAME ${basename} COMMAND $<TARGET_FILE:${basename}>)
 endforeach ()
+
+ADD_CUSTOM_TARGET(doc doxygen doxygen.cfg)
