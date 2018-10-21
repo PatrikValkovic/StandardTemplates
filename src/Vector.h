@@ -1,305 +1,365 @@
 #ifndef TEMPLATES_VECTOR_H
 #define TEMPLATES_VECTOR_H
-
-#include "IteratorsDefinitions.h"
-#include "Exceptions.h"
+#include "Basis.h"
+#include "Array.h"
 
 namespace Templates
 {
     /**
-     * Represent one way linked list
+     * Data structure that represent one-way linked list.
+     * The structure keeps its size and pointers to the first and last element.
+     * Vector can have more nodes then number of elements. Use ShrinkToFit to delete these nodes.
      */
     template<typename T>
     class Vector
     {
-    protected:
+    private:
         class Node
         {
         public:
-            T Value;
-            Node* Next = NULL;
+            alignas(alignof(T)) unsigned char _value[sizeof(T)];
+            Node* _next = nullptr;
+            const T* const Pointer() const noexcept
+            {
+                return static_cast<T*>(static_cast<void*>(_value));
+            }
+            const T& Value() const noexcept
+            {
+                return *Pointer();
+            }
+            T* const Pointer() noexcept
+            {
+                return static_cast<T*>(static_cast<void*>(_value));
+            }
+            T& Value() noexcept
+            {
+                return *Pointer();
+            }
         };
 
-        Node* First = NULL;
-    public:
-        class Iterator :
-                virtual public Iterators::ForwardIteratorBase<T>,
-                virtual public Iterators::DeletingForwardIteratorBase<T>
+        Node* _first;
+        Node* _last;
+        unsigned int _count;
+
+        class BaseIterator
         {
             friend class Vector;
-
-        private:
-            Node* WorkingNode;
-            Vector* Vect;
+        protected:
+            Node* _node = nullptr;
+            Vector* _vector;
 
             /**
-             * Create iterator chained with Vector.
+             * Create iterator pointing to specific node.
              */
-            Iterator(Node* WorkingNode, Vector* Vec)
-            {
-                this->WorkingNode = WorkingNode;
-                this->Vect = Vec;
-            }
+            BaseIterator(Node* working_node, Vector& v) : _node(working_node), _vector(&v)
+            {}
+
+            /**
+             * Copy constructor.
+             */
+            BaseIterator(const BaseIterator&) = default;
+
+            /**
+             * Move constructor.
+             */
+            BaseIterator(BaseIterator&&) noexcept = default;
+
+            /**
+             * Copy assignment operator.
+             */
+            BaseIterator& operator=(const BaseIterator&) = default;
+
+            /**
+             * Move assignment operator.
+             */
+            BaseIterator& operator=(BaseIterator&&) noexcept = default;
 
         public:
 
             /**
-             * Creates new invalid iterator.
+             * Equality operator.
+             * @return True if iterators points to the same node, false otherwise.
              */
-            Iterator()
+            bool operator==(const BaseIterator& s) const noexcept
             {
-                WorkingNode = NULL;
-                Vect = NULL;
+                return _node == s._node;
             }
 
             /**
-             * Copy contstructor
+             * Non equality operator.
+             * @return True if iterators points to different nodes, false otherwise.
              */
-            Iterator(const Iterator& Copy)
+            bool operator!=(const BaseIterator& s) const noexcept
             {
-                this->WorkingNode = Copy.WorkingNode;
-                this->Vect = Copy.Vect;
+                return !(*this == s);
             }
 
             /**
-             * Assignment operator
+             * Dereference iterator to get value.
              */
-            Iterator& operator=(const Iterator& Second)
+            const T& operator*() const noexcept
             {
-                if (this != &Second)
-                {
-                    this->WorkingNode = Second.WorkingNode;
-                    this->Vect = Second.Vect;
-                }
-                return *this;
+                return _node->Value();
             }
 
             /**
-             * Clone iterator
+             * Structure dereference iterator to get pointer.
              */
-            Iterator Clone()
+            const T* operator->() const noexcept
             {
-                return Iterator(this->WorkingNode, this->Vect);
-            }
-
-            /**
-             * Check if are iterators at the same position
-             * @param Second Iterator compare to
-             * @return True if are iterators equal, false otherwise
-             */
-            virtual bool AreEqual(const Iterator& Second) const
-            {
-                return this->WorkingNode == Second.WorkingNode;
-            }
-
-            /**
-             * Return value in actual element.
-             * Return NULL, if is invalid.
-             */
-            virtual T* GetValue()
-            {
-#ifdef ADDITIONAL_TESTS
-                if (WorkingNode == NULL)
-                    throw new InternalException(__FILE__, __LINE__);
-#endif
-                if (!IsValidIterator())
-                    return NULL;
-                return &(WorkingNode->Value);
-            }
-
-            /**
-             * Set value of object, where is pointing. Type must have assignment operator.
-             * Throw OutOfRangeException, if is invalid.
-             */
-            virtual void SetValue(const T& Val)
-            {
-#ifdef ADDITIONAL_TESTS
-                if (WorkingNode == NULL)
-                    throw new InternalException(__FILE__, __LINE__);
-#endif
-                if (!IsValidIterator())
-                    throw new OutOfRangeException();
-                WorkingNode->Value = Val;
-            }
-
-            /**
-             * Returns true, if validatior points to valid object, otherwise false
-             * (means that we can call GetValue or SetValue)
-             */
-            virtual bool IsValidIterator() const
-            {
-                return Vect != NULL && WorkingNode != NULL && WorkingNode->Next != NULL;
-            }
-
-            virtual bool isEnding() const
-            {
-                return Vect != NULL && WorkingNode != NULL && WorkingNode->Next == NULL;
+                return _node->Pointer();
             }
 
             /**
              * Move to the next element. Return true if can, false otherwise.
-             * Note that it don't mean, that is iterator valid on the new position.
+             * Note that it doesn't mean, that is iterator valid on the new position.
              */
-            virtual bool Next()
+            bool Next()
             {
-#ifdef ADDITIONAL_TESTS
-                if (WorkingNode == NULL)
-                    throw new InternalException(__FILE__, __LINE__);
-#endif
                 return Next(1);
             }
 
             /**
-             * Move @HowMany elements after actual element. Return true, if can, otherwise false.
-             * Note that it don't mean, that is iterator valid on the new position.
+             * Move {@code how_many} elements after actual element. Return true, if can, otherwise false.
+             * Note that it doesn't mean, that is iterator valid on the new position.
+             * If the return value is false, then the position of the iterator was not changed.
              */
-            virtual bool Next(int HowMany)
+            bool Next(unsigned int how_many)
             {
-#ifdef ADDITIONAL_TESTS
-                if (WorkingNode == NULL)
-                    throw new InternalException(__FILE__, __LINE__);
-#endif
-                Node* Temp = WorkingNode;
-                for (int a = 0; a < HowMany; a++)
+                Node* tmp = _node;
+                for (unsigned int a = 0; a < how_many; a++)
                 {
-                    if (Temp->Next == NULL)
+                    if (tmp->_next == nullptr)
                         return false;
-                    Temp = Temp->Next;
+                    tmp = tmp->_next;
                 }
-                WorkingNode = Temp;
+                _node = tmp;
                 return true;
             }
 
             /**
-             * Return true, if is actual iterator equal with @Second iterator.
-             * Otherwise false
+             * Move iterator to the beginning of the vector.
+             * Iterator is not valid if the vector is empty.
              */
-            bool AreEqual(const Iterator& Second)
+            void JumpToBegin() noexcept
             {
-#ifdef ADDITIONAL_TESTS
-                if (WorkingNode == NULL)
-                    throw new InternalException(__FILE__, __LINE__);
-#endif
-                return WorkingNode == Second.WorkingNode;
+                *this = _vector->Begin();
             }
 
             /**
-             * Insert Count elements after actual element. First value in Array will be first after actual element.
-             * Returns how many values was inserted, -1 if there was a error.
+             * Move iterator to the end of the vector.
+             * Iterator is not valid.
              */
-            virtual int Insert(const T* const Values, int Count)
+            void JumpToEnd() noexcept
             {
-                if (!IsValidIterator() || Count < 1)
-                    return -1;
-
-                Node* Begin = WorkingNode;
-                Node* End = WorkingNode->Next;
-
-                Node* Previous = End;
-                for (int a = Count - 1; a >= 0; a--)
-                {
-                    Node* Temp = new Node;
-                    Temp->Value = *(Values + a);
-
-                    Temp->Next = Previous;
-                    Begin->Next = Temp;
-                    Previous = Temp;
-                }
-                return true;
+                *this = _vector->End();
+            }
+        };
+    public:
+        class ConstantIterator: public BaseIterator
+        {
+            friend class Vector;
+        protected:
+            ConstantIterator(Node* working_node, Vector& v) : BaseIterator(working_node, v)
+            {}
+        public:
+            ConstantIterator(const ConstantIterator& iterator) = default;
+            ConstantIterator(ConstantIterator&& iterator) noexcept = default;
+            ConstantIterator& operator=(const ConstantIterator& iterator) = default;
+            ConstantIterator& operator=(ConstantIterator&& iterator) noexcept = default;
+            /**
+             * Prefix increment operator.
+             */
+            ConstantIterator& operator++()
+            {
+                this->Next();
+                return *this;
             }
 
             /**
-             * Insert Value after actual element.
-             * Return 1, if was element inserted, 0 if doesn't. -1 if there was a error.
+             * Postfix increment operator.
              */
-            virtual int Insert(const T& Value)
+            ConstantIterator operator++(int)
             {
-                return Insert(&Value, 1);
+                Iterator tmp(*this);
+                this->Next();
+                return tmp;
             }
 
             /**
-             * Return true, if is actual iterator greater (points to farer elelment) then @Second.
-             * Otherwise false.
+             * Plus operator with the number.
+             * Move iterator {@code v} places after the current node.
+             * If the position is not valid, iterator stay at the same node.
+             * The result iterator doesn't need to be valid.
+             * @param v Number of nodes to skip.
              */
-            bool IsGreaterThan(const Iterator& Second)
+            ConstantIterator& operator+(unsigned int v)
             {
-                Node* Temp = Second.WorkingNode->Next;
-                while (Temp != NULL)
-                {
-                    if (Temp == this->WorkingNode)
-                        return true;
-                    Temp = Temp->Next;
-                }
-                return false;
-            }
-
-            /**
-             * Delete @Count elements after actual element.
-             * Return count of elements, that was deleted.
-             */
-            virtual int DeleteAfter(int Count)
-            {
-#ifdef ADDITIONAL_TESTS
-                if (WorkingNode == NULL)
-                    throw new InternalException(__FILE__, __LINE__);
-#endif
-                if (!IsValidIterator())
-                    throw new OutOfRangeException();
-                Node* Base = WorkingNode;
-                Node* Temp = WorkingNode->Next;
-                int deleted = 0;
-                for (int a = 0; a < Count && Temp->Next != NULL; a++)
-                {
-                    Node* ToDelete = Temp;
-                    Temp = ToDelete->Next;
-                    delete ToDelete;
-                    deleted++;
-                }
-                Base->Next = Temp;
-                return deleted;
+                this->Next(v);
+                return *this;
             }
         };
 
-    protected:
-        /**
-         * Check, if is iterator chained with instance of this Vector.
-         */
-        bool IsMyIterator(const Iterator& Iter)
+        class Iterator : public BaseIterator
         {
-#ifdef ADDITIONAL_TESTS
-            if (First == NULL)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            Node* Temp = First;
-            while (Temp != NULL)
-            {
-                if (Temp == Iter.WorkingNode)
-                    return true;
-                Temp = Temp->Next;
-            }
-            return false;
-        }
+            friend class Vector;
+        protected:
+            Iterator(Node* working_node, Vector& v) : BaseIterator(working_node, v)
+            {}
+        public:
+            Iterator(const Iterator& iterator) = default;
+            Iterator(Iterator&& iterator) noexcept = default;
+            Iterator& operator=(const Iterator& iterator) = default;
+            Iterator& operator=(Iterator&& iterator) noexcept = default;
 
-        /**
-         * Return index of element, where @Iter points.
-         * Return -1, if was error.
-         */
-        int Index(const Iterator& Iter)
-        {
-            if (!IsMyIterator(Iter) || Iter.IsValidIterator())
-                return -1;
-
-            int index = 0;
-            Node* Working = First;
-            while (Working != NULL)
+            /**
+             * Dereference iterator to get value.
+             */
+            T& operator*() noexcept
             {
-                if (Working == Iter.WorkingNode)
-                    return index;
-                Working = Working->Next;
-                index++;
+                return this->_node->Value();
             }
-            return -1;
-        }
+
+            /**
+             * Structure dereference iterator to get pointer.
+             */
+            T* operator->() noexcept
+            {
+                return this->_node->Pointer();
+            }
+
+            /**
+             * Prefix increment operator.
+             */
+            Iterator& operator++()
+            {
+                this->Next();
+                return *this;
+            }
+
+            /**
+             * Postfix increment operator.
+             */
+            Iterator operator++(int)
+            {
+                Iterator tmp(*this);
+                this->Next();
+                return tmp;
+            }
+
+            /**
+             * Plus operator with the number.
+             * Move iterator {@code v} places after the current node.
+             * If the position is not valid, iterator stay at the same node.
+             * The result iterator doesn't need to be valid.
+             * @param v Number of nodes to skip.
+             */
+            Iterator& operator+(unsigned int v)
+            {
+                this->Next(v);
+                return *this;
+            }
+
+            /**
+             * Insert elements after the current node.
+             * First element in the array will be next element of the current node.
+             * This method is potentially dangerous. You must be absolutely sure, that the iterator is valid.
+             * Valid iterator point to existing node with already allocated value.
+             * Valid iterator is from Begin and not already equal to End.
+             * Otherwise Vector will be in undefined state and it's behaviour is undefined (even the destructuring of the Vector!!).
+             * In case of exception Vector stay valid but previous inserted elements remain in the Vector.
+             * @param values Values to insert
+             * @param count number of elements to insert
+             */
+            void Insert(const T* values, unsigned int count)
+            {
+                const T* tmp = values + count;
+                while(tmp --> values)
+                    Insert(*tmp);
+            }
+
+            /**
+             * Insert element after the current node.
+             * This method is potentially dangerous. You must be absolutely sure, that the iterator is valid.
+             * Valid iterator point to existing node with already allocated value.
+             * Valid iterator is from Begin and not already equal to End.
+             * Otherwise Vector will be in undefined state and it's behaviour is undefined (even the destructuring of the Vector!!).
+             * In case of exception Vector stay in the same state.
+             * @param value Element to insert.
+             */
+            void Insert(const T& value)
+            {
+                Node* tmp = new Node();
+                try
+                {
+                    new (tmp->Pointer()) T(value);
+                }
+                catch(...)
+                {
+                    delete tmp;
+                    throw;
+                }
+
+                tmp->_next = this->_node->_next;
+                this->_node->_next = tmp;
+                this->_vector->_count++;
+            }
+
+            /**
+             * Delete next element in the Vector.
+             * The iterator stays at the same node.
+             * This method is potentially dangerous. You must be absolutely sure, that the iterator is valid.
+             * Valid iterator point to existing node with already allocated value.
+             * Valid iterator is from Begin and not already equal to End.
+             * Otherwise Vector will be in undefined state and it's behaviour is undefined (even the destructuring of the Vector!!).
+             * In case of exception Vector stay valid but element is deleted anyway.
+             * @return True if the element was deleted, false otherwise.
+             */
+            bool Delete()
+            {
+                Node* next = this->_node->_next;
+                if(next == this->_vector->_last)
+                    return false;
+
+                try
+                {
+                    next->Value().~T();
+                }
+                catch(...)
+                {
+                    this->_node->_next = next->_next;
+                    this->_vector->_count--;
+                    next->_next = this->_vector->_last->_next;
+                    this->_vector->_last->_next = next;
+                    throw;
+                }
+
+                this->_node->_next = next->_next;
+                this->_vector->_count--;
+                next->_next = this->_vector->_last->_next;
+                this->_vector->_last->_next = next;
+                return true;
+            }
+
+            /**
+             * Delete next elements in the Vector.
+             * Only elements up to Vector's end are deleted, so number of deleted elements can be lower then provided parameter.
+             * The iterator stays at the same node.
+             * This method is potentially dangerous. You must be absolutely sure, that the iterator is valid.
+             * Valid iterator point to existing node with already allocated value.
+             * Valid iterator is from Begin and not already equal to End.
+             * Otherwise Vector will be in undefined state and it's behaviour is undefined (even the destructuring of the Vector!!).
+             * In case of exception Vector stay valid but element is deleted anyway.
+             * @param count Number of elements to delete.
+             * @return Number of deleted elements.
+             */
+            unsigned int Delete(unsigned int count)
+            {
+                unsigned int i = 0;
+                for(;i < count && this->Delete();i++);
+                return i;
+            }
+        };
 
     public:
 
@@ -310,70 +370,121 @@ namespace Templates
         {}
 
         /**
-         * Creates new vector with @Capacity. This space could be iterator and is valid.
+         * Create new instance with provided capacity.
+         * The nodes are allocated, but not valid yet.
+         * @param capacity Number of nodes to allocate.
          */
-        Vector(int Capacity)
+        Vector(unsigned int capacity) : _first(nullptr), _last(nullptr), _count(0)
         {
-            Node* Temp = new Node;
-            Temp->Next = NULL;
-            for (int a = 0; a < Capacity; a++)
+            try
             {
-                Node* Created = new Node;
-                Created->Next = Temp;
-                Temp = Created;
-            }
-            First = Temp;
-        }
-
-        /**
-         * Creates new Vector and insert @Count elements from Array.
-         */
-        Vector(const T* const Array, int Count) : Vector(Count)
-        {
-            Node* WorkingWith = First;
-            for (int a = 0; a < Count; a++)
-            {
-                WorkingWith->Value = *(Array + a);
-                WorkingWith = WorkingWith->Next;
-            }
-        }
-
-        /**
-         * Copy constructor
-         */
-        Vector(const Vector& Copy)
-                : Vector(0)
-        {
-            int val;
-            T* Array = Copy.ToArray(val);
-            this->Insert(Array,val);
-            delete[] (Array);
-        }
-
-        /**
-         * Assignment operator
-         */
-        Vector& operator=(const Vector& Second)
-        {
-            if (this != &Second)
-            {
-                this->Clear();
-                int val;
-                T* Array = Second.ToArray(val);
-
-                Node* prev = this->First;
-                Node* created = this->First;
-                for (int a = val-1; a >= 0; a--)
+                capacity++;
+                Node* tmp = _last = _first = new Node;
+                for (unsigned int a = 0; a < capacity; a++)
                 {
-                    created = new Node;
-                    created->Value = Array[a];
-                    created->Next = prev;
-                    prev = created;
+                    Node* created = new Node;
+                    tmp->_next = created;
+                    tmp = created;
                 }
-                this->First = created;
-
-                delete [] (Array);
             }
+            catch(...)
+            {
+                Node* ptr = _first;
+                while(ptr != nullptr)
+                {
+                    Node* tmp = ptr->_next;
+                    delete ptr;
+                    ptr = tmp;
+                }
+                throw;
+            }
+
+        }
+
+        /**
+         * Creates new instance and inserts all elements from the array into the vector.
+         * The elements will be added in the same order, so first element in the array will be first in the list.
+         * @param array Array of elements to add into list.
+         * @param count Count of elements in the array.
+         */
+        Vector(const T* array, unsigned int count) : Vector(count)
+        {
+            try
+            {
+                this->PushBack(array, count);
+            }
+            catch(...)
+            {
+                this->~Vector();
+                throw;
+            }
+        }
+
+        /**
+         * Copy constructor.
+         * Makes copy of all elements in the second array.
+         */
+        Vector(const Vector& copy): Vector(copy._count)
+        {
+            try
+            {
+                Vector::Iterator b = copy.Begin();
+                Vector::Iterator e = copy.End();
+                for(;b != e;b++)
+                    this->PushBack(*b);
+            }
+            catch(...)
+            {
+                this->~Vector();
+                throw;
+            }
+        }
+
+        /**
+         * Move constructor.
+         * Second vector will be cleared.
+         */
+        Vector(Vector&& second) : Vector(0)
+        {
+            swap(*this, second);
+        }
+
+        /**
+         * Copy assignment operator.
+         * Values will be copied from the second vector.
+         */
+        Vector& operator=(const Vector& second)
+        {
+            if(this==&second)
+                return *this;
+
+            {
+                Vector tmp(second.Size());
+                swap(*this, tmp);
+            }
+
+            Vector::Iterator b = second.Begin();
+            Vector::Iterator e = second.End();
+            for(;b != e;b++)
+                this->PushBack(*b);
+
+            return *this;
+        }
+
+        /**
+         * Move assignment operator.
+         * Second vector will be cleared.
+         */
+        Vector& operator=(Vector&& second)
+        {
+            if(this==&second)
+                return *this;
+
+            {
+                Vector tmp(move(*this));
+            }
+
+            swap(*this, second);
             return *this;
         }
 
@@ -382,36 +493,44 @@ namespace Templates
          */
         ~Vector()
         {
-            this->Clear();
-            delete First;
+            this->Delete();
+            this->ShrinkToFit();
+            delete _first;
         }
 
-        /**
-         * Creates array with new[], where will be stored elements.
-         * Return pointer to array and Count of elements in parametr.
-         * If fails, return NULL.
-         */
-        T* ToArray(int& Count) const
+        T& operator[](unsigned int x)
         {
-#ifdef ADDITIONAL_TESTS
-            if (First == NULL)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            Count = Size();
-            if (Count == 0)
-                return NULL;
-            T* Array = new T[Count];
-            if (Array == NULL)
-                return NULL;
+            Iterator b = this->Begin();
+            Iterator e = this->End();
+            for(unsigned int i = 0;b != e && i < x;b++,i++);
+            if(b == e)
+                throw OutOfRangeException("Index is out of range", __LINE__);
 
-            Node* Temp = First;
-            int SizeOfVector = Size();
-            for (int a = 0; a < SizeOfVector; a++)
-            {
-                *(Array + a) = Temp->Value;
-                Temp = Temp->Next;
-            }
-            return Array;
+            return *b;
+        }
+
+        const T& operator[](unsigned int x) const
+        {
+            Iterator b = this->Begin();
+            Iterator e = this->End();
+            for(unsigned int i = 0;b != e && i < x;b++,i++);
+            if(b == e)
+                throw OutOfRangeException("Index is out of range", __LINE__);
+
+            return *b;
+        }
+
+
+        Vector<T>&& ToArray() const
+        {
+            Vector tmp(this->Size());
+
+            Vector::Iterator b = this->Begin();
+            Vector::Iterator e = this->End();
+            for(;b != e;b++)
+                tmp.PushBack(*b);
+
+            return move(tmp);
         }
 
         /**
@@ -419,11 +538,7 @@ namespace Templates
          */
         Iterator Begin()
         {
-#ifdef ADDITIONAL_TESTS
-            if (First == NULL)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            return Iterator(First, this);
+            return Iterator(_first, *this);
         }
 
         /**
@@ -432,159 +547,142 @@ namespace Templates
          */
         Iterator End()
         {
-#ifdef ADDITIONAL_TESTS
-            if (First == NULL)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            Node* Temp = First;
-            while (Temp->Next != NULL)
-                Temp = Temp->Next;
-            return Iterator(Temp, this);
+            return Iterator(_last, *this);
         }
 
         /**
-         * Return iterator at specified position.
-         * Return true if fails.
+         * Return constant iterator to beginning of Vector.
          */
-        bool At(int Position, Iterator& BackIterator)
+        ConstantIterator Begin() const
         {
-            if (Position > Size())
-                return false;
-            BackIterator = Begin();
-            return BackIterator.Next(Position - 1);
+            return Iterator(_first, *this);
+        }
+
+        /**
+         * Return constant iterator to element after last element.
+         * This iterator will be not valid.
+         */
+        ConstantIterator End() const
+        {
+            return Iterator(_last, *this);
         }
 
         /**
          * Return count of elements in Vector.
          */
-        int Size() const
+        unsigned int Size() const
         {
-#ifdef ADDITIONAL_TESTS
-            if (First == NULL)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            Node* Working = First;
-            int Count = 0;
-            while (Working->Next != NULL)
-            {
-                Count++;
-                Working = Working->Next;
-            }
-            return Count;
+            return _count;
         }
 
         /**
-         * Return true, if is array empty.
+         * Return true if the Vector is empty, false otherwise.
+         * Allocated nodes are not taken into account.
          */
         inline bool IsEmpty()
         {
-#ifdef ADDITIONAL_TESTS
-            if (this->First == NULL)
-                throw new InternalException();
-#endif
-            return this->First->Next == NULL;
+            return _first == _last;
+        }
+
+        void PushBack(const T& value)
+        {
+            if(_last->_next == nullptr)
+                _last->_next = new Node;
+
+            new (_last->Pointer()) T(value);
+            _count++;
+            _last = _last->_next;
+        }
+
+        void PushBack(const T* array, unsigned int count)
+        {
+            const T* last_element = array + count;
+            for(;array != last_element;array++)
+                PushBack(*array);
         }
 
         /**
-         * Remove all elements in Array.
+         * Because vector can hold more nodes then is number of elements, this method delete unused nodes.
          */
-        inline int Clear()
+        void ShrinkToFit() noexcept
         {
-            return Clear(0, Size());
+            Node* working = _last->_next;
+            while(working != nullptr){
+                Node* tmp = working->_next;
+                delete working;
+                working = tmp;
+            }
+            _last->_next = nullptr;
         }
 
         /**
-         * Removes elements between @From and @To.
-         * @From and @To will not be deleted.
-         * Return count of deleted items.
+         * Delete all elements from the Vector.
          */
-        int Clear(Iterator& From, Iterator& To)
+        inline unsigned int Delete()
         {
-#ifdef ADDITIONAL_TESTS
-            if (From.WorkingNode == NULL || First == NULL || To.WorkingNode == NULL)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            if (!IsMyIterator(From) || !IsMyIterator(To) || !To.IsGreaterThan(From))
-                return 0;
-
-            int deleted = 0;
-
-            Node* Begin = From.WorkingNode;
-            Node* End = To.WorkingNode;
-
-            Node* Temp = Begin->Next;
-            while (Temp != End)
-            {
-                Node* ToDelete = Temp;
-                Temp = ToDelete->Next;
-                delete ToDelete;
-                deleted++;
-            }
-            Begin->Next = End;
-            return deleted;
+            return Delete(Size());
         }
 
         /**
-         * Removes @HowMany elements from Vector.
-         * First removed element will be @IndexFromth element
+         * Delete specific amount of elements from the beginning of the Vector.
+         * The method takes care about size of the Vector, so maximum of Size() elements will be removed.
+         * In case of exception, Vector stay in valid state, however some elements could be already deleted.
+         * @param count Number of elements to delete.
+         * @return Number of deleted elements.
          */
-        int Clear(int IndexFrom, int HowMany)
+        unsigned int Delete(unsigned int count)
         {
-#ifdef ADDITIONAL_TESTS
-            if (First == NULL)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            if (HowMany == 0 || IndexFrom > Size())
-                return 0;
-
-            int deleted = 0;
-            if (IndexFrom == 0)
+            if(count != 1)
             {
-                Node* Temp = First;
-                for (int a = 0; a < HowMany && Temp->Next != NULL; a++)
-                {
-                    Node* ToDelete = Temp;
-                    Temp = ToDelete->Next;
-                    delete ToDelete;
-                    deleted++;
-                }
-                First = Temp;
+                unsigned int old_size = this->Size();
+                while(count --> 0)
+                    this->Delete(1);
+                return old_size - this->Size();
             }
-            else
-            {
-                Node* Stay = First;
-                for (int a = 1; a < IndexFrom && Stay->Next != NULL; a++)
-                    Stay = Stay->Next;
 
-                Node* Temp = Stay->Next;
-                for (int a = 0; a < HowMany && Temp->Next != NULL; a++)
-                {
-                    Node* ToDelete = Temp;
-                    Temp = ToDelete->Next;
-                    delete ToDelete;
-                    deleted++;
-                }
-                if (Stay->Next != Temp)
-                    Stay->Next = Temp;
-            }
-            return deleted;
-        }
+            Node* working = _first;
+            _first = working->_next;
+            working->_next = _last->_next;
+            _last->_next = working;
+            _count--;
 
-        int Insert(T& Value)
-        {
-            Node* temp = new Node;
-            temp->Next = this->First;
-            temp->Value = Value;
-            this->First = temp;
+            working->Value().~T();
+
             return 1;
         }
 
-        int Insert(T* Array, int Count)
+        /**
+         * Insert element at the beginning of the Vector.
+         * In case of exception, Vector stay in valid state, however additional Node could be allocated after the end element.
+         * @param value Element to insert.
+         */
+        void Insert(const T& value)
         {
-            int inserted = 0;
-            for (int a = Count-1; a >= 0; a--)
-                inserted += this->Insert(Array[a]);
-            return inserted;
+            if(_last->_next == nullptr)
+                _last->_next = new Node;
+
+            new (_last->_next->Pointer()) T(value);
+
+            Node* current_first = _first;
+            Node* created = _last->_next;
+            _last->_next = created->_next;
+            created->_next = current_first;
+            _first = created;
+            _count++;
+        }
+
+        /**
+         * Insert {@code count} elements into the Vector at the beginning.
+         * First element in the array begin the first element in the Vector.
+         * In case of exception, the Vector stay in valid state, however some elements could be inserted.
+         * @param array Array of elements to insert.
+         * @param count Count of elements to insert.
+         */
+        void Insert(const T* array, int count)
+        {
+            const T* end_ptr = array + count;
+            while(end_ptr --> array)
+                this->Insert(*end_ptr);
         }
     };
 }
