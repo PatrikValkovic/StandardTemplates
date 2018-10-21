@@ -41,17 +41,18 @@ namespace Templates
         Node* _last;
         unsigned int _count;
 
+        template<typename __BaseType>
         class BaseIterator
         {
             friend class Vector;
         protected:
             Node* _node = nullptr;
-            Vector* _vector;
+            __BaseType* _vector;
 
             /**
              * Create iterator pointing to specific node.
              */
-            BaseIterator(Node* working_node, Vector& v) : _node(working_node), _vector(&v)
+            BaseIterator(Node* working_node, __BaseType* v) : _node(working_node), _vector(v)
             {}
 
             /**
@@ -156,11 +157,11 @@ namespace Templates
             }
         };
     public:
-        class ConstantIterator: public BaseIterator
+        class ConstantIterator: public BaseIterator<const Vector>
         {
             friend class Vector;
         protected:
-            ConstantIterator(Node* working_node, Vector& v) : BaseIterator(working_node, v)
+            ConstantIterator(Node* working_node, const Vector* v) : BaseIterator<const Vector>(working_node, v)
             {}
         public:
             ConstantIterator(const ConstantIterator& iterator) = default;
@@ -181,7 +182,7 @@ namespace Templates
              */
             ConstantIterator operator++(int)
             {
-                Iterator tmp(*this);
+                ConstantIterator tmp(*this);
                 this->Next();
                 return tmp;
             }
@@ -200,11 +201,11 @@ namespace Templates
             }
         };
 
-        class Iterator : public BaseIterator
+        class Iterator : public BaseIterator<Vector>
         {
             friend class Vector;
         protected:
-            Iterator(Node* working_node, Vector& v) : BaseIterator(working_node, v)
+            Iterator(Node* working_node, Vector* v) : BaseIterator<Vector>(working_node, v)
             {}
         public:
             Iterator(const Iterator& iterator) = default;
@@ -409,15 +410,11 @@ namespace Templates
          */
         Vector(const T* array, unsigned int count) : Vector(count)
         {
-            try
-            {
-                this->PushBack(array, count);
-            }
-            catch(...)
-            {
-                this->~Vector();
-                throw;
-            }
+            this->PushBack(array, count);
+
+            //don't call destructor, even in catch block
+            //https://stackoverflow.com/questions/17657761/is-the-destructor-called-when-a-delegating-constructor-throws
+            //this->~Vector();
         }
 
         /**
@@ -426,18 +423,14 @@ namespace Templates
          */
         Vector(const Vector& copy): Vector(copy._count)
         {
-            try
-            {
-                Vector::Iterator b = copy.Begin();
-                Vector::Iterator e = copy.End();
-                for(;b != e;b++)
-                    this->PushBack(*b);
-            }
-            catch(...)
-            {
-                this->~Vector();
-                throw;
-            }
+            Vector::ConstantIterator b = copy.Begin();
+            Vector::ConstantIterator e = copy.End();
+            for(;b != e;b++)
+                this->PushBack(*b);
+
+            //don't call destructor, even in catch block
+            //https://stackoverflow.com/questions/17657761/is-the-destructor-called-when-a-delegating-constructor-throws
+            //this->~Vector();
         }
 
         /**
@@ -538,7 +531,7 @@ namespace Templates
          */
         Iterator Begin()
         {
-            return Iterator(_first, *this);
+            return Iterator(_first, this);
         }
 
         /**
@@ -547,7 +540,7 @@ namespace Templates
          */
         Iterator End()
         {
-            return Iterator(_last, *this);
+            return Iterator(_last, this);
         }
 
         /**
@@ -555,7 +548,7 @@ namespace Templates
          */
         ConstantIterator Begin() const
         {
-            return Iterator(_first, *this);
+            return ConstantIterator(_first, this);
         }
 
         /**
@@ -564,7 +557,7 @@ namespace Templates
          */
         ConstantIterator End() const
         {
-            return Iterator(_last, *this);
+            return ConstantIterator(_last, this);
         }
 
         /**
@@ -635,10 +628,12 @@ namespace Templates
             if(count != 1)
             {
                 unsigned int old_size = this->Size();
-                while(count --> 0)
-                    this->Delete(1);
+                while(count --> 0 && this->Delete(1));
                 return old_size - this->Size();
             }
+
+            if(_first == _last)
+                return 0;
 
             Node* working = _first;
             _first = working->_next;
@@ -684,8 +679,31 @@ namespace Templates
             while(end_ptr --> array)
                 this->Insert(*end_ptr);
         }
+
+        /**
+         * Swap two instances of Vector.
+         */
+        void Swap(Vector& second) noexcept
+        {
+            swap(_count, second._count);
+            swap(_first, second._first);
+            swap(_last, second._last);
+        }
     };
+
+    /**
+     * Swap two instances of the Vector.
+     * @param first First vector.
+     * @param second Second vector.
+     */
+    template<typename T>
+    void swap(Vector<T>& first,Vector<T>& second)
+    {
+        first.Swap(second);
+    }
 }
+
+
 
 
 #endif //TEMPLATES_QUEUE_H

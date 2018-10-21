@@ -561,7 +561,6 @@ namespace Templates
 
         /**
          * Swaps to instances of the array
-         * @param second
          */
         void Swap(Array &second) noexcept {
             using Templates::swap;
@@ -608,7 +607,6 @@ namespace Templates
 
     /**
      * Swap two instances of the array
-     * @tparam T
      * @param first First array
      * @param second Second array
      */
