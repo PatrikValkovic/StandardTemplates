@@ -88,7 +88,12 @@ set(TEST_SOURCES ${TEST_FILES}
 
         test/Vector/VectorCreationTests.cpp
         test/Vector/VectorConstCreationTests.cpp
-        test/Vector/VectorTests.cpp
+        test/Vector/VectorAssignmentTests.cpp
+        test/Vector/VectorAccessTests.cpp
+        test/Vector/VectorToArrayTests.cpp
+        test/Vector/VectorPushTests.cpp
+        test/Vector/VectorDeleteTests.cpp
+        test/Vector/VectorInsertTests.cpp
 
         #test/Array/_IteratorsTests.cpp
         #test/Array/_IteratorsDeleteTests.cpp

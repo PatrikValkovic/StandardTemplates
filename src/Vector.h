@@ -381,7 +381,7 @@ namespace Templates
          */
         Vector(const T* array, unsigned int count) : Vector(count)
         {
-            this->PushBack(array, count);
+            this->Push(array, count);
 
             //don't call destructor, even in catch block
             //https://stackoverflow.com/questions/17657761/is-the-destructor-called-when-a-delegating-constructor-throws
@@ -397,7 +397,7 @@ namespace Templates
             Vector::ConstIterator b = copy.Begin();
             Vector::ConstIterator e = copy.End();
             for(;b != e;b++)
-                this->PushBack(*b);
+                this->Push(*b);
 
             //don't call destructor, even in catch block
             //https://stackoverflow.com/questions/17657761/is-the-destructor-called-when-a-delegating-constructor-throws
@@ -427,10 +427,18 @@ namespace Templates
                 swap(*this, tmp);
             }
 
-            Vector::Iterator b = second.Begin();
-            Vector::Iterator e = second.End();
-            for(;b != e;b++)
-                this->PushBack(*b);
+            Vector::ConstIterator b = second.Begin();
+            Vector::ConstIterator e = second.End();
+            try
+            {
+                for (; b != e; b++)
+                    this->Push(*b);
+            }
+            catch(...)
+            {
+                this->Delete();
+                throw;
+            }
 
             return *this;
         }
@@ -462,29 +470,46 @@ namespace Templates
             delete _first;
         }
 
-        T& operator[](unsigned int x)
+        /**
+         * Access operator.
+         * Complexity is linear.
+         * In case of negative or invalid index, OutOfRangeException is thrown.
+         */
+        T& operator[](int x)
         {
+            if(x < 0)
+                throw OutOfRangeException("Index cannot be negative", __LINE__);
             Iterator b = this->Begin();
             Iterator e = this->End();
-            for(unsigned int i = 0;b != e && i < x;b++,i++);
+            for(int i = 0;b != e && i < x;b++,i++);
             if(b == e)
                 throw OutOfRangeException("Index is out of range", __LINE__);
 
             return *b;
         }
 
-        const T& operator[](unsigned int x) const
+        /**
+         * Access operator.
+         * Complexity is linear.
+         * In case of negative or invalid index, OutOfRangeException is thrown.
+         */
+        const T& operator[](int x) const
         {
+            if(x < 0)
+                throw OutOfRangeException("Index cannot be negative", __LINE__);
             ConstIterator b = this->Begin();
             ConstIterator e = this->End();
-            for(unsigned int i = 0;b != e && i < x;b++,i++);
+            for(int i = 0;b != e && i < x;b++,i++);
             if(b == e)
                 throw OutOfRangeException("Index is out of range", __LINE__);
 
             return *b;
         }
 
-
+        /**
+         * Return array containing COPIES of the object inside the Vector.
+         * Changes in the array are not propagated back to the Vector.
+         */
         Array<T> ToArray() const
         {
             Array<T> tmp(this->Size());
@@ -548,7 +573,12 @@ namespace Templates
             return _first == _last;
         }
 
-        void PushBack(const T& value)
+        /**
+         * Insert element at the end of the Vector.
+         * In case of exception, Vector stay at the valid state, however one node could be allocated.
+         * @param value Element to insert.
+         */
+        void Push(const T& value)
         {
             if(_last->_next == nullptr)
                 _last->_next = new Node;
@@ -558,11 +588,17 @@ namespace Templates
             _last = _last->_next;
         }
 
-        void PushBack(const T* array, unsigned int count)
+        /**
+         * Insert elements from array into the Vector.
+         * In case of exception, Vector stay at valid state, however some elements could be already inserted.
+         * @param array Array of elements to insert.
+         * @param count Count of elements to insert.
+         */
+        void Push(const T* array, unsigned int count)
         {
             const T* last_element = array + count;
-            for(;array != last_element;array++)
-                PushBack(*array);
+            for (; array != last_element; array++)
+                Push(*array);
         }
 
         /**
@@ -640,15 +676,25 @@ namespace Templates
         /**
          * Insert {@code count} elements into the Vector at the beginning.
          * First element in the array begin the first element in the Vector.
-         * In case of exception, the Vector stay in valid state, however some elements could be inserted.
+         * In case of exception, the Vector stay in valid state and no elements will be inserted.
+         * However, some nodes could be allocated.
          * @param array Array of elements to insert.
          * @param count Count of elements to insert.
          */
-        void Insert(const T* array, int count)
+        void Insert(const T* array, unsigned int count)
         {
             const T* end_ptr = array + count;
-            while(end_ptr --> array)
-                this->Insert(*end_ptr);
+            const T* beg_ptr = array;
+            try
+            {
+                while (end_ptr-- > array)
+                    this->Insert(*end_ptr);
+            }
+            catch(...)
+            {
+                this->Delete(count - static_cast<unsigned int>(end_ptr - beg_ptr) - 1);
+                throw;
+            }
         }
 
         /**
