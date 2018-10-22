@@ -106,6 +106,7 @@ namespace Templates
         return l < r ? r : l;
     }
 
+    //TODO not covered
     template<typename T>
     const T& min(const T& l, const T& r){
         return l < r ? l : r;

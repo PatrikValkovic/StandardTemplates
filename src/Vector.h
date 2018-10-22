@@ -17,6 +17,16 @@ namespace Templates
         class Node
         {
         public:
+#ifdef ___OUT_OF_MEMORY_TESTING
+            static unsigned int allocation;
+            Node()
+            {
+                allocation--;
+                if(allocation == 0)
+                    throw 0;
+            }
+
+#endif
             alignas(alignof(T)) unsigned char _value[sizeof(T)];
             Node* _next = nullptr;
             T* const Pointer() noexcept
@@ -351,22 +361,23 @@ namespace Templates
             try
             {
                 capacity++;
-                Node* tmp = _last = _first = new Node;
+                _last = _first = new Node;
                 for (unsigned int a = 0; a < capacity; a++)
                 {
                     Node* created = new Node;
-                    tmp->_next = created;
-                    tmp = created;
+                    _last->_next = created;
+                    _last = created;
                 }
+                _last = _first;
             }
             catch(...)
             {
-                Node* ptr = _first;
-                while(ptr != nullptr)
+                delete _last;
+                while(_first != _last)
                 {
-                    Node* tmp = ptr->_next;
-                    delete ptr;
-                    ptr = tmp;
+                    Node* tmp = _first->_next;
+                    delete _first;
+                    _first = tmp;
                 }
                 throw;
             }
@@ -706,6 +717,13 @@ namespace Templates
             swap(_first, second._first);
             swap(_last, second._last);
         }
+
+#ifdef ___OUT_OF_MEMORY_TESTING
+        static void _SetAllocationLimit(unsigned int limit)
+        {
+            Node::allocation = limit;
+        }
+#endif
     };
 
     /**
@@ -720,6 +738,10 @@ namespace Templates
     }
 }
 
+#ifdef ___OUT_OF_MEMORY_TESTING
+template<typename T>
+unsigned int Templates::Vector<T>::Node::allocation = ~0U;
+#endif
 
 
 
