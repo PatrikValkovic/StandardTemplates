@@ -87,6 +87,7 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Array/ArrayIteratorTests.cpp
 
         test/Vector/VectorCreationTests.cpp
+        test/Vector/VectorConstCreationTests.cpp
         test/Vector/VectorTests.cpp
 
         #test/Array/_IteratorsTests.cpp

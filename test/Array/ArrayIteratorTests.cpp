@@ -18,8 +18,8 @@ TEST_CASE("Array iterator should iterate thought all the elements", "[Array][Ite
 
 TEST_CASE("Const array iterator should iterate thought all the elements", "[Array][Iterator]") {
     const Array<int> instance(OriginalArray, 15);
-    Array<int>::ConstantIterator bi = instance.Begin();
-    Array<int>::ConstantIterator ei = instance.End();
+    Array<int>::ConstIterator bi = instance.Begin();
+    Array<int>::ConstIterator ei = instance.End();
     int* bo = OriginalArray;
     for(;bi != ei;bi++,bo++)
         REQUIRE(*bi == *bo);

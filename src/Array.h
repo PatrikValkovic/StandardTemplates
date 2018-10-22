@@ -22,7 +22,7 @@ namespace Templates
     public:
 
         using Iterator = T*;
-        using ConstantIterator = const T*;
+        using ConstIterator = const T*;
 
         /**
          * Initialize new instance with default size.
@@ -589,7 +589,7 @@ namespace Templates
         /**
          * Get iterator at the beginning of the array.
          */
-        ConstantIterator Begin() const noexcept
+        ConstIterator Begin() const noexcept
         {
             return _array.Raw();
         }
@@ -598,7 +598,7 @@ namespace Templates
          * Get iterator at the end of the array.
          * The iterator is not valid, it points one element after the end of the array.
          */
-        ConstantIterator End() const noexcept
+        ConstIterator End() const noexcept
         {
             return _array.Raw() + _inserted;
         }

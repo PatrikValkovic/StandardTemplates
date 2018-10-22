@@ -19,14 +19,6 @@ namespace Templates
         public:
             alignas(alignof(T)) unsigned char _value[sizeof(T)];
             Node* _next = nullptr;
-            const T* const Pointer() const noexcept
-            {
-                return static_cast<T*>(static_cast<void*>(_value));
-            }
-            const T& Value() const noexcept
-            {
-                return *Pointer();
-            }
             T* const Pointer() noexcept
             {
                 return static_cast<T*>(static_cast<void*>(_value));
@@ -54,27 +46,6 @@ namespace Templates
              */
             BaseIterator(Node* working_node, __BaseType* v) : _node(working_node), _vector(v)
             {}
-
-            /**
-             * Copy constructor.
-             */
-            BaseIterator(const BaseIterator&) = default;
-
-            /**
-             * Move constructor.
-             */
-            BaseIterator(BaseIterator&&) noexcept = default;
-
-            /**
-             * Copy assignment operator.
-             */
-            BaseIterator& operator=(const BaseIterator&) = default;
-
-            /**
-             * Move assignment operator.
-             */
-            BaseIterator& operator=(BaseIterator&&) noexcept = default;
-
         public:
 
             /**
@@ -157,21 +128,21 @@ namespace Templates
             }
         };
     public:
-        class ConstantIterator: public BaseIterator<const Vector>
+        class ConstIterator: public BaseIterator<const Vector>
         {
             friend class Vector;
         protected:
-            ConstantIterator(Node* working_node, const Vector* v) : BaseIterator<const Vector>(working_node, v)
+            ConstIterator(Node* working_node, const Vector* v) : BaseIterator<const Vector>(working_node, v)
             {}
         public:
-            ConstantIterator(const ConstantIterator& iterator) = default;
-            ConstantIterator(ConstantIterator&& iterator) noexcept = default;
-            ConstantIterator& operator=(const ConstantIterator& iterator) = default;
-            ConstantIterator& operator=(ConstantIterator&& iterator) noexcept = default;
+            ConstIterator(const ConstIterator& iterator) = default;
+            ConstIterator(ConstIterator&& iterator) noexcept = default;
+            ConstIterator& operator=(const ConstIterator& iterator) = default;
+            ConstIterator& operator=(ConstIterator&& iterator) noexcept = default;
             /**
              * Prefix increment operator.
              */
-            ConstantIterator& operator++()
+            ConstIterator& operator++()
             {
                 this->Next();
                 return *this;
@@ -180,9 +151,9 @@ namespace Templates
             /**
              * Postfix increment operator.
              */
-            ConstantIterator operator++(int)
+            ConstIterator operator++(int)
             {
-                ConstantIterator tmp(*this);
+                ConstIterator tmp(*this);
                 this->Next();
                 return tmp;
             }
@@ -194,7 +165,7 @@ namespace Templates
              * The result iterator doesn't need to be valid.
              * @param v Number of nodes to skip.
              */
-            ConstantIterator& operator+(unsigned int v)
+            ConstIterator& operator+(unsigned int v)
             {
                 this->Next(v);
                 return *this;
@@ -423,8 +394,8 @@ namespace Templates
          */
         Vector(const Vector& copy): Vector(copy._count)
         {
-            Vector::ConstantIterator b = copy.Begin();
-            Vector::ConstantIterator e = copy.End();
+            Vector::ConstIterator b = copy.Begin();
+            Vector::ConstIterator e = copy.End();
             for(;b != e;b++)
                 this->PushBack(*b);
 
@@ -504,8 +475,8 @@ namespace Templates
 
         const T& operator[](unsigned int x) const
         {
-            Iterator b = this->Begin();
-            Iterator e = this->End();
+            ConstIterator b = this->Begin();
+            ConstIterator e = this->End();
             for(unsigned int i = 0;b != e && i < x;b++,i++);
             if(b == e)
                 throw OutOfRangeException("Index is out of range", __LINE__);
@@ -518,8 +489,8 @@ namespace Templates
         {
             Array<T> tmp(this->Size());
 
-            ConstantIterator b = this->Begin();
-            ConstantIterator e = this->End();
+            ConstIterator b = this->Begin();
+            ConstIterator e = this->End();
             for(;b != e;b++)
                 tmp.Push(*b);
 
@@ -546,18 +517,18 @@ namespace Templates
         /**
          * Return constant iterator to beginning of Vector.
          */
-        ConstantIterator Begin() const
+        ConstIterator Begin() const
         {
-            return ConstantIterator(_first, this);
+            return ConstIterator(_first, this);
         }
 
         /**
          * Return constant iterator to element after last element.
          * This iterator will be not valid.
          */
-        ConstantIterator End() const
+        ConstIterator End() const
         {
-            return ConstantIterator(_last, this);
+            return ConstIterator(_last, this);
         }
 
         /**
@@ -572,7 +543,7 @@ namespace Templates
          * Return true if the Vector is empty, false otherwise.
          * Allocated nodes are not taken into account.
          */
-        inline bool IsEmpty()
+        inline bool IsEmpty() const
         {
             return _first == _last;
         }
