@@ -20,7 +20,7 @@ TEST_CASE("Array iterator should not delete item at the end"){
     Array<int> instance(OriginalArray, 15);
     iter = instance.End();
     REQUIRE(iter.DeleteThis() == 0);
-    REQUIRE(iter.GetPointer() == NULL);
+    REQUIRE(iter.GetPointer() == nullptr);
     REQUIRE(instance.Size() == 15);
     REQUIRE(instance.Capacity() >= 15);
 }

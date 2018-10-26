@@ -20,7 +20,7 @@ namespace Templates
             Node* Next;
 
             Node()
-            { Next = NULL; }
+            { Next = nullptr; }
         };
 
         Node* First;
@@ -40,7 +40,7 @@ namespace Templates
              */
             Iterator()
             {
-                WorkingQueue = NULL;
+                WorkingQueue = nullptr;
             }
 
             /**
@@ -73,7 +73,7 @@ namespace Templates
              */
             virtual bool IsValidIterator() const
             {
-                return WorkingQueue != NULL;
+                return WorkingQueue != nullptr;
             }
 
             /**
@@ -167,8 +167,8 @@ namespace Templates
          */
         Queue()
         {
-            First = NULL;
-            Last = NULL;
+            First = nullptr;
+            Last = nullptr;
         }
 
         /**
@@ -211,7 +211,7 @@ namespace Templates
 
         virtual ~Queue()
         {
-            while (First != NULL)
+            while (First != nullptr)
             {
                 Node* Temp = First;
                 First = Temp->Next;
@@ -234,7 +234,7 @@ namespace Templates
         {
             Node* Temp = First;
             int count = 0;
-            while (Temp != NULL)
+            while (Temp != nullptr)
             {
                 Temp = Temp->Next;
                 count++;
@@ -250,15 +250,15 @@ namespace Templates
         {
             int CountOfStoredElements = Size();
             if (CountOfStoredElements == 0)
-                return NULL;
+                return nullptr;
             T* array = new T[CountOfStoredElements];
-            if (array == NULL)
-                return NULL;
+            if (array == nullptr)
+                return nullptr;
 
             T* Base = array;
 
             Node* Working = First;
-            while (Working != NULL)
+            while (Working != nullptr)
             {
                 *array = Working->Value;
                 array++;
@@ -272,13 +272,13 @@ namespace Templates
          */
         virtual bool Push(const T& Value)
         {
-            if (First == NULL && Last == NULL)
+            if (First == nullptr && Last == nullptr)
             {
                 Node* Temp = new Node;
                 Temp->Value = Value;
                 First = Last = Temp;
             }
-            else if (First != NULL && Last != NULL)
+            else if (First != nullptr && Last != nullptr)
             {
                 Node* Temp = new Node;
                 Temp->Value = Value;
@@ -308,15 +308,15 @@ namespace Templates
          */
         virtual bool Pop(T& Value)
         {
-            if (First == NULL && Last == NULL)
+            if (First == nullptr && Last == nullptr)
                 return false;
-            else if (First != NULL && Last != NULL)
+            else if (First != nullptr && Last != nullptr)
             {
                 Node* Temp = First;
                 First = Temp->Next;
                 Value = Temp->Value;
-                if (First == NULL && Temp == Last)
-                    Last = NULL;
+                if (First == nullptr && Temp == Last)
+                    Last = nullptr;
                 delete Temp;
             }
 #ifdef ADDITIONAL_TESTS
@@ -340,19 +340,19 @@ namespace Templates
         int Clear(int HowMany)
         {
 #ifdef ADDITIONAL_TESTS
-            if ((First == NULL && Last != NULL) || (First != NULL && Last == NULL))
+            if ((First == nullptr && Last != nullptr) || (First != nullptr && Last == nullptr))
                 throw new InternalException(__FILE__, __LINE__);
 #endif
             int deleted = 0;
-            for (int a = 0; a < HowMany && First != NULL; a++)
+            for (int a = 0; a < HowMany && First != nullptr; a++)
             {
                 Node* Temp = First;
                 First = Temp->Next;
                 delete Temp;
                 deleted++;
             }
-            if (First == NULL)
-                Last = NULL;
+            if (First == nullptr)
+                Last = nullptr;
             return deleted;
         }
 
@@ -361,9 +361,9 @@ namespace Templates
          */
         bool IsEmpty()
         {
-            if (First == NULL && Last == NULL)
+            if (First == nullptr && Last == nullptr)
                 return true;
-            else if (First != NULL && Last != NULL)
+            else if (First != nullptr && Last != nullptr)
                 return false;
 #ifdef ADDITIONAL_TESTS
             else

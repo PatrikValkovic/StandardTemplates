@@ -22,8 +22,8 @@ namespace Templates
 
             Node()
             {
-                Forward = NULL;
-                Backward = NULL;
+                Forward = nullptr;
+                Backward = nullptr;
             }
 
             Node(Node* Next, Node* Back)
@@ -42,8 +42,8 @@ namespace Templates
         {
             if (HowMany <= 1)
             {
-                WhatToSort->Forward = NULL;
-                WhatToSort->Backward = NULL;
+                WhatToSort->Forward = nullptr;
+                WhatToSort->Backward = nullptr;
                 return WhatToSort;
             }
             int FirstCount = HowMany / 2;
@@ -78,7 +78,7 @@ namespace Templates
                 deletedSecont++;
                 Second=Second->Forward;
             }
-            Working->Backward = NULL;
+            Working->Backward = nullptr;
             Base = Working;
             while (deletedFirst < FirstCount && deletedSecont < SecondCount)
             {
@@ -124,8 +124,8 @@ namespace Templates
              */
             Iterator()
             {
-                WorkingNode = NULL;
-                ListInstance = NULL;
+                WorkingNode = nullptr;
+                ListInstance = nullptr;
             }
 
             /**
@@ -178,16 +178,16 @@ namespace Templates
              */
             virtual bool IsValidIterator() const
             {
-                return WorkingNode != NULL && WorkingNode->Forward != NULL;
+                return WorkingNode != nullptr && WorkingNode->Forward != nullptr;
             }
 
             /**
-             * Return value in specific element. Otherwise NULL.
+             * Return value in specific element. Otherwise nullptr.
              */
             virtual T* GetValue()
             {
                 if (!IsValidIterator())
-                    return NULL;
+                    return nullptr;
                 return &(WorkingNode->Value);
             }
 
@@ -226,7 +226,7 @@ namespace Templates
                 Node* Temp = WorkingNode;
                 for (int a = 0; a < HowMany; a++)
                 {
-                    if (Temp->Forward == NULL)
+                    if (Temp->Forward == nullptr)
                         return false;
                     Temp = Temp->Forward;
                 }
@@ -249,13 +249,13 @@ namespace Templates
             virtual bool Back(int HowMany)
             {
 #ifdef ADDITIONAL_TESTS
-                if (WorkingNode == NULL)
+                if (WorkingNode == nullptr)
                     throw new InternalException(__FILE__, __LINE__);
 #endif
                 Node* Temp = WorkingNode;
                 for (int a = 0; a < HowMany; a++)
                 {
-                    if (Temp->Backward == NULL)
+                    if (Temp->Backward == nullptr)
                         return false;
                     Temp = Temp->Backward;
                 }
@@ -270,10 +270,10 @@ namespace Templates
             virtual int Insert(const T* const Values, int Count)
             {
 #ifdef ADDITIONAL_TESTS
-                if (WorkingNode == NULL)
+                if (WorkingNode == nullptr)
                     throw new InternalException(__FILE__, __LINE__);
 #endif
-                if (WorkingNode->Forward == NULL)
+                if (WorkingNode->Forward == nullptr)
                     return -1;
 
                 for (int a = Count - 1; a >= 0; a--)
@@ -293,10 +293,10 @@ namespace Templates
             virtual int Insert(const T& Value)
             {
 #ifdef ADDITIONAL_TESTS
-                if (WorkingNode == NULL)
+                if (WorkingNode == nullptr)
                     throw new InternalException(__FILE__, __LINE__);
 #endif
-                if (WorkingNode->Forward == NULL)
+                if (WorkingNode->Forward == nullptr)
                     return -1;
 
                 Node* Temp = new Node;
@@ -321,7 +321,7 @@ namespace Templates
             int InsertBefore(T Value)
             {
 #ifdef ADDITIONAL_TESTS
-                if (WorkingNode == NULL)
+                if (WorkingNode == nullptr)
                     throw new InternalException(__FILE__, __LINE__);
 #endif
                 Node* NewNode = new Node;
@@ -331,7 +331,7 @@ namespace Templates
                 {
                     this->ListInstance->First = NewNode;
                     NewNode->Forward = WorkingNode;
-                    NewNode->Backward = NULL;
+                    NewNode->Backward = nullptr;
                     WorkingNode->Backward = NewNode;
                     this->ListInstance->size++;
                     return 1;
@@ -384,7 +384,7 @@ namespace Templates
             virtual int DeleteAfter(int Count)
             {
 #ifdef ADDITIONAL_TESTS
-                if (ListInstance == NULL || WorkingNode == NULL)
+                if (ListInstance == nullptr || WorkingNode == nullptr)
                     throw new InternalException(__FILE__, __LINE__);
 #endif
                 return this->ListInstance->Delete(*this, Count);
@@ -398,7 +398,7 @@ namespace Templates
                 {
                     Node* Next = WorkingNode->Forward;
                     ListInstance->First = Next;
-                    Next->Backward=NULL;
+                    Next->Backward=nullptr;
                     delete WorkingNode;
                     WorkingNode = Next;
                     this->ListInstance->size--;
@@ -423,7 +423,7 @@ namespace Templates
             bool AreEqual(const Iterator& Second)
             {
 #ifdef ADDITIONAL_TESTS
-                if (WorkingNode == NULL || Second.WorkingNode == NULL)
+                if (WorkingNode == nullptr || Second.WorkingNode == nullptr)
                     throw new InternalException(__FILE__, __LINE__);
 #endif
                 return WorkingNode == Second.WorkingNode;
@@ -435,7 +435,7 @@ namespace Templates
             bool IsGreaterThan(const Iterator& Second)
             {
                 Node* Temp = Second.WorkingNode;
-                while (Temp != NULL)
+                while (Temp != nullptr)
                 {
                     if (Temp == this->WorkingNode)
                         return true;
@@ -451,7 +451,7 @@ namespace Templates
 
                 Node* Specific = WorkingNode;
                 Node* Temp = WorkingNode;
-                while(Temp->Forward != NULL)
+                while(Temp->Forward != nullptr)
                 {
                     if(IsFirstBeforeSecond(&Temp->Value,&Specific->Value))
                         Specific = Temp;
@@ -469,13 +469,13 @@ namespace Templates
         bool IsMyIterator(const Iterator& Iter)
         {
 #ifdef ADDITIONAL_TESTS
-            if (Iter.WorkingNode == NULL)
+            if (Iter.WorkingNode == nullptr)
                 throw new InternalException(__FILE__, __LINE__);
 #endif
             if (Iter.ListInstance != this)
                 return false;
             Node* Temp = Iter.WorkingNode;
-            while (Temp != NULL)
+            while (Temp != nullptr)
             {
                 if (Temp == Last)
                     return true;
@@ -517,14 +517,14 @@ namespace Templates
          */
         List(T* Array, int Count) : List(Count)
         {
-            if (Count < 1 || Array == NULL)
+            if (Count < 1 || Array == nullptr)
                 throw new InvalidArgumentException("Cannot pass null array with count < 1", __LINE__);
 #ifdef ADDITIONAL_TESTS
-            if (First == NULL || Last == NULL)
+            if (First == nullptr || Last == nullptr)
                 throw new InternalException(__FILE__, __LINE__);
 #endif
             Node* Temp = First;
-            while (Temp->Forward != NULL)
+            while (Temp->Forward != nullptr)
             {
                 Temp->Value = *Array;
                 Array++;
@@ -579,7 +579,7 @@ namespace Templates
         ~List()
         {
             Node* Temp = First;
-            while (Temp != NULL)
+            while (Temp != nullptr)
             {
                 Node* ToDelete = Temp;
                 Temp = ToDelete->Forward;
@@ -593,14 +593,14 @@ namespace Templates
         int Size() const
         {
 #ifdef ADDITIONAL_TESTS
-            if (First == NULL || Last == NULL)
+            if (First == nullptr || Last == nullptr)
                 throw new InternalException(__FILE__, __LINE__);
 #endif
             return this->size;
             /*
             Node* Temp = First;
             int Count = 0;
-            while (Temp->Forward != NULL)
+            while (Temp->Forward != nullptr)
             {
                 Temp = Temp->Forward;
                 Count++;
@@ -614,7 +614,7 @@ namespace Templates
         Iterator Begin()
         {
 #ifdef ADDITIONAL_TESTS
-            if (First == NULL)
+            if (First == nullptr)
                 throw new InternalException(__FILE__, __LINE__);
 #endif
             return Iterator(First, this);
@@ -627,7 +627,7 @@ namespace Templates
         Iterator End()
         {
 #ifdef ADDITIONAL_TESTS
-            if (Last == NULL)
+            if (Last == nullptr)
                 throw new InternalException(__FILE__, __LINE__);
 #endif
             return Iterator(Last, this);
@@ -640,12 +640,12 @@ namespace Templates
         Iterator At(int Index)
         {
 #ifdef ADDITIONAL_TESTS
-            if (First == NULL)
+            if (First == nullptr)
                 throw new InternalException(__FILE__, __LINE__);
 #endif
             Node* Temp = First;
             int a;
-            for (a = 0; a < Index && First->Forward != NULL; a++)
+            for (a = 0; a < Index && First->Forward != nullptr; a++)
                 Temp = Temp->Forward;
             return Iterator(Temp, this);
         }
@@ -694,12 +694,12 @@ namespace Templates
                 throw new InvalidArgumentException("Iterator is not chain with this instance", __LINE__);
 
 #ifdef ADDITIONAL_TESTS
-            if (Iter.WorkingNode == NULL || Iter.ListInstance != this)
+            if (Iter.WorkingNode == nullptr || Iter.ListInstance != this)
                 throw new InternalException(__FILE__, __LINE__);
 #endif
             Node* ToDelete = Iter.WorkingNode->Forward;
             int deleted = 0;
-            while (ToDelete->Forward != NULL && deleted < HowMany)
+            while (ToDelete->Forward != nullptr && deleted < HowMany)
             {
                 Node* Temp = ToDelete;
                 ToDelete = Temp->Forward;
@@ -718,7 +718,7 @@ namespace Templates
         bool IsEmpty()
         {
 #ifdef ADDITIONAL_TESTS
-            if (First == NULL || Last == NULL)
+            if (First == nullptr || Last == nullptr)
                 throw new InternalException(__FILE__, __LINE__);
 #endif
             return Size() == 0;
@@ -732,12 +732,12 @@ namespace Templates
         {
             Count = Size();
             if(Count==0)
-                return NULL;
+                return nullptr;
             T* Array = new T[Count];
-            if(Array==NULL)
+            if(Array==nullptr)
             {
                 Count=0;
-                return NULL;
+                return nullptr;
             }
 
             T* Base = Array;
@@ -759,12 +759,12 @@ namespace Templates
         {
             Count = Size();
             if(Count==0)
-                return NULL;
+                return nullptr;
             T** Array = new T*[Count];
-            if(Array==NULL)
+            if(Array==nullptr)
             {
                 Count=0;
-                return NULL;
+                return nullptr;
             }
 
             T** Base = Array;
@@ -783,7 +783,7 @@ namespace Templates
             Node* Working = MergeSort(this->First, Size(),IsFirstBeforeSecond);
             this->First = Working;
             Node* Temp = Working;
-            while (Temp->Forward != NULL)
+            while (Temp->Forward != nullptr)
                 Temp = Temp->Forward;
             this->Last->Backward = Temp;
             Temp->Forward = this->Last;

@@ -242,14 +242,14 @@ private:
         assert(Instance->IsEmpty());
         assert(!Instance->Pop(val));
         NextArray = Instance->ToArray(val);
-        assert(NextArray == NULL);
+        assert(NextArray == nullptr);
         delete [] NextArray;
         delete Instance;
 
         Instance = new Stack<int>(array, 4);
         assert(!Instance->IsEmpty());
         NextArray = Instance->ToArray(val);
-        assert(NextArray != NULL && val == 4);
+        assert(NextArray != nullptr && val == 4);
         assert(NextArray[0] == 8 && NextArray[1] == 6 && NextArray[2] == 5 && NextArray[3] == 2);
         delete [] (NextArray);
         delete Instance;
@@ -258,7 +258,7 @@ private:
         assert(Instance->Push(15) == 1);
         assert(!Instance->IsEmpty());
         NextArray = Instance->ToArray(val);
-        assert(NextArray != NULL && val == 5);
+        assert(NextArray != nullptr && val == 5);
         assert(NextArray[0]==15 && NextArray[1] == 8 && NextArray[2] == 6 && NextArray[3] == 5 && NextArray[4] == 2);
         delete [] (NextArray);
         delete Instance;
@@ -267,7 +267,7 @@ private:
         assert(Instance->IsEmpty());
         assert(Instance->Push(array,4)==4);
         NextArray = Instance->ToArray(val);
-        assert(NextArray != NULL && val == 4);
+        assert(NextArray != nullptr && val == 4);
         assert(NextArray[0] == 8 && NextArray[1] == 6 && NextArray[2] == 5 && NextArray[3] == 2);
         delete [] (NextArray);
         delete Instance;

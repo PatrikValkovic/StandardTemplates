@@ -68,8 +68,8 @@ private:
 
     static void OneElementDeleteTests()
     {
-        BinarySearchTree<int> *Instance = NULL;
-        int *Array = NULL;
+        BinarySearchTree<int> *Instance = nullptr;
+        int *Array = nullptr;
         int count;
 
         //delete leaf
@@ -294,7 +294,7 @@ private:
         BinarySearchTree<int> *Instance = new BinarySearchTree<int>(Solve);
         int HelpArray[] = {50, 538, 1037, 1525, 2024, 2512, 3011, 3499, 3510, 3998};
         int SecondHelpInstance[100];
-        int *Array = NULL;
+        int *Array = nullptr;
         int Count;
 
         for (int a = 0; a < 10; a++)
@@ -325,7 +325,7 @@ private:
 
     static void MultipleDeletion()
     {
-        BinarySearchTree<int> *Instance = NULL;
+        BinarySearchTree<int> *Instance = nullptr;
         int count;
         int *Array;
         // {50, 538, 1037, 1525, 2024, 2512, 3011, 3499, 3510, 3998};
@@ -375,7 +375,7 @@ private:
          */
         // {5, 10, 12, 15, 30, 40, 41, 42, 50, 60, 62, 65, 67, 90, 95};
         int BaseArray[15] = {90, 50, 95, 30, 60, 15, 40, 65, 10, 41, 62, 67, 5, 12, 42};
-        BinarySearchTree<int> *Instance = NULL;
+        BinarySearchTree<int> *Instance = nullptr;
         int ToFind;
         int* ToGet;
 
@@ -410,7 +410,7 @@ private:
          */
         // {5, 10, 12, 15, 30, 40, 41, 42, 50, 60, 62, 65, 67, 90, 95};
         int BaseArray[15] = {90, 50, 95, 30, 60, 15, 40, 65, 10, 41, 62, 67, 5, 12, 42};
-        BinarySearchTree<int, false> *Instance = NULL;
+        BinarySearchTree<int, false> *Instance = nullptr;
         int ToInsert;
 
         Instance = new BinarySearchTree<int, false>(Solve);
@@ -456,12 +456,12 @@ private:
 
     static void GetOrCreateIntTests()
     {
-        BinarySearchTree<int, false> *Instance = NULL;
+        BinarySearchTree<int, false> *Instance = nullptr;
         int array[10] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 17};
         int *CreatedArray;
         int count;
         int ToInsert;
-        int* ToGet = NULL;
+        int* ToGet = nullptr;
 
         Instance = new BinarySearchTree<int, false>(Solve);
         assert(Instance->Insert(array, 10) == 9);
@@ -501,7 +501,7 @@ private:
 
     static void GetOrCreateCustomClassTests()
     {
-        BinarySearchTree<CustomClass, false> *Instance = NULL;
+        BinarySearchTree<CustomClass, false> *Instance = nullptr;
         int count;
         CustomClass BaseArrayThrteen[13] = {{30, 1},
                                             {10, 2},
@@ -565,7 +565,7 @@ private:
 
     static void GetAndDeleteTests()
     {
-        BinarySearchTree<CustomClass> *Instance = NULL;
+        BinarySearchTree<CustomClass> *Instance = nullptr;
         int count;
         CustomClass BaseArrayThrteen[13] = {{30, 1},
                                             {10, 2},
@@ -906,7 +906,7 @@ private:
 
     static void CopyTests()
     {
-        BinarySearchTree<int> *Instance = NULL;
+        BinarySearchTree<int> *Instance = nullptr;
 
         //right rotate test
         /**
@@ -948,7 +948,7 @@ private:
 
     static void FilterTests()
     {
-        BinarySearchTree<int> *Instance = NULL;
+        BinarySearchTree<int> *Instance = nullptr;
 
         //right rotate test
         /**

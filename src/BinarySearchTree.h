@@ -15,7 +15,7 @@ namespace Templates
         {
         public:
             T Val;
-            Node* Child[2] = {NULL, NULL};
+            Node* Child[2] = {nullptr, nullptr};
         };
 
         class AssignClass
@@ -26,7 +26,7 @@ namespace Templates
             Node*& po;
             Node* working;
 
-            AssignClass() : AssignClass(p, NULL)
+            AssignClass() : AssignClass(p, nullptr)
             {}
 
             AssignClass(Node*& pointer, Node* working)
@@ -34,7 +34,7 @@ namespace Templates
             {}
         };
 
-        Node* Root = NULL;
+        Node* Root = nullptr;
 
         struct TempCopyStructure
         {
@@ -54,7 +54,7 @@ namespace Templates
         {
             this->CountOfElements = 0;
             this->Distribution = Distribution;
-            this->Root = NULL;
+            this->Root = nullptr;
         }
 
         /**
@@ -80,7 +80,7 @@ namespace Templates
                 *ToCopy.CopyTo = new Node;
                 (*ToCopy.CopyTo)->Val = ToCopy.CopyFrom->Val;
                 for (int a = 0; a < 2; a++)
-                    if (ToCopy.CopyFrom->Child[a] != NULL)
+                    if (ToCopy.CopyFrom->Child[a] != nullptr)
                         CopyQueue.Push(TempCopyStructure{ToCopy.CopyFrom->Child[a],
                                                          (&(*ToCopy.CopyTo)->Child[a])});
             }
@@ -120,16 +120,16 @@ namespace Templates
         {
             Node* Created = new Node;
             Created->Val = Value;
-            if (Root == NULL)
+            if (Root == nullptr)
             {
                 this->Root = Created;
                 CountOfElements++;
                 return 1;
             }
 
-            Node* Previous = NULL;
+            Node* Previous = nullptr;
             Node* Temp = this->Root;
-            while (Temp != NULL)
+            while (Temp != nullptr)
             {
                 int Result = this->Distribution(&Temp->Val, &Value);
                 Previous = Temp;
@@ -163,7 +163,7 @@ namespace Templates
          */
         int Clear()
         {
-            if (this->Root == NULL)
+            if (this->Root == nullptr)
                 return 0;
             int Deleted = 0;
             Stack<Node*>* ToDeleteStack = new Stack<Node*>();
@@ -185,7 +185,7 @@ namespace Templates
                 delete ToDelete;
                 Deleted++;
             }
-            this->Root = NULL;
+            this->Root = nullptr;
             delete ToDeleteStack;
             CountOfElements -= Deleted;
             return Deleted;
@@ -196,10 +196,10 @@ namespace Templates
          */
         bool Contain(const T& Value) const
         {
-            if (this->Root == NULL)
+            if (this->Root == nullptr)
                 return false;
             Node* Temp = this->Root;
-            while (Temp != NULL)
+            while (Temp != nullptr)
             {
                 int Resolve = this->Distribution(&Temp->Val, &Value);
                 if (Resolve == 0)
@@ -216,7 +216,7 @@ namespace Templates
         int Get(const T& ToFind, T*& Returned) const
         {
             Node* Result = this->GetNode(ToFind);
-            if (Result == NULL)
+            if (Result == nullptr)
                 return 0;
             Returned = &(Result->Val);
             return 1;
@@ -225,16 +225,16 @@ namespace Templates
         /**
          * Return element by callback
          */
-        Vector <T> Get(bool(* Callback)(const T* const Value, void* data), void* data = NULL)
+        Vector <T> Get(bool(* Callback)(const T* const Value, void* data), void* data = nullptr)
         {
-            if (this->Root == NULL)
+            if (this->Root == nullptr)
                 return Vector<T>();
 
             Vector<T> vals;
             Stack<Node*> rest;
             Node* current = this->Root;
 
-            while (current != NULL)
+            while (current != nullptr)
             {
                 rest.Push(current);
                 current = current->Child[0];
@@ -246,10 +246,10 @@ namespace Templates
                 rest.Pop(ToProccess);
                 if (Callback(&ToProccess->Val, data))
                     vals.Insert(ToProccess->Val);
-                if (ToProccess->Child[1] != NULL)
+                if (ToProccess->Child[1] != nullptr)
                 {
                     current = ToProccess->Child[1];
-                    while (current != NULL)
+                    while (current != nullptr)
                     {
                         rest.Push(current);
                         current = current->Child[0];
@@ -269,7 +269,7 @@ namespace Templates
         {
             Node* Result = this->GetNode(ToFind);
 
-            if (Result != NULL)
+            if (Result != nullptr)
             {
                 Return = &(Result->Val);
                 return 0;
@@ -298,7 +298,7 @@ namespace Templates
         int GetAndDelete(T& ToFind, T& Return)
         {
             Node* Returned = this->GetNode(ToFind);
-            if (Returned == NULL)
+            if (Returned == nullptr)
                 return 0;
             Return = Returned->Val;
             this->Delete(Return);
@@ -308,7 +308,7 @@ namespace Templates
     private:
         void ToArrayRecursive(Vector <T>& Array, Node* Temp) const
         {
-            if (Temp == NULL)
+            if (Temp == nullptr)
                 return;
             ToArrayRecursive(Array,
                              Temp->Child[1]); //must be reversed, because new elements are inserted to begin of vector
@@ -327,47 +327,47 @@ namespace Templates
                     : Parent(Parent), ToDelete(ToDelete)
             {}
 
-            Node* Parent = NULL;
-            Node* ToDelete = NULL;
+            Node* Parent = nullptr;
+            Node* ToDelete = nullptr;
         };
 
         /**
          * Remove node from tree.
-         * Return node replaced by original node, NULL if was leaf
+         * Return node replaced by original node, nullptr if was leaf
          */
         Node* RemoveNode(ToDeleteHelpClass Deleting)
         {
-            Node** ParentPointer = NULL;
+            Node** ParentPointer = nullptr;
             if (Deleting.ToDelete == this->Root)
                 ParentPointer = &this->Root;
             else
                 ParentPointer = &Deleting.Parent->Child[(Deleting.Parent->Child[1] == Deleting.ToDelete)];
 
             //ToDelete is leaf
-            if (Deleting.ToDelete->Child[0] == NULL && Deleting.ToDelete->Child[1] == NULL)
+            if (Deleting.ToDelete->Child[0] == nullptr && Deleting.ToDelete->Child[1] == nullptr)
             {
                 delete Deleting.ToDelete;
-                *ParentPointer = NULL;
-                return NULL;
+                *ParentPointer = nullptr;
+                return nullptr;
             }
 
             //if ToDelete have only one children
-            if (Deleting.ToDelete->Child[0] == NULL || Deleting.ToDelete->Child[1] == NULL)
+            if (Deleting.ToDelete->Child[0] == nullptr || Deleting.ToDelete->Child[1] == nullptr)
             {
-                *ParentPointer = Deleting.ToDelete->Child[Deleting.ToDelete->Child[0] == NULL];
+                *ParentPointer = Deleting.ToDelete->Child[Deleting.ToDelete->Child[0] == nullptr];
                 delete Deleting.ToDelete;
                 return *ParentPointer;
             }
 
             //just rotate
-            if (Deleting.ToDelete->Child[0]->Child[1] == NULL)
+            if (Deleting.ToDelete->Child[0]->Child[1] == nullptr)
             {
                 Deleting.ToDelete->Child[0]->Child[1] = Deleting.ToDelete->Child[1];
                 *ParentPointer = Deleting.ToDelete->Child[0];
                 delete Deleting.ToDelete;
                 return *ParentPointer;
             }
-            if (Deleting.ToDelete->Child[1]->Child[0] == NULL)
+            if (Deleting.ToDelete->Child[1]->Child[0] == nullptr)
             {
                 Deleting.ToDelete->Child[1]->Child[0] = Deleting.ToDelete->Child[0];
                 *ParentPointer = Deleting.ToDelete->Child[1];
@@ -377,7 +377,7 @@ namespace Templates
 
             Node* Parent = Deleting.ToDelete->Child[0];
             Node* Replaced = Parent->Child[1];
-            while (Replaced->Child[1] != NULL)
+            while (Replaced->Child[1] != nullptr)
             {
                 Parent = Replaced;
                 Replaced = Parent->Child[1];
@@ -392,10 +392,10 @@ namespace Templates
 
         Node* GetNode(const T& ToFind) const
         {
-            if (this->Root == NULL)
-                return NULL;
+            if (this->Root == nullptr)
+                return nullptr;
             Node* Temp = this->Root;
-            while (Temp != NULL)
+            while (Temp != nullptr)
             {
                 int Resolve = this->Distribution(&Temp->Val, &ToFind);
                 if (Resolve == 0)
@@ -404,14 +404,14 @@ namespace Templates
                 }
                 Temp = Temp->Child[Resolve > 0];
             }
-            return NULL;
+            return nullptr;
         }
 
     public:
         /**
          * Return all elements in tree.
          * Elements will be sorted
-         * Otherwise NULL
+         * Otherwise nullptr
          */
         T* ToArray(int& Count) const
         {
@@ -430,13 +430,13 @@ namespace Templates
          * Return count of deleted elements
          * data parameter will be passed to callback
          */
-        int Delete(bool(* Callback)(const T* const Value, void* data), void* data = NULL)
+        int Delete(bool(* Callback)(const T* const Value, void* data), void* data = nullptr)
         {
-            if (this->Root == NULL)
+            if (this->Root == nullptr)
                 return 0;
             int deleted = 0;
             Queue<ToDeleteHelpClass> Nodes;
-            Nodes.Push(ToDeleteHelpClass(NULL, this->Root));
+            Nodes.Push(ToDeleteHelpClass(nullptr, this->Root));
 
             ToDeleteHelpClass Temp;
             while (Nodes.Pop(Temp))
@@ -444,14 +444,14 @@ namespace Templates
                 if (Callback(&Temp.ToDelete->Val, data))
                 {
                     Node* Replaced = this->RemoveNode(Temp);
-                    if (Replaced != NULL)
+                    if (Replaced != nullptr)
                         Nodes.Push(ToDeleteHelpClass(Temp.Parent, Replaced));
                     deleted++;
                 }
                 else
                 {
                     for (int a = 0; a < 2; a++)
-                        if (Temp.ToDelete->Child[a] != NULL)
+                        if (Temp.ToDelete->Child[a] != nullptr)
                             Nodes.Push(ToDeleteHelpClass(Temp.ToDelete, Temp.ToDelete->Child[a]));
                 }
             }
@@ -465,13 +465,13 @@ namespace Templates
          */
         int Delete(T value)
         {
-            if (this->Root == NULL)
+            if (this->Root == nullptr)
                 return 0;
 
             Node* Temp = this->Root;
-            Node* Parent = NULL;
+            Node* Parent = nullptr;
 
-            while (Temp != NULL)
+            while (Temp != nullptr)
             {
                 int Resolve = this->Distribution(&Temp->Val, &value);
                 if (Resolve == 0)
@@ -480,7 +480,7 @@ namespace Templates
                 Temp = Temp->Child[Resolve > 0];
             }
 
-            if (Temp == NULL)
+            if (Temp == nullptr)
                 return 0;
 
             this->RemoveNode(ToDeleteHelpClass(Parent, Temp));

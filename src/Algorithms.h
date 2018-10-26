@@ -12,13 +12,13 @@ namespace Templates
      * Accepts callback to function and void* param, which will be pushed to validation callback.
      */
     template<typename T>
-    bool Find(ForwardIteratorBase<T>* Iter,bool(*Validation)(const T* const Value,void* data), void* params = NULL)
+    bool Find(ForwardIteratorBase<T>* Iter,bool(*Validation)(const T* const Value,void* data), void* params = nullptr)
     {
         while(Iter->IsValidIterator())
         {
             T* Val = Iter->GetValue();
 #ifdef ADDITIONAL_TESTS
-            if(Val==NULL)
+            if(Val==nullptr)
                 throw new InternalException(__FILE__,__LINE__);
 #endif
             if (Validation(Val,params))

@@ -3,7 +3,6 @@
 #include "Meta.h"
 
 //TODO remove
-#define NULL nullptr
 #include <cstring>
 
 namespace Templates

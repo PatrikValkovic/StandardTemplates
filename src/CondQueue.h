@@ -12,7 +12,7 @@ namespace Templates
     class CondQueue : public Queue<T>
     {
     private:
-        bool(* ValidCallback)(const T* What) = NULL;
+        bool(* ValidCallback)(const T* What) = nullptr;
     public:
         /**
          * Constructor
@@ -41,7 +41,7 @@ namespace Templates
                 : CondQueue(Copy.ValidCallback)
         {
             typename Queue<T>::Node* Temp = this->First;
-            while (Temp->Next != NULL)
+            while (Temp->Next != nullptr)
             {
                 Push(Temp->Value);
                 Temp = Temp->Next;
@@ -95,7 +95,7 @@ namespace Templates
         {
             int deleted = 0;
             // 1 - Find first Validate
-            while (this->First != NULL && !ValidCallback(&this->First->Value))
+            while (this->First != nullptr && !ValidCallback(&this->First->Value))
             {
                 typename Queue<T>::Node* Temp = this->First;
                 this->First = Temp->Next;
@@ -103,14 +103,14 @@ namespace Templates
                 deleted++;
             }
             //If whole queue was deleted
-            if (this->First == NULL)
+            if (this->First == nullptr)
             {
-                this->Last = NULL;
+                this->Last = nullptr;
                 return deleted;
             }
             // 3 - Validate rest
             typename Queue<T>::Node* Previous = this->First;
-            while (Previous->Next != NULL)
+            while (Previous->Next != nullptr)
             {
                 typename Queue<T>::Node* Temp = Previous->Next;
                 if (ValidCallback(&Temp->Value))
@@ -122,8 +122,8 @@ namespace Templates
                     deleted++;
                 }
             }
-            if (this->First == NULL)
-                this->Last = NULL;
+            if (this->First == nullptr)
+                this->Last = nullptr;
             return deleted;
         }
 

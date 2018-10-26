@@ -50,17 +50,17 @@ namespace Templates
             {}
 
             T instance;
-            Node* next = NULL;
-            Node* childs = NULL;
+            Node* next = nullptr;
+            Node* childs = nullptr;
             unsigned int CountOfChilds = 0;
 
             static Node* FlipNodes(Node* actual)
             {
-                if (actual == NULL)
-                    return NULL;
+                if (actual == nullptr)
+                    return nullptr;
 
                 Templates::Stack<Node*> toFlip;
-                while (actual != NULL)
+                while (actual != nullptr)
                 {
                     toFlip.Push(actual);
                     actual = actual->next;
@@ -74,7 +74,7 @@ namespace Templates
                     actual->next = temp;
                     actual = temp;
                 }
-                actual->next = NULL;
+                actual->next = nullptr;
                 return toReturn;
             }
         };
@@ -117,13 +117,13 @@ namespace Templates
                 if (accomp < 0)
                 {
                     MergeNodes(this->top, second.top);
-                    second.top = NULL;
+                    second.top = nullptr;
                 }
                 else
                 {
                     MergeNodes(second.top, this->top);
                     this->top = second.top;
-                    second.top = NULL;
+                    second.top = nullptr;
                 }
                 return;
             }
@@ -133,7 +133,7 @@ namespace Templates
                 Node* inners = this->top->childs;
                 delete this->top->instance;
                 delete this->top;
-                this->top = NULL;
+                this->top = nullptr;
                 return inners;
             }
 
@@ -148,13 +148,13 @@ namespace Templates
             }
         };
 
-        Node* Trees = NULL;
-        Node* currentLowerPerson = NULL;
-        Node** pointerToLower = NULL;
+        Node* Trees = nullptr;
+        Node* currentLowerPerson = nullptr;
+        Node** pointerToLower = nullptr;
 
         void ValidateList()
         {
-            if (this->Trees == NULL || this->Trees->next == NULL)
+            if (this->Trees == nullptr || this->Trees->next == nullptr)
             {
                 currentLowerPerson = this->Trees;
                 pointerToLower = &this->Trees;
@@ -168,10 +168,10 @@ namespace Templates
             Node* currentLower = cur;
             Node** pointer = &this->Trees;
 
-            while (next != NULL)
+            while (next != nullptr)
             {
                 if ((cur->CountOfChilds == next->CountOfChilds &&
-                     sib == NULL) ||
+                     sib == nullptr) ||
                     (cur->CountOfChilds == next->CountOfChilds &&
                      next->CountOfChilds != sib->CountOfChilds))
                 {
@@ -185,7 +185,7 @@ namespace Templates
                     {
                         Tree::MergeNodes(cur, next);
                         next = cur->next;
-                        sib = next == NULL ? NULL : next->next;
+                        sib = next == nullptr ? nullptr : next->next;
                     }
                     else
                     {
@@ -193,7 +193,7 @@ namespace Templates
                         *prev = next;
                         cur = next;
                         next = cur->next;
-                        sib = next == NULL ? NULL : next->next;
+                        sib = next == nullptr ? nullptr : next->next;
                     }
                 }
                 else
@@ -201,7 +201,7 @@ namespace Templates
                     prev = &cur->next;
                     cur = cur->next;
                     next = next->next;
-                    if (sib != NULL)
+                    if (sib != nullptr)
                         sib = sib->next;
                 }
                 if (comp(cur->instance, currentLower->instance) <= 0)
@@ -217,7 +217,7 @@ namespace Templates
 
         void ValidBeginning()
         {
-            if (this->Trees == NULL || this->Trees->next == NULL)
+            if (this->Trees == nullptr || this->Trees->next == nullptr)
             {
                 currentLowerPerson = this->Trees;
                 pointerToLower = &this->Trees;
@@ -226,7 +226,7 @@ namespace Templates
             Node* cur = this->Trees;
             Node* next = cur->next;
 
-            while (next != NULL && cur->CountOfChilds == next->CountOfChilds)
+            while (next != nullptr && cur->CountOfChilds == next->CountOfChilds)
             {
                 /**
                  * return < 0 if Second is bigger than First
@@ -254,8 +254,8 @@ namespace Templates
              * return 0 if First and Second are equal
              * return > 0 if First is bigger than Second
              */
-            if (this->Trees != NULL &&
-                (currentLowerPerson == NULL || comp(this->Trees->instance, currentLowerPerson->instance) <= 0))
+            if (this->Trees != nullptr &&
+                (currentLowerPerson == nullptr || comp(this->Trees->instance, currentLowerPerson->instance) <= 0))
             {
                 this->currentLowerPerson = this->Trees;
                 this->pointerToLower = &this->Trees;
@@ -273,13 +273,13 @@ namespace Templates
             Node* thisMoving = this->Trees;
             Node* secondMoving = Node::FlipNodes(Second);
 
-            if (this->Trees == NULL)
+            if (this->Trees == nullptr)
             {
                 this->Trees = secondMoving;
                 ValidateList();
                 return;
             }
-            if (Second == NULL)
+            if (Second == nullptr)
                 return;
 
             if (this->Trees == Second)
@@ -298,7 +298,7 @@ namespace Templates
 
             this->Trees = inserting;
 
-            for (; thisMoving != NULL && secondMoving != NULL; inserting = inserting->next)
+            for (; thisMoving != nullptr && secondMoving != nullptr; inserting = inserting->next)
             {
                 if (thisMoving->CountOfChilds < secondMoving->CountOfChilds)
                 {
@@ -312,9 +312,9 @@ namespace Templates
                 }
             }
 
-            if (thisMoving != NULL)
+            if (thisMoving != nullptr)
                 inserting->next = thisMoving;
-            else if (secondMoving != NULL)
+            else if (secondMoving != nullptr)
                 inserting->next = secondMoving;
 
             ValidateList();
@@ -330,7 +330,7 @@ namespace Templates
 
         ~BinomialHeapLite()
         {
-            if (this->Trees == NULL)
+            if (this->Trees == nullptr)
                 return;
             Templates::Stack<Node*> nodes;
             nodes.Push(this->Trees);
@@ -338,9 +338,9 @@ namespace Templates
             while (!nodes.IsEmpty())
             {
                 nodes.Pop(this->Trees);
-                if (this->Trees->next != NULL)
+                if (this->Trees->next != nullptr)
                     nodes.Push(this->Trees->next);
-                if (this->Trees->childs != NULL)
+                if (this->Trees->childs != nullptr)
                     nodes.Push(this->Trees->childs);
                 d(this->Trees->instance);
                 delete this->Trees;
@@ -357,7 +357,7 @@ namespace Templates
 
         bool Pop(T& val)
         {
-            if (this->Trees == NULL)
+            if (this->Trees == nullptr)
                 return false;
 
             //delete current lower node
@@ -373,8 +373,8 @@ namespace Templates
 
 
             Node* current = this->Trees;
-            Node* prev = NULL;
-            for (; current != NULL; current = current->next)
+            Node* prev = nullptr;
+            for (; current != nullptr; current = current->next)
             {
                 /**
                  * return < 0 if Second is bigger than First
@@ -397,7 +397,7 @@ namespace Templates
 
         bool Top(T& val)
         {
-            if (this->Trees != NULL)
+            if (this->Trees != nullptr)
             {
                 val = this->currentLowerPerson->instance;
                 return true;
@@ -408,9 +408,9 @@ namespace Templates
         void Merge(BinomialHeapLite& second)
         {
             this->Merge(second.Trees);
-            second.Trees = NULL;
-            second.pointerToLower = NULL;
-            second.currentLowerPerson = NULL;
+            second.Trees = nullptr;
+            second.pointerToLower = nullptr;
+            second.currentLowerPerson = nullptr;
         }
     };
 }

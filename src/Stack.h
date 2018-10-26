@@ -19,7 +19,7 @@ namespace Templates
             Node* Next;
 
             Node()
-            { Next = NULL; }
+            { Next = nullptr; }
         };
 
         Node* TopNode;
@@ -35,7 +35,7 @@ namespace Templates
              * Creates non valid empty iterator.
              */
             Iterator()
-            { WorkingStack = NULL; }
+            { WorkingStack = nullptr; }
 
             /**
              * Return iterator tied with queue.
@@ -70,7 +70,7 @@ namespace Templates
              * Return true, if is iterator valid and may work with it.
              */
             virtual bool IsValidIterator() const
-            { return WorkingStack != NULL && WorkingStack->TopNode!=NULL; }
+            { return WorkingStack != nullptr && WorkingStack->TopNode!=nullptr; }
 
             /**
              * Return first value on Stack, but dont remove it.
@@ -91,7 +91,7 @@ namespace Templates
             virtual bool Next()
             {
                 T val;
-                return this->WorkingStack->Pop(val) && this->WorkingStack->TopNode!=NULL;
+                return this->WorkingStack->Pop(val) && this->WorkingStack->TopNode!=nullptr;
             }
 
             /**
@@ -144,7 +144,7 @@ namespace Templates
         /**
          * Creates empty Stack
          */
-        Stack() : TopNode(NULL)
+        Stack() : TopNode(nullptr)
         { }
 
         /**
@@ -163,7 +163,7 @@ namespace Templates
                 this->Clear();
                 if(Second.IsEmpty())
                 {
-                    this->TopNode = NULL;
+                    this->TopNode = nullptr;
                     return *this;
                 }
 
@@ -172,7 +172,7 @@ namespace Templates
                 this->TopNode = Created;
 
                 Node* Temp = Second.TopNode->Next;
-                for(;Temp!=NULL;Temp=Temp->Next)
+                for(;Temp!=nullptr;Temp=Temp->Next)
                 {
                     Node* ToAdd = new Node;
                     ToAdd->Value = Temp->Value;
@@ -190,7 +190,7 @@ namespace Templates
         {
             if(Second.IsEmpty())
             {
-                this->TopNode = NULL;
+                this->TopNode = nullptr;
                 return;
             }
 
@@ -199,7 +199,7 @@ namespace Templates
             this->TopNode = Created;
 
             Node* Temp = Second.TopNode->Next;
-            for(;Temp!=NULL;Temp=Temp->Next)
+            for(;Temp!=nullptr;Temp=Temp->Next)
             {
                 Node* ToAdd = new Node;
                 ToAdd->Value = Temp->Value;
@@ -229,7 +229,7 @@ namespace Templates
         {
             int Count = 0;
             Node* Temp = this->TopNode;
-            while (Temp != NULL)
+            while (Temp != nullptr)
             {
                 Count++;
                 Temp = Temp->Next;
@@ -246,7 +246,7 @@ namespace Templates
         {
             count = this->Size();
             if(count==0)
-                return NULL;
+                return nullptr;
             T* Array = new T[count];
             Node* Temp = this->TopNode;
             for(int i=0;i<count;i++,Temp=Temp->Next)
@@ -262,7 +262,7 @@ namespace Templates
         {
             Node* Temp = new Node;
             Temp->Value = Val;
-            if (this->TopNode != NULL)
+            if (this->TopNode != nullptr)
                 Temp->Next = this->TopNode;
             this->TopNode = Temp;
             return 1;
@@ -286,7 +286,7 @@ namespace Templates
          */
         bool Pop(T& Value)
         {
-            if (this->TopNode == NULL)
+            if (this->TopNode == nullptr)
                 return false;
             Node* Temp = this->TopNode;
             this->TopNode = Temp->Next;
@@ -303,14 +303,14 @@ namespace Templates
         {
             int deleted = 0;
             Node* Temp = this->TopNode;
-            while (Temp != NULL)
+            while (Temp != nullptr)
             {
                 Node* ToDelete = Temp;
                 Temp = Temp->Next;
                 delete ToDelete;
                 deleted++;
             }
-            this->TopNode = NULL;
+            this->TopNode = nullptr;
             return deleted;
         }
 
@@ -318,7 +318,7 @@ namespace Templates
          * Return true, if is Stack empty.
          */
         bool IsEmpty() const
-        { return this->TopNode == NULL; }
+        { return this->TopNode == nullptr; }
     };
 }
 #endif //TEMPLATES_STACK_H

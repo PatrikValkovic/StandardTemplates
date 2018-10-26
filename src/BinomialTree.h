@@ -32,11 +32,11 @@ namespace Templates
             Node* toProccess;
         };
 
-        Node* top = NULL;
+        Node* top = nullptr;
     public:
         BinomialTree()
         {
-            this->top = NULL;
+            this->top = nullptr;
         }
 
         BinomialTree(T val) : BinomialTree()
@@ -48,7 +48,7 @@ namespace Templates
         ~BinomialTree()
         {
 
-            if (top == NULL)
+            if (top == nullptr)
                 return;
 
             Stack<Node*> ToProcess;
@@ -100,11 +100,11 @@ namespace Templates
 
             this->Clear();
 
-            if(Second.top == NULL)
+            if(Second.top == nullptr)
                 return *this;
 
             Stack<Assign> ToProcess;
-            ToProcess.Push(Assign{NULL, Second.top});
+            ToProcess.Push(Assign{nullptr, Second.top});
             Assign ToCopy;
 
             while (!ToProcess.IsEmpty())
@@ -112,7 +112,7 @@ namespace Templates
                 ToProcess.Pop(ToCopy);
                 Node* newOne = new Node(ToCopy.toProccess->val);
 
-                if (ToCopy.prev != NULL)
+                if (ToCopy.prev != nullptr)
                     ToCopy.prev->rest.Insert(newOne);
                 else
                         this->top = newOne;
@@ -128,11 +128,11 @@ namespace Templates
 
         void Clear()
         {
-            if (top == NULL)
+            if (top == nullptr)
                 return;
 
             this->~BinomialTree();
-            this->top = NULL;
+            this->top = nullptr;
         }
 
         void Merge(BinomialTree& second)
@@ -144,13 +144,13 @@ namespace Templates
             if (accomp < 0)
             {
                 top->rest.Insert(second.top);
-                second.top = NULL;
+                second.top = nullptr;
             }
             else if ((accomp == 0 && allowDuplicities) || accomp > 0)
             {
                 second.top->rest.Insert(top);
                 this->top = second.top;
-                second.top = NULL;
+                second.top = nullptr;
             }
             return;
         }
@@ -168,7 +168,7 @@ namespace Templates
                 inner.End().InsertBefore(innerTree);
             }
             delete temp.top;
-            temp.top = NULL;
+            temp.top = nullptr;
             //flip
             return inner;
         }
