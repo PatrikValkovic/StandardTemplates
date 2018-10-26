@@ -25,7 +25,6 @@ namespace Templates
                 if(allocation == 0)
                     throw 0;
             }
-
 #endif
             alignas(alignof(T)) unsigned char _value[sizeof(T)];
             Node* _next = nullptr;
@@ -175,10 +174,11 @@ namespace Templates
              * The result iterator doesn't need to be valid.
              * @param v Number of nodes to skip.
              */
-            ConstIterator& operator+(unsigned int v)
+            ConstIterator operator+(unsigned int v)
             {
-                this->Next(v);
-                return *this;
+                ConstIterator tmp(*this);
+                tmp.Next(v);
+                return tmp;
             }
         };
 
@@ -193,6 +193,11 @@ namespace Templates
             Iterator(Iterator&& iterator) noexcept = default;
             Iterator& operator=(const Iterator& iterator) = default;
             Iterator& operator=(Iterator&& iterator) noexcept = default;
+            operator ConstIterator() const
+            {
+                return ConstIterator(this->_node, this->_vector);
+            }
+
 
             /**
              * Dereference iterator to get value.
@@ -236,10 +241,11 @@ namespace Templates
              * The result iterator doesn't need to be valid.
              * @param v Number of nodes to skip.
              */
-            Iterator& operator+(unsigned int v)
+            Iterator operator+(unsigned int v)
             {
-                this->Next(v);
-                return *this;
+                Iterator tmp(*this);
+                tmp.Next(v);
+                return tmp;
             }
 
             /**
@@ -271,6 +277,7 @@ namespace Templates
              */
             void Insert(const T& value)
             {
+                //TODO rewrite to be safe
                 Node* tmp = new Node();
                 try
                 {

@@ -94,6 +94,9 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Vector/VectorPushTests.cpp
         test/Vector/VectorDeleteTests.cpp
         test/Vector/VectorInsertTests.cpp
+        test/Vector/VectorIteratorTests.cpp
+        test/Vector/VectorIteratorInsertTests.cpp
+        test/Vector/VectorIteratorDeleteTests.cpp
 
         #test/Array/_IteratorsTests.cpp
         #test/Array/_IteratorsDeleteTests.cpp
