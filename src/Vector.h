@@ -261,6 +261,7 @@ namespace Templates
              */
             void Insert(const T* values, unsigned int count)
             {
+                //TODO rewrite to be safe
                 const T* tmp = values + count;
                 while(tmp --> values)
                     Insert(*tmp);
@@ -277,7 +278,6 @@ namespace Templates
              */
             void Insert(const T& value)
             {
-                //TODO rewrite to be safe
                 Node* tmp = new Node();
                 try
                 {
@@ -440,23 +440,8 @@ namespace Templates
             if(this==&second)
                 return *this;
 
-            {
-                Vector tmp(second.Size());
-                swap(*this, tmp);
-            }
-
-            Vector::ConstIterator b = second.Begin();
-            Vector::ConstIterator e = second.End();
-            try
-            {
-                for (; b != e; b++)
-                    this->Push(*b);
-            }
-            catch(...)
-            {
-                this->Delete();
-                throw;
-            }
+            Vector tmp(second);
+            swap(*this, tmp);
 
             return *this;
         }
@@ -479,7 +464,7 @@ namespace Templates
         }
 
         /**
-         * Destructor
+         * Destructor.
          */
         ~Vector()
         {
@@ -614,6 +599,7 @@ namespace Templates
          */
         void Push(const T* array, unsigned int count)
         {
+            //TODO rewrite to be safe
             const T* last_element = array + count;
             for (; array != last_element; array++)
                 Push(*array);
@@ -714,6 +700,9 @@ namespace Templates
                 throw;
             }
         }
+
+        //TODO implement emplace front
+        //TODO implement emplace back
 
         /**
          * Swap two instances of Vector.

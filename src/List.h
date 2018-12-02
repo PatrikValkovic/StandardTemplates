@@ -1,7 +1,6 @@
 #ifndef __TEMPLATELIST_H_
 #define __TEMPLATELIST_H_
-
-#include "IteratorsDefinitions.h"
+#include "Basis.h"
 #include "Exceptions.h"
 
 namespace Templates
@@ -12,33 +11,42 @@ namespace Templates
     template<typename T>
     class List
     {
-    protected:
+    private:
         class Node
         {
         public:
-            Node* Forward;
-            Node* Backward;
-            T Value;
+#ifdef ___OUT_OF_MEMORY_TESTING
+            static unsigned int allocation;
 
             Node()
             {
-                Forward = nullptr;
-                Backward = nullptr;
+                allocation--;
+                if (allocation == 0)
+                    throw 0;
             }
 
-            Node(Node* Next, Node* Back)
+#endif
+            Node* _forward = nullptr;
+            Node* _backward = nullptr;
+            alignas(alignof(T)) unsigned char _value[sizeof(T)];
+
+            T* const Pointer() noexcept
             {
-                Forward = Next;
-                Backward = Back;
+                return static_cast<T*>(static_cast<void*>(_value));
+            }
+
+            T& Value() noexcept
+            {
+                return *Pointer();
             }
         };
 
-        Node* First;
-        Node* Last;
-        int size;
+        Node* _first;
+        Node* _last;
+        int _size;
 
         Node* MergeSort(Node* WhatToSort, int HowMany,
-                        bool(*IsFirstBeforeSecond)(const T* const First, const T* const Second))
+                        bool(* IsFirstBeforeSecond)(const T* const First, const T* const Second))
         {
             if (HowMany <= 1)
             {
@@ -53,14 +61,15 @@ namespace Templates
             {
                 SecondNode = SecondNode->Forward;
             }
-            Node* First = MergeSort(WhatToSort, FirstCount,IsFirstBeforeSecond);
-            Node* Second = MergeSort(SecondNode, SecondCount,IsFirstBeforeSecond);
-            Node* ToReturn = Join(First, FirstCount, Second, SecondCount,IsFirstBeforeSecond);
+            Node* First = MergeSort(WhatToSort, FirstCount, IsFirstBeforeSecond);
+            Node* Second = MergeSort(SecondNode, SecondCount, IsFirstBeforeSecond);
+            Node* ToReturn = Join(First, FirstCount, Second, SecondCount, IsFirstBeforeSecond);
             return ToReturn;
         }
+
         Node* Join(Node* First, int FirstCount,
                    Node* Second, int SecondCount,
-                   bool(*IsFirstBeforeSecond)(const T* const First, const T* const Second))
+                   bool(* IsFirstBeforeSecond)(const T* const First, const T* const Second))
         {
             typename List<T>::Node* Working;
             typename List<T>::Node* Base;
@@ -76,7 +85,7 @@ namespace Templates
             {
                 Working = Second;
                 deletedSecont++;
-                Second=Second->Forward;
+                Second = Second->Forward;
             }
             Working->Backward = nullptr;
             Base = Working;
@@ -98,20 +107,20 @@ namespace Templates
                 }
                 Working = Working->Forward;
             }
-            if(deletedFirst != FirstCount)
+            if (deletedFirst != FirstCount)
             {
                 Working->Forward = First;
                 First->Backward = Working;
             }
-            if(deletedSecont != SecondCount)
+            if (deletedSecont != SecondCount)
             {
                 Working->Forward = Second;
                 Second->Backward = Working;
             }
             return Base;
         }
-    public:
-        class Iterator : public virtual Iterators::DeletingBackwardIteratorBase<T>
+
+        class Iterator
         {
             friend class List;
 
@@ -279,10 +288,10 @@ namespace Templates
                 for (int a = Count - 1; a >= 0; a--)
                     if (Insert(*(Values + a)) != 1)
                     {
-                        this->ListInstance->size += Count-1-a;
+                        this->ListInstance->_size += Count - 1 - a;
                         return Count - 1 - a;
                     }
-                this->ListInstance->size += Count;
+                this->ListInstance->_size += Count;
                 return Count;
             }
 
@@ -310,7 +319,7 @@ namespace Templates
                 Next->Backward = Temp;
                 Back->Forward = Temp;
 
-                this->ListInstance->size++;
+                this->ListInstance->_size++;
                 return 1;
             }
 
@@ -333,7 +342,7 @@ namespace Templates
                     NewNode->Forward = WorkingNode;
                     NewNode->Backward = nullptr;
                     WorkingNode->Backward = NewNode;
-                    this->ListInstance->size++;
+                    this->ListInstance->_size++;
                     return 1;
                 }
                 else
@@ -345,7 +354,7 @@ namespace Templates
                     NewNode->Backward = Before;
                     Before->Forward = NewNode;
                     After->Backward = NewNode;
-                    this->ListInstance->size++;
+                    this->ListInstance->_size++;
                     return 1;
                 }
             }
@@ -392,16 +401,16 @@ namespace Templates
 
             int DeleteThis()
             {
-                if(!IsValidIterator())
+                if (!IsValidIterator())
                     return 0;
-                if(WorkingNode==ListInstance->First)
+                if (WorkingNode == ListInstance->First)
                 {
                     Node* Next = WorkingNode->Forward;
                     ListInstance->First = Next;
-                    Next->Backward=nullptr;
+                    Next->Backward = nullptr;
                     delete WorkingNode;
                     WorkingNode = Next;
-                    this->ListInstance->size--;
+                    this->ListInstance->_size--;
                     return 1;
                 }
                 else
@@ -412,7 +421,7 @@ namespace Templates
                     Backward->Forward = Forward;
                     delete WorkingNode;
                     WorkingNode = Forward;
-                    this->ListInstance->size--;
+                    this->ListInstance->_size--;
                     return 1;
                 }
             }
@@ -444,16 +453,16 @@ namespace Templates
                 return false;
             }
 
-            void FindBestFitting(bool(*IsFirstBeforeSecond)(const T* const First, const T* const Second))
+            void FindBestFitting(bool(* IsFirstBeforeSecond)(const T* const First, const T* const Second))
             {
-                if(!IsValidIterator())
+                if (!IsValidIterator())
                     return;
 
                 Node* Specific = WorkingNode;
                 Node* Temp = WorkingNode;
-                while(Temp->Forward != nullptr)
+                while (Temp->Forward != nullptr)
                 {
-                    if(IsFirstBeforeSecond(&Temp->Value,&Specific->Value))
+                    if (IsFirstBeforeSecond(&Temp->Value, &Specific->Value))
                         Specific = Temp;
                     Temp = Temp->Forward;
                 }
@@ -463,286 +472,242 @@ namespace Templates
         };
 
     public:
+
+
+        using ConstIterator = T*;
+
         /**
-         * Check, if is iterator chained with actual instance of list.
+         * Allocate empty List.
          */
-        bool IsMyIterator(const Iterator& Iter)
+        List() : _first(new Node()), _last(_first), _size(0)
+        {}
+
+        /**
+         * Creates new instance and inserts all elements from the array into the list.
+         * The elements will be added in the same order, so first element in the array will be first in the list.
+         * @param array Array of elements to add into list.
+         * @param count Count of elements in the array.
+         */
+        List(T* array, unsigned int count) : List()
         {
-#ifdef ADDITIONAL_TESTS
-            if (Iter.WorkingNode == nullptr)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            if (Iter.ListInstance != this)
-                return false;
-            Node* Temp = Iter.WorkingNode;
-            while (Temp != nullptr)
+            T* e = array + count;
+
+            for (; array != e; array++)
             {
-                if (Temp == Last)
-                    return true;
-                Temp = Temp->Forward;
+                new (_last->Pointer()) T(*array);
+
+                try
+                {
+                    _last->_forward = new Node();
+                }
+                catch(...)
+                {
+                    _last->Value().~T();
+                    throw;
+                }
+
+                _last->_forward->_backward = _last;
+                _last = _last->_forward;
+                _size++;
             }
-            return false;
-        }
 
-        /**
-         * Constructor with empty capacity.
-         */
-        List()
-        {
-            Node* Temp = new Node;
-            First = Temp;
-            Last = Temp;
-            this->size = 0;
-        }
-
-        /**
-         * Constructor with specific @Capacity.
-         */
-        List(int Capacity) : List()
-        {
-            if (Capacity < 1)
-                return;
-            for (int a = 0; a < Capacity; a++)
-            {
-                Node* Temp = new Node;
-                First->Backward = Temp;
-                Temp->Forward = First;
-                First = Temp;
-            }
-            this->size = Capacity;
-        }
-
-        /**
-         * Create list with @Count elements and set values from @Array.
-         */
-        List(T* Array, int Count) : List(Count)
-        {
-            if (Count < 1 || Array == nullptr)
-                throw new InvalidArgumentException("Cannot pass null array with count < 1", __LINE__);
-#ifdef ADDITIONAL_TESTS
-            if (First == nullptr || Last == nullptr)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            Node* Temp = First;
-            while (Temp->Forward != nullptr)
-            {
-                Temp->Value = *Array;
-                Array++;
-                Temp = Temp->Forward;
-            }
-            return;
+            //Don't call destructor, see Vector
+            //this->~List();
         }
 
 
         /**
-         * Copy constructor
+         * Copy constructor.
          */
-        List(const List& Copy) : List()
+        List(const List& copy) : List()
         {
-            if(Copy.Size()==0)
-                    return;
+            List::ConstIterator b = copy.Begin();
+            List::ConstIterator e = copy.End();
+            for (; b != e; b++)
+                this->Push(*b);
 
-            Node* Start = Copy.First;
-            Node* End = Copy.Last;
-            Node* Temp = Start;
-            do
-            {
-                this->End().InsertBefore(Temp->Value);
-                Temp = Temp->Forward;
-            }while(Temp!=End);
+            //Don't call destructor, see Vector
+            //this->~List();
         }
 
         /**
-         * Assignment operator.
+         * Move constructor.
          */
-        List& operator=(const List& Second)
+        List(List&& second) : List()
         {
-            if(this==&Second)
+            swap(*this, second);
+        }
+
+        /**
+         * Copy assignment operator.
+         */
+        List& operator=(const List& second)
+        {
+            if (this == &second)
                 return *this;
 
-            this->Delete();
+            List tmp(second);
+            swap(*this, tmp);
 
-            if(Second.Size()==0)
-                return *this;
-
-            Node* Start = Second.First;
-            Node* End = Second.Last;
-            Node* Temp = Start;
-            do
-            {
-                this->End().InsertBefore(Temp->Value);
-                Temp = Temp->Forward;
-            }while(Temp!=End);
             return *this;
         }
 
+        /**
+         * Move assignment operator.
+         */
+        List& operator=(List&& second)
+        {
+            if (this == &second)
+                return *this;
+
+            {
+                List tmp(move(*this));
+            }
+
+            swap(*this, second);
+            return *this;
+        }
+
+        /**
+         * Destructor.
+         */
         ~List()
         {
-            Node* Temp = First;
-            while (Temp != nullptr)
-            {
-                Node* ToDelete = Temp;
-                Temp = ToDelete->Forward;
-                delete ToDelete;
-            }
+            this->Delete();
+            delete _first;
         }
 
         /**
          * Return count of elements in list.
          */
-        int Size() const
+        inline int Size() const
         {
-#ifdef ADDITIONAL_TESTS
-            if (First == nullptr || Last == nullptr)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            return this->size;
-            /*
-            Node* Temp = First;
-            int Count = 0;
-            while (Temp->Forward != nullptr)
+            return this->_size;
+        }
+
+        /**
+         * Check if the list is empty.
+         * @return True if the list is empty, false otherwse.
+         */
+        inline bool IsEmpty() const
+        {
+            return this->Size() == 0;
+        }
+
+        /**
+         * Delete all elements from the list.
+         * @return Number of deleted elements.
+         */
+        inline unsigned int Delete()
+        {
+            return this->Delete(~0U);
+        }
+
+        /**
+         * Delete count elements from the list.
+         * In case of exception, some elements could be already deleted from the list.
+         * @param count Number of elements to delete.
+         * @return Number of deleted elements.
+         */
+        unsigned int Delete(unsigned int count)
+        {
+            unsigned int deleted = 0;
+            for(; deleted < count && _size > 0; deleted++)
             {
-                Temp = Temp->Forward;
-                Count++;
+                _first->Value().~T();
+                _first->_forward->_backward = nullptr;
+                Node* toDelete = _first;
+                _first = _first->_forward;
+                _size--;
+                delete toDelete;
             }
-            return Count;*/
-        }
-
-        /**
-         * Return iterator to begin.
-         */
-        Iterator Begin()
-        {
-#ifdef ADDITIONAL_TESTS
-            if (First == nullptr)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            return Iterator(First, this);
-        }
-
-        /**
-         * Return iterator one position after last element.
-         * Note that this iterator can move back, but is invalid.
-         */
-        Iterator End()
-        {
-#ifdef ADDITIONAL_TESTS
-            if (Last == nullptr)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            return Iterator(Last, this);
-        }
-
-        /**
-         * Return iterator chained with @Indexth element in array.
-         * If is @Index bigger than size of list, is equal to @End()
-         */
-        Iterator At(int Index)
-        {
-#ifdef ADDITIONAL_TESTS
-            if (First == nullptr)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            Node* Temp = First;
-            int a;
-            for (a = 0; a < Index && First->Forward != nullptr; a++)
-                Temp = Temp->Forward;
-            return Iterator(Temp, this);
-        }
-
-        /**
-         * Delete all elements in list.
-         */
-        int Delete()
-        {
-            return this->Delete(0xFFFFFFFF >> 1);
-        }
-
-        /**
-         * Delete @Count elements from begining of list.
-         * Return count of deleted items.
-         */
-        int Delete(int Count)
-        {
-            if (Size() == 0)
-                return 0;
-            int deleted = 0;
-            if(Count>1)
-            {
-                Iterator Temp = Begin();
-                deleted = Delete(Temp, Count - 1);
-            }
-            //delete first one
-            Node* Temp = First->Forward;
-            delete First;
-            First = Temp;
-            deleted++;
-            this->size--;
             return deleted;
         }
 
         /**
-         * Delete @HowMany=1 elements from Iterator.
-         * Return count of deleted items.
+         * Push count elements from the array in the end of the list.
+         * The method is exception safe, in case of exception the list stays in the same state.
+         * @param array Elements to insert.
+         * @param count Number of elements to insert.
          */
-        int Delete(Iterator& Iter, int HowMany = 1)
+        void Push(T* array, unsigned int count)
         {
-            if (HowMany < 1 || Iter.WorkingNode == Last)
-                throw new OutOfRangeException();
+            List tmp(array, count);
 
-            if (!IsMyIterator(Iter))
-                throw new InvalidArgumentException("Iterator is not chain with this instance", __LINE__);
+            Node* to_insert_begin = tmp._first;
+            Node* to_insert_end = tmp._last->_backward;
 
-#ifdef ADDITIONAL_TESTS
-            if (Iter.WorkingNode == nullptr || Iter.ListInstance != this)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            Node* ToDelete = Iter.WorkingNode->Forward;
-            int deleted = 0;
-            while (ToDelete->Forward != nullptr && deleted < HowMany)
-            {
-                Node* Temp = ToDelete;
-                ToDelete = Temp->Forward;
-                delete Temp;
-                deleted++;
-            }
-            ToDelete->Backward = Iter.WorkingNode;
-            Iter.WorkingNode->Forward = ToDelete;
-            this->size -= deleted;
-            return deleted;
+            to_insert_begin->_backward = _last->_backward;
+            _last->_backward->_forward = to_insert_begin;
+            to_insert_end->_forward = _last;
+            _last->_backward = to_insert_end;
+
+            _size += tmp._size;
+
+            tmp._first = tmp._last;
+            tmp._size = 0;
         }
 
         /**
-         * Return true, if is list empty.
+         * Insert element at the end of the list.
+         * @param value Element to insert.
          */
-        bool IsEmpty()
+        void Push(T& value)
         {
-#ifdef ADDITIONAL_TESTS
-            if (First == nullptr || Last == nullptr)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            return Size() == 0;
+            this->Push(&value, 1);
+        }
+
+        /**
+         * Insert element at the beginning of the list.
+         * @param value Element to insert.
+         */
+        void Insert(T &value)
+        {
+            this->Insert(&value, 1);
+        }
+
+        /**
+         * Insert elements at the beginning of the list.
+         * The method is exception safe, in case of exception the list stays in the same state.
+         * @param array Array of elements to insert.
+         * @param count Number of elements to insert.
+         */
+        void Insert(T* array, unsigned int count)
+        {
+            List tmp(array, count);
+
+            Node* current_first = _first;
+            _first = tmp._first;
+            tmp._last->_backward->_forward = current_first;
+            current_first->_backward = tmp._last->_backward;
+            _size += tmp._size;
+
+            tmp._first = tmp._last;
+            tmp._first->_forward = nullptr;
+            tmp._first->_backward = nullptr;
+            tmp._size = 0;
         }
 
         /**
          * Convert list to array
          * Must be clared by delete[]
+         * TODO
          */
         T* ToArray(int& Count)
         {
             Count = Size();
-            if(Count==0)
+            if (Count == 0)
                 return nullptr;
             T* Array = new T[Count];
-            if(Array==nullptr)
+            if (Array == nullptr)
             {
-                Count=0;
+                Count = 0;
                 return nullptr;
             }
 
             T* Base = Array;
             Iterator temp = Begin();
-            while(temp.IsValidIterator())
+            while (temp.IsValidIterator())
             {
                 *Array = *temp.GetValue();
                 Array++;
@@ -754,22 +719,23 @@ namespace Templates
         /**
          * Convert list to array pointing to original source in list
          * Must be clared by delete []
+         * TODO
          */
         T** ToWriteArray(int& Count)
         {
             Count = Size();
-            if(Count==0)
+            if (Count == 0)
                 return nullptr;
-            T** Array = new T*[Count];
-            if(Array==nullptr)
+            T** Array = new T* [Count];
+            if (Array == nullptr)
             {
-                Count=0;
+                Count = 0;
                 return nullptr;
             }
 
             T** Base = Array;
             Iterator temp = Begin();
-            while(temp.IsValidIterator())
+            while (temp.IsValidIterator())
             {
                 *Array = temp.GetValue();
                 Array++;
@@ -778,9 +744,10 @@ namespace Templates
             return Base;
         }
 
-        void Sort(bool(*IsFirstBeforeSecond)(const T* const First, const T* const Second))
+        //TODO
+        void Sort(bool(* IsFirstBeforeSecond)(const T* const First, const T* const Second))
         {
-            Node* Working = MergeSort(this->First, Size(),IsFirstBeforeSecond);
+            Node* Working = MergeSort(this->First, Size(), IsFirstBeforeSecond);
             this->First = Working;
             Node* Temp = Working;
             while (Temp->Forward != nullptr)
@@ -790,7 +757,66 @@ namespace Templates
             return;
         }
 
+        /**
+         * Return iterator to begin.
+         * TODO
+         */
+        Iterator Begin()
+        {
+#ifdef ADDITIONAL_TESTS
+            if (First == nullptr)
+                throw new InternalException(__FILE__, __LINE__);
+#endif
+            return Iterator(_first, this);
+        }
+
+        /**
+         * Return iterator one position after last element.
+         * Note that this iterator can move back, but is invalid.
+         * TODO
+         */
+        Iterator End()
+        {
+#ifdef ADDITIONAL_TESTS
+            if (Last == nullptr)
+                throw new InternalException(__FILE__, __LINE__);
+#endif
+            return Iterator(_last, this);
+        }
+
+        /**
+         * Return iterator chained with @Indexth element in array.
+         * If is @Index bigger than size of list, is equal to @End()
+         * TODO
+         */
+        Iterator At(int Index)
+        {
+#ifdef ADDITIONAL_TESTS
+            if (First == nullptr)
+                throw new InternalException(__FILE__, __LINE__);
+#endif
+            Node* Temp = _first;
+            int a;
+            for (a = 0; a < Index && _first->Forward != nullptr; a++)
+                Temp = Temp->Forward;
+            return Iterator(Temp, this);
+        }
+
+#ifdef ___OUT_OF_MEMORY_TESTING
+        static void _SetAllocationLimit(unsigned int limit)
+        {
+            Node::allocation = limit;
+        }
+#endif
+
     };
 }
+
+
+#ifdef ___OUT_OF_MEMORY_TESTING
+template<typename T>
+unsigned int Templates::List<T>::Node::allocation = ~0U;
+#endif
+
 
 #endif
