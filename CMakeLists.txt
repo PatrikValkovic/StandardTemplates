@@ -98,6 +98,8 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Vector/VectorIteratorInsertTests.cpp
         test/Vector/VectorIteratorDeleteTests.cpp
 
+        test/List/ListCreationTests.cpp
+
         #test/Array/_IteratorsTests.cpp
         #test/Array/_IteratorsDeleteTests.cpp
         #test/Array/_IteratorInsertTests.cpp

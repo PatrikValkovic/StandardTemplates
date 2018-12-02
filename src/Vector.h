@@ -703,6 +703,8 @@ namespace Templates
 
         //TODO implement emplace front
         //TODO implement emplace back
+        //TODO implement sort
+        //TODO implement to array method
 
         /**
          * Swap two instances of Vector.
