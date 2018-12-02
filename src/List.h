@@ -120,361 +120,307 @@ namespace Templates
             return Base;
         }
 
-        class Iterator
+        template<typename _ListType>
+        class BaseIterator
         {
             friend class List;
+        protected:
+            Node* _node = nullptr;
+            _ListType* _list = nullptr;
 
-        private:
-            Node* WorkingNode;
-            List* ListInstance;
+            BaseIterator(Node* n, _ListType* list) : _node(n), _list(list)
+            {}
         public:
+
             /**
-             * Creates invalid iterator.
+             * Equality operator.
+             * @return True if iterators points to the same node, false otherwise.
              */
-            Iterator()
+            bool operator==(const BaseIterator& s) const noexcept
             {
-                WorkingNode = nullptr;
-                ListInstance = nullptr;
+                return _node == s._node;
             }
 
             /**
-             * Create iterator chained with specific list
+             * Non equality operator.
+             * @return True if iterators points to different nodes, false otherwise.
              */
-            Iterator(List::Node* Node, List* ListInstance)
+            bool operator!=(const BaseIterator& s) const noexcept
             {
-                WorkingNode = Node;
-                this->ListInstance = ListInstance;
+                return !(*this == s);
             }
 
             /**
-             * Copy constructor
+             * Dereference iterator to get value.
              */
-            Iterator(const Iterator& Copy)
+            const T& operator*() const noexcept
             {
-                this->WorkingNode = Copy.WorkingNode;
-                this->ListInstance = Copy.ListInstance;
+                return _node->Value();
             }
 
             /**
-             * Assignment operator
+             * Structure dereference iterator to get pointer.
              */
-            Iterator& operator=(const Iterator& Second)
+            const T* operator->() const noexcept
             {
-                if (this != &Second)
-                {
-                    this->WorkingNode = Second.WorkingNode;
-                    this->ListInstance = Second.ListInstance;
-                }
-                return *this;
+                return _node->Pointer();
             }
 
             /**
-             * Clone iterator
+             * Move to the next element. Return true if can, false otherwise.
+             * Note that it doesn't mean, that is iterator valid on the new position.
              */
-            Iterator Clone()
-            {
-                return Iterator(this->WorkingNode, this->ListInstance);
-            }
-
-            virtual bool AreEqual(const Iterator& second) const
-            {
-                return this->WorkingNode == second.WorkingNode;
-            }
-
-            /**
-             * Return true, if is valis iterator, otherwise false.
-             * Valid mean, that can call GetValue, SetValue etc.
-             */
-            virtual bool IsValidIterator() const
-            {
-                return WorkingNode != nullptr && WorkingNode->Forward != nullptr;
-            }
-
-            /**
-             * Return value in specific element. Otherwise nullptr.
-             */
-            virtual T* GetValue()
-            {
-                if (!IsValidIterator())
-                    return nullptr;
-                return &(WorkingNode->Value);
-            }
-
-            /**
-             * Set value in specific element.
-             * Note that value must have assignment operator defined.
-             */
-            virtual void SetValue(const T& Val)
-            {
-#ifdef ADDITIONAL_TESTS
-                if (!IsValidIterator())
-                    throw new InternalException(__FILE__, __LINE__);
-#endif
-                WorkingNode->Value = Val;
-            }
-
-            /**
-             * Move to next element. Return true if can.
-             * Note that true don't mean, that iterator is valid.
-             */
-            virtual bool Next()
+            inline bool Next()
             {
                 return Next(1);
             }
 
             /**
-             * Move to #HowManyth element. Return true if can.
-             * Note that true don't mean, that iterator is valid.
+             * Move {@code how_many} elements after actual element. Return true, if can, otherwise false.
+             * Note that it doesn't mean, that is iterator valid on the new position.
+             * If the return value is false, then the position of the iterator was not changed.
              */
-            virtual bool Next(int HowMany)
+            bool Next(unsigned int how_many)
             {
-#ifdef ADDITIONAL_TESTS
-                if (!IsValidIterator())
-                    return false;
-#endif
-                Node* Temp = WorkingNode;
-                for (int a = 0; a < HowMany; a++)
+                Node* tmp = _node;
+                for (unsigned int a = 0; a < how_many; a++)
                 {
-                    if (Temp->Forward == nullptr)
+                    if (tmp->_forward == nullptr)
                         return false;
-                    Temp = Temp->Forward;
+                    tmp = tmp->_forward;
                 }
-                WorkingNode = Temp;
+                _node = tmp;
                 return true;
             }
 
             /**
-             * Move to previous element. Return true if can, otherwise false.
+             * Move to the previous element. Return true if can, false otherwise.
+             * The iterator is always valid at the new position.
              */
-            virtual bool Back()
+            inline bool Back()
             {
-                return Back(1);
+                return Next(1);
             }
 
             /**
-             * Move to @HowManyth element before actual element.
-             * Return true if can, otherwise false;
+             * Move {@code how_many} elements after actual element. Return true, if can, otherwise false.
+             * If the return value is false, then the position of the iterator was not changed.
              */
-            virtual bool Back(int HowMany)
+            bool Back(unsigned int how_many)
             {
-#ifdef ADDITIONAL_TESTS
-                if (WorkingNode == nullptr)
-                    throw new InternalException(__FILE__, __LINE__);
-#endif
-                Node* Temp = WorkingNode;
-                for (int a = 0; a < HowMany; a++)
+                Node* tmp = _node;
+                for (unsigned int a = 0; a < how_many; a++)
                 {
-                    if (Temp->Backward == nullptr)
+                    if (tmp->_backward == nullptr)
                         return false;
-                    Temp = Temp->Backward;
+                    tmp = tmp->_backward;
                 }
-                WorkingNode = Temp;
+                _node = tmp;
                 return true;
             }
 
             /**
-             * Insert Count elements after actual element. First value in Array will be first after actual element.
-             * Returns how many values was inserted, -1 if there was a error.
+             * Move iterator to the beginning of the list.
+             * Iterator is not valid if the vector is empty.
              */
-            virtual int Insert(const T* const Values, int Count)
+            void JumpToBegin() noexcept
             {
-#ifdef ADDITIONAL_TESTS
-                if (WorkingNode == nullptr)
-                    throw new InternalException(__FILE__, __LINE__);
-#endif
-                if (WorkingNode->Forward == nullptr)
-                    return -1;
-
-                for (int a = Count - 1; a >= 0; a--)
-                    if (Insert(*(Values + a)) != 1)
-                    {
-                        this->ListInstance->_size += Count - 1 - a;
-                        return Count - 1 - a;
-                    }
-                this->ListInstance->_size += Count;
-                return Count;
+                *this = _list->Begin();
             }
 
             /**
-             * Insert Value after actual element.
-             * Return 1, if was element inserted, 0 if doesn't. -1 if there was a error.
+             * Move iterator to the end of the list.
+             * Iterator is not valid.
              */
-            virtual int Insert(const T& Value)
+            void JumpToEnd() noexcept
             {
-#ifdef ADDITIONAL_TESTS
-                if (WorkingNode == nullptr)
-                    throw new InternalException(__FILE__, __LINE__);
-#endif
-                if (WorkingNode->Forward == nullptr)
-                    return -1;
-
-                Node* Temp = new Node;
-                Temp->Value = Value;
-
-                Node* Next = WorkingNode->Forward;
-                Node* Back = WorkingNode;
-
-                Temp->Backward = Back;
-                Temp->Forward = Next;
-                Next->Backward = Temp;
-                Back->Forward = Temp;
-
-                this->ListInstance->_size++;
-                return 1;
-            }
-
-            /**
-             * Insert Value before actual element.
-             * Return 1, if was element inserted, 0 if doesn't. -1 if there was a error.
-             */
-            int InsertBefore(T Value)
-            {
-#ifdef ADDITIONAL_TESTS
-                if (WorkingNode == nullptr)
-                    throw new InternalException(__FILE__, __LINE__);
-#endif
-                Node* NewNode = new Node;
-                NewNode->Value = Value;
-
-                if (WorkingNode == this->ListInstance->First)
-                {
-                    this->ListInstance->First = NewNode;
-                    NewNode->Forward = WorkingNode;
-                    NewNode->Backward = nullptr;
-                    WorkingNode->Backward = NewNode;
-                    this->ListInstance->_size++;
-                    return 1;
-                }
-                else
-                {
-                    Node* Before = WorkingNode->Backward;
-                    Node* After = WorkingNode;
-
-                    NewNode->Forward = After;
-                    NewNode->Backward = Before;
-                    Before->Forward = NewNode;
-                    After->Backward = NewNode;
-                    this->ListInstance->_size++;
-                    return 1;
-                }
-            }
-
-            /**
-             * Insert @Count elements before actual element from @Array.
-             * Return count of inserted elements.
-             */
-            int InsertBefore(T* Array, int Count)
-            {
-                for (int a = 0; a < Count; a++)
-                    if (!InsertBefore(*(Array + a)))
-                        return a;
-                return Count;
-            }
-
-            /**
-             * Delete @Count elements before actual element.
-             * Return count of deleted elements.
-             */
-            virtual int DeleteBefore(int Count)
-            {
-                Iterator working(*this);
-                int ToDelete = 0;
-                for (int a = 0; a <= Count && working.Back(); a++)
-                    ToDelete++;
-                if (ToDelete == 0)
-                    return 0;
-                return this->ListInstance->Delete(working, ToDelete);
-            }
-
-            /**
-             * Delete @Count elements after actual element.
-             * Return count of elements, that was deleted.
-             */
-            virtual int DeleteAfter(int Count)
-            {
-#ifdef ADDITIONAL_TESTS
-                if (ListInstance == nullptr || WorkingNode == nullptr)
-                    throw new InternalException(__FILE__, __LINE__);
-#endif
-                return this->ListInstance->Delete(*this, Count);
-            }
-
-            int DeleteThis()
-            {
-                if (!IsValidIterator())
-                    return 0;
-                if (WorkingNode == ListInstance->First)
-                {
-                    Node* Next = WorkingNode->Forward;
-                    ListInstance->First = Next;
-                    Next->Backward = nullptr;
-                    delete WorkingNode;
-                    WorkingNode = Next;
-                    this->ListInstance->_size--;
-                    return 1;
-                }
-                else
-                {
-                    Node* Forward = WorkingNode->Forward;
-                    Node* Backward = WorkingNode->Backward;
-                    Forward->Backward = Backward;
-                    Backward->Forward = Forward;
-                    delete WorkingNode;
-                    WorkingNode = Forward;
-                    this->ListInstance->_size--;
-                    return 1;
-                }
-            }
-
-            /**
-             * Return true, if are iterators equal.
-             */
-            bool AreEqual(const Iterator& Second)
-            {
-#ifdef ADDITIONAL_TESTS
-                if (WorkingNode == nullptr || Second.WorkingNode == nullptr)
-                    throw new InternalException(__FILE__, __LINE__);
-#endif
-                return WorkingNode == Second.WorkingNode;
-            }
-
-            /**
-             * Return true, if is actual iterator greater then @Second.
-             */
-            bool IsGreaterThan(const Iterator& Second)
-            {
-                Node* Temp = Second.WorkingNode;
-                while (Temp != nullptr)
-                {
-                    if (Temp == this->WorkingNode)
-                        return true;
-                    Temp = Temp->Forward;
-                }
-                return false;
-            }
-
-            void FindBestFitting(bool(* IsFirstBeforeSecond)(const T* const First, const T* const Second))
-            {
-                if (!IsValidIterator())
-                    return;
-
-                Node* Specific = WorkingNode;
-                Node* Temp = WorkingNode;
-                while (Temp->Forward != nullptr)
-                {
-                    if (IsFirstBeforeSecond(&Temp->Value, &Specific->Value))
-                        Specific = Temp;
-                    Temp = Temp->Forward;
-                }
-                WorkingNode = Specific;
-                return;
+                *this = _list->End();
             }
         };
 
     public:
+        class ConstIterator : public BaseIterator<const List>
+        {
+            friend class List;
+        protected:
+            ConstIterator(Node* node, const List* list) : BaseIterator<const List>(node, list)
+            {}
+        public:
+            ConstIterator(const ConstIterator& iterator) = default;
+            ConstIterator(ConstIterator&& iterator) noexcept = default;
+            ConstIterator& operator=(const ConstIterator& iterator) = default;
+            ConstIterator& operator=(ConstIterator&& iterator) noexcept = default;
 
+            /**
+             * Prefix increment operator.
+             */
+            ConstIterator& operator++()
+            {
+                this->Next();
+                return *this;
+            }
 
-        using ConstIterator = T*;
+            /**
+             * Postfix increment operator.
+             */
+            ConstIterator operator++(int)
+            {
+                ConstIterator tmp(*this);
+                this->Next();
+                return tmp;
+            }
+
+            /**
+             * Plus operator with the number.
+             * Move iterator {@code v} places after the current node.
+             * If the position is not valid, iterator stay at the same node.
+             * The result iterator doesn't need to be valid.
+             * @param v Number of nodes to skip.
+             */
+            ConstIterator operator+(unsigned int v)
+            {
+                ConstIterator tmp(*this);
+                tmp.Next(v);
+                return tmp;
+            }
+
+            /**
+             * Prefix decrement operator.
+             */
+            ConstIterator& operator--()
+            {
+                this->Back();
+                return *this;
+            }
+
+            /**
+             * Postfix decrement operator.
+             */
+            ConstIterator operator--(int)
+            {
+                ConstIterator tmp(*this);
+                this->Back();
+                return tmp;
+            }
+
+            /**
+             * Minus operator with the number.
+             * Move iterator {@code v} places before the current node.
+             * If the position is not valid, iterator stay at the same node.
+             * @param v Number of nodes to skip.
+             */
+            ConstIterator operator-(unsigned int v)
+            {
+                ConstIterator tmp(*this);
+                tmp.Back(v);
+                return tmp;
+            }
+        };
+
+        class Iterator : public BaseIterator<List>
+        {
+            friend class List;
+        protected:
+            Iterator(Node* node, List* list) : BaseIterator<List>(node, list)
+            {}
+        public:
+            Iterator(const Iterator& iterator) = default;
+            Iterator(Iterator&& iterator) noexcept = default;
+            Iterator& operator=(const Iterator& iterator) = default;
+            Iterator& operator=(Iterator&& iterator) noexcept = default;
+
+            /**
+             * Implicit cast to ConstIterator.
+             */
+            operator ConstIterator() const
+            {
+                return ConstIterator(this->_node, this->_vector);
+            }
+
+            /**
+             * Dereference iterator to get value.
+             */
+            T& operator*() noexcept
+            {
+                return this->_node->Value();
+            }
+
+            /**
+             * Structure dereference iterator to get pointer.
+             */
+            T* operator->() noexcept
+            {
+                return this->_node->Pointer();
+            }
+
+            /**
+             * Prefix increment operator.
+             */
+            Iterator& operator++()
+            {
+                this->Next();
+                return *this;
+            }
+
+            /**
+             * Postfix increment operator.
+             */
+            Iterator operator++(int)
+            {
+                Iterator tmp(*this);
+                this->Next();
+                return tmp;
+            }
+
+            /**
+             * Plus operator with the number.
+             * Move iterator {@code v} places after the current node.
+             * If the position is not valid, iterator stay at the same node.
+             * The result iterator doesn't need to be valid.
+             * @param v Number of nodes to skip.
+             */
+            Iterator operator+(unsigned int v)
+            {
+                Iterator tmp(*this);
+                tmp.Next(v);
+                return tmp;
+            }
+
+            /**
+             * Prefix decrement operator.
+             */
+            Iterator& operator--()
+            {
+                this->Back();
+                return *this;
+            }
+
+            /**
+             * Postfix decrement operator.
+             */
+            Iterator operator--(int)
+            {
+                Iterator tmp(*this);
+                this->Back();
+                return tmp;
+            }
+
+            /**
+             * Minus operator with the number.
+             * Move iterator {@code v} places before the current node.
+             * If the position is not valid, iterator stay at the same node.
+             * @param v Number of nodes to skip.
+             */
+            Iterator operator-(unsigned int v)
+            {
+                Iterator tmp(*this);
+                tmp.Back(v);
+                return tmp;
+            }
+
+            //TODO insert, delete
+        };
+
 
         /**
          * Allocate empty List.
@@ -592,6 +538,34 @@ namespace Templates
         inline bool IsEmpty() const
         {
             return this->Size() == 0;
+        }
+
+        /**
+         * Access operator.
+         * Linear complexity.
+         * In case of invalid index OutOfRangeException is thrown.
+         * @param index Index to access.
+         */
+        const T& operator[](unsigned int index) const
+        {
+            ConstIterator iter = this->Begin();
+            if(!iter.Next(index) || iter == this->End())
+                throw OutOfRangeException("The index in List is out of range", __LINE__);
+            return *iter;
+        }
+
+        /**
+         * Access operator.
+         * Linear complexity.
+         * In case of invalid index OutOfRangeException is thrown.
+         * @param index Index to access.
+         */
+        T& operator[](unsigned int index)
+        {
+            Iterator iter = this->Begin();
+            if(!iter.Next(index) || iter == this->End())
+                throw OutOfRangeException("The index in List is out of range", __LINE__);
+            return *iter;
         }
 
         /**
@@ -754,52 +728,60 @@ namespace Templates
                 Temp = Temp->Forward;
             this->Last->Backward = Temp;
             Temp->Forward = this->Last;
-            return;
         }
 
         /**
          * Return iterator to begin.
-         * TODO
          */
         Iterator Begin()
         {
-#ifdef ADDITIONAL_TESTS
-            if (First == nullptr)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
             return Iterator(_first, this);
         }
 
         /**
          * Return iterator one position after last element.
-         * Note that this iterator can move back, but is invalid.
-         * TODO
+         * Note that this iterator is not valid.
          */
         Iterator End()
         {
-#ifdef ADDITIONAL_TESTS
-            if (Last == nullptr)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
             return Iterator(_last, this);
         }
 
         /**
-         * Return iterator chained with @Indexth element in array.
-         * If is @Index bigger than size of list, is equal to @End()
-         * TODO
+         * Return iterator to begin.
          */
-        Iterator At(int Index)
+        ConstIterator Begin() const
         {
-#ifdef ADDITIONAL_TESTS
-            if (First == nullptr)
-                throw new InternalException(__FILE__, __LINE__);
-#endif
-            Node* Temp = _first;
-            int a;
-            for (a = 0; a < Index && _first->Forward != nullptr; a++)
-                Temp = Temp->Forward;
-            return Iterator(Temp, this);
+            return ConstIterator(_first, this);
+        }
+
+        /**
+         * Return iterator one position after last element.
+         * Note that this iterator is not valid.
+         */
+        ConstIterator End() const
+        {
+            return ConstIterator(_last, this);
+        }
+
+        /**
+         * Return iterator pointing to the specific element in the list.
+         * In case the index is invalid, OutOfRangeException is thrown.
+         * The complexity is linear.
+         */
+        Iterator At(int index)
+        {
+            return this->Begin() + index;
+        }
+
+        /**
+         * Return iterator pointing to the specific element in the list.
+         * In case the index is invalid, OutOfRangeException is thrown.
+         * The complexity is linear.
+         */
+        Iterator At(int index) const
+        {
+            return this->Begin() + index;
         }
 
 #ifdef ___OUT_OF_MEMORY_TESTING
