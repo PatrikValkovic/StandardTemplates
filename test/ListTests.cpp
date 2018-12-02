@@ -6,7 +6,7 @@
 class ListTests
 {
 private:
-    void Creation()
+    /*void Creation()
     {
         using namespace Templates;
         List<int>* Instance;
@@ -453,12 +453,12 @@ private:
         assert(*Iter.GetValue()==8 && Iter.Next());
         delete Instance;
         return;
-    }
+    }*/
 
 public:
     static void test()
     {
-        ListTests instane;
+        /*ListTests instane;
         instane.Creation();
         instane.Iterators();
         instane.Inserting();
@@ -467,7 +467,7 @@ public:
         instane.ToArrayTest();
         instane.DeleteThisTests();
         instane.BestFittingsTests();
-        instane.SortingTests();
+        instane.SortingTests();*/
     }
 };
 

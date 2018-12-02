@@ -47,6 +47,7 @@ set(TEST_SOURCES ${TEST_FILES}
         test/TravisTests.cpp
         test/SwapTests.cpp
         test/MallocFreeTests.cpp
+
         test/Meta/AreSameTests.cpp
         test/Meta/TrueFalseTests.cpp
         test/Meta/AddConstTests.cpp
@@ -67,8 +68,10 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Meta/IsConstructibleCopyable.cpp
         test/Meta/IsAssignableCopyTests.cpp
         test/Meta/IsAssignableMoveTests.cpp
+
         test/Pointers/UniquePointerTests.cpp
         test/Pointers/SharedPointerTests.cpp
+
         test/Array/ArrayCreationTests.cpp
         test/Array/ArrayAssignmentTests.cpp
         test/Array/ArrayAccessTests.cpp
