@@ -45,81 +45,6 @@ namespace Templates
         Node* _last;
         int _size;
 
-        Node* MergeSort(Node* WhatToSort, int HowMany,
-                        bool(* IsFirstBeforeSecond)(const T* const First, const T* const Second))
-        {
-            if (HowMany <= 1)
-            {
-                WhatToSort->Forward = nullptr;
-                WhatToSort->Backward = nullptr;
-                return WhatToSort;
-            }
-            int FirstCount = HowMany / 2;
-            int SecondCount = HowMany - FirstCount;
-            Node* SecondNode = WhatToSort;
-            for (int a = 0; a < FirstCount; a++)
-            {
-                SecondNode = SecondNode->Forward;
-            }
-            Node* First = MergeSort(WhatToSort, FirstCount, IsFirstBeforeSecond);
-            Node* Second = MergeSort(SecondNode, SecondCount, IsFirstBeforeSecond);
-            Node* ToReturn = Join(First, FirstCount, Second, SecondCount, IsFirstBeforeSecond);
-            return ToReturn;
-        }
-
-        Node* Join(Node* First, int FirstCount,
-                   Node* Second, int SecondCount,
-                   bool(* IsFirstBeforeSecond)(const T* const First, const T* const Second))
-        {
-            typename List<T>::Node* Working;
-            typename List<T>::Node* Base;
-            int deletedFirst = 0;
-            int deletedSecont = 0;
-            if (IsFirstBeforeSecond(&First->Value, &Second->Value))
-            {
-                Working = First;
-                deletedFirst++;
-                First = First->Forward;
-            }
-            else
-            {
-                Working = Second;
-                deletedSecont++;
-                Second = Second->Forward;
-            }
-            Working->Backward = nullptr;
-            Base = Working;
-            while (deletedFirst < FirstCount && deletedSecont < SecondCount)
-            {
-                if (IsFirstBeforeSecond(&First->Value, &Second->Value))
-                {
-                    Working->Forward = First;
-                    First->Backward = Working;
-                    First = First->Forward;
-                    deletedFirst++;
-                }
-                else
-                {
-                    Working->Forward = Second;
-                    Second->Backward = Working;
-                    Second = Second->Forward;
-                    deletedSecont++;
-                }
-                Working = Working->Forward;
-            }
-            if (deletedFirst != FirstCount)
-            {
-                Working->Forward = First;
-                First->Backward = Working;
-            }
-            if (deletedSecont != SecondCount)
-            {
-                Working->Forward = Second;
-                Second->Backward = Working;
-            }
-            return Base;
-        }
-
         template<typename _ListType>
         class BaseIterator
         {
@@ -434,9 +359,9 @@ namespace Templates
          * @param array Array of elements to add into list.
          * @param count Count of elements in the array.
          */
-        List(T* array, unsigned int count) : List()
+        List(T const * array, unsigned int count) : List()
         {
-            T* e = array + count;
+            T const * e = array + count;
 
             for (; array != e; array++)
             {
@@ -604,9 +529,15 @@ namespace Templates
          * @param array Elements to insert.
          * @param count Number of elements to insert.
          */
-        void Push(T* array, unsigned int count)
+        void Push(T const * array, unsigned int count)
         {
             List tmp(array, count);
+
+            if(this->Size() == 0)
+            {
+                swap(*this, tmp);
+                return;
+            }
 
             Node* to_insert_begin = tmp._first;
             Node* to_insert_end = tmp._last->_backward;
@@ -626,7 +557,7 @@ namespace Templates
          * Insert element at the end of the list.
          * @param value Element to insert.
          */
-        void Push(T& value)
+        void Push(const T& value)
         {
             this->Push(&value, 1);
         }
@@ -646,9 +577,15 @@ namespace Templates
          * @param array Array of elements to insert.
          * @param count Number of elements to insert.
          */
-        void Insert(T* array, unsigned int count)
+        void Insert(T const * array, unsigned int count)
         {
             List tmp(array, count);
+
+            if(this->Size() == 0)
+            {
+                swap(*this, tmp);
+                return;
+            }
 
             Node* current_first = _first;
             _first = tmp._first;
@@ -662,73 +599,10 @@ namespace Templates
             tmp._size = 0;
         }
 
-        /**
-         * Convert list to array
-         * Must be clared by delete[]
-         * TODO
-         */
-        T* ToArray(int& Count)
-        {
-            Count = Size();
-            if (Count == 0)
-                return nullptr;
-            T* Array = new T[Count];
-            if (Array == nullptr)
-            {
-                Count = 0;
-                return nullptr;
-            }
-
-            T* Base = Array;
-            Iterator temp = Begin();
-            while (temp.IsValidIterator())
-            {
-                *Array = *temp.GetValue();
-                Array++;
-                temp.Next();
-            }
-            return Base;
-        }
-
-        /**
-         * Convert list to array pointing to original source in list
-         * Must be clared by delete []
-         * TODO
-         */
-        T** ToWriteArray(int& Count)
-        {
-            Count = Size();
-            if (Count == 0)
-                return nullptr;
-            T** Array = new T* [Count];
-            if (Array == nullptr)
-            {
-                Count = 0;
-                return nullptr;
-            }
-
-            T** Base = Array;
-            Iterator temp = Begin();
-            while (temp.IsValidIterator())
-            {
-                *Array = temp.GetValue();
-                Array++;
-                temp.Next();
-            }
-            return Base;
-        }
-
-        //TODO
-        void Sort(bool(* IsFirstBeforeSecond)(const T* const First, const T* const Second))
-        {
-            Node* Working = MergeSort(this->First, Size(), IsFirstBeforeSecond);
-            this->First = Working;
-            Node* Temp = Working;
-            while (Temp->Forward != nullptr)
-                Temp = Temp->Forward;
-            this->Last->Backward = Temp;
-            Temp->Forward = this->Last;
-        }
+        //TODO implement emplace front
+        //TODO implement emplace back
+        //TODO implement sort
+        //TODO implement to array method
 
         /**
          * Return iterator to begin.
@@ -784,6 +658,16 @@ namespace Templates
             return this->Begin() + index;
         }
 
+        /**
+         * Swap two instances of List.
+         */
+        void Swap(List& second) noexcept
+        {
+            swap(_size, second._size);
+            swap(_first, second._first);
+            swap(_last, second._last);
+        }
+
 #ifdef ___OUT_OF_MEMORY_TESTING
         static void _SetAllocationLimit(unsigned int limit)
         {
@@ -792,6 +676,17 @@ namespace Templates
 #endif
 
     };
+
+    /**
+     * Swap two instances of the List.
+     * @param first First list.
+     * @param second Second list.
+     */
+    template<typename T>
+    void swap(List<T>& first,List<T>& second)
+    {
+        first.Swap(second);
+    }
 }
 
 
