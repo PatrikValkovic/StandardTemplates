@@ -45,16 +45,18 @@ namespace Templates
         Node* _last;
         int _size;
 
-        template<typename _ListType>
+        template<typename _ListType, typename _CurrentType>
         class BaseIterator
         {
             friend class List;
+
         protected:
             Node* _node = nullptr;
             _ListType* _list = nullptr;
 
             BaseIterator(Node* n, _ListType* list) : _node(n), _list(list)
             {}
+
         public:
 
             /**
@@ -97,7 +99,11 @@ namespace Templates
              */
             inline bool Next()
             {
-                return Next(1);
+                if (this->_node->_forward == nullptr)
+                    return false;
+
+                this->_node = this->_node->_forward;
+                return true;
             }
 
             /**
@@ -107,14 +113,12 @@ namespace Templates
              */
             bool Next(unsigned int how_many)
             {
-                Node* tmp = _node;
-                for (unsigned int a = 0; a < how_many; a++)
-                {
-                    if (tmp->_forward == nullptr)
+                _CurrentType iter = *static_cast<_CurrentType*>(this);
+                for (unsigned int i = 0; i < how_many; i++)
+                    if (!iter.Next())
                         return false;
-                    tmp = tmp->_forward;
-                }
-                _node = tmp;
+
+                *this = iter;
                 return true;
             }
 
@@ -124,7 +128,11 @@ namespace Templates
              */
             inline bool Back()
             {
-                return Next(1);
+                if (this->_node->_backward == nullptr)
+                    return false;
+
+                this->_node = this->_node->_backward;
+                return true;
             }
 
             /**
@@ -133,14 +141,12 @@ namespace Templates
              */
             bool Back(unsigned int how_many)
             {
-                Node* tmp = _node;
-                for (unsigned int a = 0; a < how_many; a++)
-                {
-                    if (tmp->_backward == nullptr)
+                _CurrentType iter = *static_cast<_CurrentType*>(this);
+                for (unsigned int i = 0; i < how_many; i++)
+                    if (!iter.Back())
                         return false;
-                    tmp = tmp->_backward;
-                }
-                _node = tmp;
+
+                *this = iter;
                 return true;
             }
 
@@ -161,6 +167,85 @@ namespace Templates
             {
                 *this = _list->End();
             }
+
+
+            /**
+             * Prefix increment operator.
+             * @throw OutOfRangeException if it's end iterator.
+             */
+            _CurrentType& operator++()
+            {
+                if (!this->Next())
+                    throw OutOfRangeException("Cannot increment end iterator");
+                return *this;
+            }
+
+            /**
+             * Postfix increment operator.
+             * @throw OutOfRangeException if it's end iterator.
+             */
+            _CurrentType operator++(int)
+            {
+                _CurrentType tmp(*static_cast<_CurrentType*>(this));
+                if (!this->Next())
+                    throw OutOfRangeException("Cannot increment end iterator");
+                return tmp;
+            }
+
+            /**
+             * Plus operator with the number.
+             * Move iterator {@code v} places after the current node.
+             * If the position is not valid, iterator stay at the same node.
+             * The result iterator doesn't need to be valid.
+             * @param v Number of nodes to skip.
+             * @throw OutOfRangeException if the new index is not in the list.
+             */
+            _CurrentType operator+(unsigned int v)
+            {
+                ConstIterator tmp(*this);
+                if (!tmp.Next(v))
+                    throw OutOfRangeException("Iterator can't move to the index");
+                return tmp;
+            }
+
+            /**
+             * Prefix decrement operator.
+             * @throw OutOfRangeException if it's begin iterator.
+             */
+            _CurrentType& operator--()
+            {
+                if (!this->Back())
+                    throw OutOfRangeException("Cannot decrement begin iterator");
+                return *this;
+            }
+
+            /**
+             * Postfix decrement operator.
+             * @throw OutOfRangeException if it's begin iterator.
+             */
+            _CurrentType operator--(int)
+            {
+                ConstIterator tmp(*this);
+                if (!this->Back())
+                    throw OutOfRangeException("Cannot decrement begin iterator");
+                return tmp;
+            }
+
+            /**
+             * Minus operator with the number.
+             * Move iterator {@code v} places before the current node.
+             * If the position is not valid, iterator stay at the same node.
+             * @param v Number of nodes to skip.
+             * @throw OutOfRangeException if the new index is not in the list.
+             */
+            _CurrentType operator-(unsigned int v)
+            {
+                ConstIterator tmp(*this);
+                if (!tmp.Back(v))
+                    throw OutOfRangeException("Iterator can't move to the index");
+                return tmp;
+            }
+
         };
 
         /**
@@ -173,90 +258,29 @@ namespace Templates
         }
 
     public:
-        class ConstIterator : public BaseIterator<const List>
+        class ConstIterator : public BaseIterator<const List, ConstIterator>
         {
             friend class List;
+
         protected:
-            ConstIterator(Node* node, const List* list) : BaseIterator<const List>(node, list)
+            ConstIterator(Node* node, const List* list) : BaseIterator<const List, ConstIterator>(node, list)
             {}
+
         public:
             ConstIterator(const ConstIterator& iterator) = default;
             ConstIterator(ConstIterator&& iterator) noexcept = default;
             ConstIterator& operator=(const ConstIterator& iterator) = default;
             ConstIterator& operator=(ConstIterator&& iterator) noexcept = default;
-
-            /**
-             * Prefix increment operator.
-             */
-            ConstIterator& operator++()
-            {
-                this->Next();
-                return *this;
-            }
-
-            /**
-             * Postfix increment operator.
-             */
-            ConstIterator operator++(int)
-            {
-                ConstIterator tmp(*this);
-                this->Next();
-                return tmp;
-            }
-
-            /**
-             * Plus operator with the number.
-             * Move iterator {@code v} places after the current node.
-             * If the position is not valid, iterator stay at the same node.
-             * The result iterator doesn't need to be valid.
-             * @param v Number of nodes to skip.
-             */
-            ConstIterator operator+(unsigned int v)
-            {
-                ConstIterator tmp(*this);
-                tmp.Next(v);
-                return tmp;
-            }
-
-            /**
-             * Prefix decrement operator.
-             */
-            ConstIterator& operator--()
-            {
-                this->Back();
-                return *this;
-            }
-
-            /**
-             * Postfix decrement operator.
-             */
-            ConstIterator operator--(int)
-            {
-                ConstIterator tmp(*this);
-                this->Back();
-                return tmp;
-            }
-
-            /**
-             * Minus operator with the number.
-             * Move iterator {@code v} places before the current node.
-             * If the position is not valid, iterator stay at the same node.
-             * @param v Number of nodes to skip.
-             */
-            ConstIterator operator-(unsigned int v)
-            {
-                ConstIterator tmp(*this);
-                tmp.Back(v);
-                return tmp;
-            }
         };
 
-        class Iterator : public BaseIterator<List>
+        class Iterator : public BaseIterator<List, Iterator>
         {
             friend class List;
+
         protected:
-            Iterator(Node* node, List* list) : BaseIterator<List>(node, list)
+            Iterator(Node* node, List* list) : BaseIterator<List, Iterator>(node, list)
             {}
+
         public:
             Iterator(const Iterator& iterator) = default;
             Iterator(Iterator&& iterator) noexcept = default;
@@ -288,71 +312,6 @@ namespace Templates
             }
 
             /**
-             * Prefix increment operator.
-             */
-            Iterator& operator++()
-            {
-                this->Next();
-                return *this;
-            }
-
-            /**
-             * Postfix increment operator.
-             */
-            Iterator operator++(int)
-            {
-                Iterator tmp(*this);
-                this->Next();
-                return tmp;
-            }
-
-            /**
-             * Plus operator with the number.
-             * Move iterator {@code v} places after the current node.
-             * If the position is not valid, iterator stay at the same node.
-             * The result iterator doesn't need to be valid.
-             * @param v Number of nodes to skip.
-             */
-            Iterator operator+(unsigned int v)
-            {
-                Iterator tmp(*this);
-                tmp.Next(v);
-                return tmp;
-            }
-
-            /**
-             * Prefix decrement operator.
-             */
-            Iterator& operator--()
-            {
-                this->Back();
-                return *this;
-            }
-
-            /**
-             * Postfix decrement operator.
-             */
-            Iterator operator--(int)
-            {
-                Iterator tmp(*this);
-                this->Back();
-                return tmp;
-            }
-
-            /**
-             * Minus operator with the number.
-             * Move iterator {@code v} places before the current node.
-             * If the position is not valid, iterator stay at the same node.
-             * @param v Number of nodes to skip.
-             */
-            Iterator operator-(unsigned int v)
-            {
-                Iterator tmp(*this);
-                tmp.Back(v);
-                return tmp;
-            }
-
-            /**
              * Insert element after current element.
              * The iterator stay at the same position.
              * @param value Element to insert.
@@ -371,20 +330,14 @@ namespace Templates
              * @param count Number of elements to insert.
              * @throw OutOfRangeException If it's end iterator.
              */
-            void Insert(T const * array, unsigned int count)
+            void Insert(T const* array, unsigned int count)
             {
-                if(this->_node->_forward == nullptr)
+                Iterator iter = *this;
+
+                if (!iter.Next())
                     throw OutOfRangeException("Cannot insert to the end iterator");
 
-                List tmp(array, count);
-
-                List::ChainNodes(tmp._last->_backward, this->_node->_forward);
-                List::ChainNodes(this->_node, tmp._first);
-
-                this->_list->_size += tmp._size;
-
-                tmp._first = tmp._last;
-                tmp._size = 0;
+                iter.InsertBefore(array, count);
             }
 
             /**
@@ -406,25 +359,21 @@ namespace Templates
              * @param array Elements to insert.
              * @param count Number of elements to insert.
              */
-            void InsertBefore(T const * array, unsigned int count)
+            void InsertBefore(T const* array, unsigned int count)
             {
-                if(this->_node->_backward == nullptr)
-                {
-                    this->_list->Insert(array, count);
-                    return;
-                }
-
                 List tmp(array, count);
 
-                Node* previous_node = this->_node->_backward;
-                Node* current_node = this->_node;
+                if (this->_list->_first == this->_node)
+                    this->_list->_first = tmp._first;
+                else
+                    List::ChainNodes(this->_node->_backward, tmp._first);
 
-                List::ChainNodes(previous_node, tmp._first);
-                List::ChainNodes(tmp._last->_backward, current_node);
+                List::ChainNodes(tmp._last->_backward, this->_node);
 
                 this->_list->_size += tmp._size;
 
                 tmp._first = tmp._last;
+                tmp._first->_backward = nullptr;
                 tmp._size = 0;
             }
 
@@ -435,10 +384,8 @@ namespace Templates
              */
             void Delete()
             {
-                if(this->_node->_forward == nullptr)
-                    throw OutOfRangeException("Invalid call of delete on end iterator");
-
-                this->Delete(1);
+                if (this->Delete(1) != 1)
+                    throw OutOfRangeException("Invalid call of delete on end iterator");;
             }
 
             /**
@@ -450,17 +397,14 @@ namespace Templates
              */
             unsigned int Delete(unsigned int count)
             {
-                if(!this->Next())
+                Iterator iter = *this;
+
+                if (!iter.Next())
                     return 0;
 
                 unsigned int deleted = 0;
-                for(;this->_node->_forward != nullptr && deleted < count;)
-                {
-                    this->DeleteThis();
-                    deleted++;
-                }
-
-                this->Back();
+                for (; iter != this->_list->End() && deleted < count; deleted++)
+                    iter.DeleteThis();
 
                 return deleted;
             }
@@ -472,13 +416,13 @@ namespace Templates
              */
             void DeleteThis()
             {
-                if(this->_node->_forward == nullptr)
+                if (*this == this->_list->End())
                     throw OutOfRangeException("Invalid call of delete on end iterator");
 
 
                 Node* next_element = this->_node->_forward;
 
-                if(this->_node->_backward == nullptr)
+                if (*this == this->_list->Begin())
                     this->_list->_first = next_element;
                 else
                     List::ChainNodes(this->_node->_backward, next_element);
@@ -498,10 +442,8 @@ namespace Templates
              */
             void DeleteBefore()
             {
-                if(this->_node->_backward == nullptr)
+                if(this->DeleteBefore(1) != 1)
                     throw OutOfRangeException("Invalid call of deleteBefore on begin iterator");
-
-                this->DeleteBefore(1);
             }
 
             /**
@@ -514,7 +456,7 @@ namespace Templates
             unsigned int DeleteBefore(unsigned int count)
             {
                 unsigned int deleted = 0;
-                while(deleted < count && this->Back())
+                while (deleted < count && this->Back())
                 {
                     this->DeleteThis();
                     deleted++;
@@ -537,19 +479,19 @@ namespace Templates
          * @param array Array of elements to add into list.
          * @param count Count of elements in the array.
          */
-        List(T const * array, unsigned int count) : List()
+        List(T const* array, unsigned int count) : List()
         {
-            T const * e = array + count;
+            T const* e = array + count;
 
             for (; array != e; array++)
             {
-                new (_last->Pointer()) T(*array);
+                new(_last->Pointer()) T(*array);
 
                 try
                 {
                     _last->_forward = new Node();
                 }
-                catch(...)
+                catch (...)
                 {
                     _last->Value().~T();
                     throw;
@@ -652,7 +594,7 @@ namespace Templates
         const T& operator[](unsigned int index) const
         {
             ConstIterator iter = this->Begin();
-            if(!iter.Next(index) || iter == this->End())
+            if (!iter.Next(index) || iter == this->End())
                 throw OutOfRangeException("The index in List is out of range", __LINE__);
             return *iter;
         }
@@ -666,7 +608,7 @@ namespace Templates
         T& operator[](unsigned int index)
         {
             Iterator iter = this->Begin();
-            if(!iter.Next(index) || iter == this->End())
+            if (!iter.Next(index) || iter == this->End())
                 throw OutOfRangeException("The index in List is out of range", __LINE__);
             return *iter;
         }
@@ -688,15 +630,12 @@ namespace Templates
          */
         unsigned int Delete(unsigned int count)
         {
-            unsigned int deleted = 0;
-            for(; deleted < count && _size > 0; deleted++)
+            Iterator iter = this->Begin();
+            unsigned int deleted = iter.Delete(count - 1);
+            if (iter != this->End())
             {
-                _first->Value().~T();
-                _first->_forward->_backward = nullptr;
-                Node* toDelete = _first;
-                _first = _first->_forward;
-                _size--;
-                delete toDelete;
+                iter.DeleteThis();
+                deleted++;
             }
             return deleted;
         }
@@ -707,28 +646,10 @@ namespace Templates
          * @param array Elements to insert.
          * @param count Number of elements to insert.
          */
-        void Push(T const * array, unsigned int count)
+        void Push(T const* array, unsigned int count)
         {
-            List tmp(array, count);
-
-            if(this->Size() == 0)
-            {
-                swap(*this, tmp);
-                return;
-            }
-
-            Node* to_insert_begin = tmp._first;
-            Node* to_insert_end = tmp._last->_backward;
-
-            to_insert_begin->_backward = _last->_backward;
-            _last->_backward->_forward = to_insert_begin;
-            to_insert_end->_forward = _last;
-            _last->_backward = to_insert_end;
-
-            _size += tmp._size;
-
-            tmp._first = tmp._last;
-            tmp._size = 0;
+            Iterator iter = this->End();
+            iter.InsertBefore(array, count);
         }
 
         /**
@@ -744,7 +665,7 @@ namespace Templates
          * Insert element at the beginning of the list.
          * @param value Element to insert.
          */
-        void Insert(T &value)
+        void Insert(T& value)
         {
             this->Insert(&value, 1);
         }
@@ -755,26 +676,10 @@ namespace Templates
          * @param array Array of elements to insert.
          * @param count Number of elements to insert.
          */
-        void Insert(T const * array, unsigned int count)
+        void Insert(T const* array, unsigned int count)
         {
-            List tmp(array, count);
-
-            if(this->Size() == 0)
-            {
-                swap(*this, tmp);
-                return;
-            }
-
-            Node* current_first = _first;
-            _first = tmp._first;
-            List::ChainNodes(tmp._last->_backward, current_first);
-
-            _size += tmp._size;
-
-            tmp._first = tmp._last;
-            tmp._first->_forward = nullptr;
-            tmp._first->_backward = nullptr;
-            tmp._size = 0;
+            Iterator iter = this->Begin();
+            iter.InsertBefore(array, count);
         }
 
         //TODO implement emplace front
@@ -861,7 +766,7 @@ namespace Templates
      * @param second Second list.
      */
     template<typename T>
-    void swap(List<T>& first,List<T>& second)
+    void swap(List<T>& first, List<T>& second)
     {
         first.Swap(second);
     }
