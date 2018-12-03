@@ -4,6 +4,7 @@
 #include "Exceptions.h"
 #include "Vector.h"
 #include "Stack.h"
+#include "List.h"
 
 namespace Templates
 {
@@ -165,7 +166,7 @@ namespace Templates
             {
                 BinomialTree<T, comp, allowDuplicities> innerTree;
                 innerTree.top = *moving;
-                inner.End().InsertBefore(innerTree);
+                inner.Push(innerTree);
             }
             delete temp.top;
             temp.top = nullptr;

@@ -32,11 +32,11 @@ private:
         assert(tree1.Level() == 3);
         auto firstLevel = tree1.InnerTrees();
         auto firstLevelMov = firstLevel.Begin();
-        auto Top1 = *firstLevelMov.GetValue();
+        auto Top1 = *firstLevelMov;
         firstLevelMov.Next();
-        auto Top4 = *firstLevelMov.GetValue();
+        auto Top4 = *firstLevelMov;
         firstLevelMov.Next();
-        auto Top10 = *firstLevelMov.GetValue();
+        auto Top10 = *firstLevelMov;
         assert(Top1.Top() == 1);
         assert(Top1.Level() == 2);
         assert(Top4.Top() == 4);
@@ -44,19 +44,19 @@ private:
         assert(Top10.Top() == 10);
         assert(Top10.Level() == 0);
         auto secondLevel = Top4.InnerTrees();
-        auto Top21 = *secondLevel.Begin().GetValue();
+        auto Top21 = *secondLevel.Begin();
         secondLevel = Top1.InnerTrees();
         auto secondLevelMove = secondLevel.Begin();
-        auto Top3 = *secondLevelMove.GetValue();
+        auto Top3 = *secondLevelMove;
         secondLevelMove.Next();
-        auto Top9 = *secondLevelMove.GetValue();
+        auto Top9 = *secondLevelMove;
         assert(Top21.Top() == 21);
         assert(Top21.Level() == 0);
         assert(Top9.Top() == 9);
         assert(Top9.Level() == 0);
         assert(Top3.Top() == 3);
         assert(Top3.Level() == 1);
-        auto Top5 = *Top3.InnerTrees().Begin().GetValue();
+        auto Top5 = *Top3.InnerTrees().Begin();
         assert(Top5.Top() == 5);
         assert(Top5.Level() == 0);
     }
@@ -80,11 +80,11 @@ private:
         assert(tree1.Level() == 3);
         auto firstLevel = tree1.InnerTrees();
         auto firstLevelMov = firstLevel.Begin();
-        auto Top1 = *firstLevelMov.GetValue();
+        auto Top1 = *firstLevelMov;
         firstLevelMov.Next();
-        auto Top4 = *firstLevelMov.GetValue();
+        auto Top4 = *firstLevelMov;
         firstLevelMov.Next();
-        auto Top10 = *firstLevelMov.GetValue();
+        auto Top10 = *firstLevelMov;
         assert(Top1.Top() == 1);
         assert(Top1.Level() == 2);
         assert(Top4.Top() == 4);
@@ -92,19 +92,19 @@ private:
         assert(Top10.Top() == 10);
         assert(Top10.Level() == 0);
         auto secondLevelRight = Top4.InnerTrees();
-        auto Top21 = *secondLevelRight.Begin().GetValue();
+        auto Top21 = *secondLevelRight.Begin();
         auto secondLevelLeft = Top1.InnerTrees();
         auto secondLevelMove = secondLevelLeft.Begin();
-        auto Top3 = *secondLevelMove.GetValue();
+        auto Top3 = *secondLevelMove;
         secondLevelMove.Next();
-        auto Top9 = *secondLevelMove.GetValue();
+        auto Top9 = *secondLevelMove;
         assert(Top21.Top() == 21);
         assert(Top21.Level() == 0);
         assert(Top9.Top() == 9);
         assert(Top9.Level() == 0);
         assert(Top3.Top() == 3);
         assert(Top3.Level() == 1);
-        auto Top5 = *Top3.InnerTrees().Begin().GetValue();
+        auto Top5 = *Top3.InnerTrees().Begin();
         assert(Top5.Top() == 5);
         assert(Top5.Level() == 0);
     }
@@ -123,14 +123,14 @@ private:
         auto inner1 = tree1.InnerTrees();
         assert(inner1.Size() == 2);
         auto mov = inner1.Begin();
-        auto left = *mov.GetValue();
+        auto left = *mov;
         mov.Next();
-        auto right = *mov.GetValue();
+        auto right = *mov;
         assert(right.Top() == 9);
         assert(left.Top() == 3);
         auto rest = left.InnerTrees();
         assert(rest.Size() == 1);
-        assert(rest.Begin().GetValue()->Top() == 5);
+        assert(rest.Begin()->Top() == 5);
     }
 
     static void TwoNumbers()
@@ -145,7 +145,7 @@ private:
         assert(tree1.Level() == 1);
         auto inner1 = tree1.InnerTrees();
         assert(inner1.Size() == 1);
-        assert(inner1.Begin().GetValue()->Top() == 5);
+        assert(inner1.Begin()->Top() == 5);
     }
 
 public:

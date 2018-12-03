@@ -22,14 +22,14 @@ namespace Templates
             typename List<BinomialTree<T, comp>>::Iterator next = cur;
             typename List<BinomialTree<T, comp>>::Iterator sib = cur;
 
-            for (next.Next(), sib.Next(2); next.IsValidIterator();)
+            for (next.Next(), sib.Next(2); next != this->Trees.End();)
             {
-                if ((cur.GetValue()->Level() == next.GetValue()->Level() &&
-                     !sib.IsValidIterator()) ||
-                    (cur.GetValue()->Level() == next.GetValue()->Level() &&
-                     next.GetValue()->Level() != sib.GetValue()->Level()))
+                if ((cur->Level() == next->Level() &&
+                     sib == this->Trees.End()) ||
+                    (cur->Level() == next->Level() &&
+                     next->Level() != sib->Level()))
                 {
-                    cur.GetValue()->Merge(*next.GetValue());
+                    cur->Merge(*next);
                     next.DeleteThis();
                     next = cur;
                     sib = cur;
@@ -50,10 +50,9 @@ namespace Templates
         bool Push(T val)
         {
             BinomialTree<T, comp> x(val);
-            bool success = Trees.Begin().InsertBefore(x) == 1;
-            if (success)
-                ValidateList();
-            return success;
+            Trees.Insert(x);
+            ValidateList();
+            return true;
         }
 
         bool Pop(T& val)
@@ -64,14 +63,14 @@ namespace Templates
             //find lower
             typename List<BinomialTree<T, comp>>::Iterator moving = this->Trees.Begin();
             typename List<BinomialTree<T, comp>>::Iterator lower = moving;
-            for (; moving.IsValidIterator(); moving.Next())
+            for (; moving != this->Trees.End(); moving.Next())
             {
-                int res = comp(lower.GetValue()->Top(), moving.GetValue()->Top());
+                int res = comp(lower->Top(), moving->Top());
                 if (res > 0)
                     lower = moving;
             }
             //delete it from vector
-            BinomialTree<T, comp> lowest = *lower.GetValue();
+            BinomialTree<T, comp> lowest = *lower;
             lower.DeleteThis();
             //create new heap
             BinomialHeap h;
@@ -92,11 +91,11 @@ namespace Templates
             typename List<BinomialTree<T, comp>>::Iterator lower = moving;
             for (; moving.IsValidIterator(); moving.Next())
             {
-                int res = comp(lower.GetValue()->Top(), moving.GetValue()->Top());
+                int res = comp(lower->Top(), moving->Top());
                 if (res > 0)
                     lower = moving;
             }
-            val = lower.GetValue()->Top();
+            val = lower->Top();
             return true;
         }
 
@@ -106,23 +105,23 @@ namespace Templates
             typename List<BinomialTree<T, comp>>::Iterator movingSecond = Second.Trees.Begin();
             List<BinomialTree<T, comp>> res;
             typename List<BinomialTree<T, comp>>::Iterator inserting = res.End();
-            while (movingThis.IsValidIterator() && movingSecond.IsValidIterator())
+            while (movingThis != this->Trees.End() && movingSecond != Second.Trees.End())
             {
-                if (movingThis.GetValue()->Level() < movingSecond.GetValue()->Level())
+                if (movingThis->Level() < movingSecond->Level())
                 {
-                    inserting.InsertBefore(*movingThis.GetValue());
+                    inserting.InsertBefore(*movingThis);
                     movingThis.Next();
                 }
                 else
                 {
-                    inserting.InsertBefore(*movingSecond.GetValue());
+                    inserting.InsertBefore(*movingSecond);
                     movingSecond.Next();
                 }
             }
-            for (; movingThis.IsValidIterator(); movingThis.Next())
-                inserting.InsertBefore(*movingThis.GetValue());
-            for (; movingSecond.IsValidIterator(); movingSecond.Next())
-                inserting.InsertBefore(*movingSecond.GetValue());
+            for (; movingThis != this->Trees.End(); movingThis.Next())
+                inserting.InsertBefore(*movingThis);
+            for (; movingSecond != Second.Trees.End(); movingSecond.Next())
+                inserting.InsertBefore(*movingSecond);
 
             this->Trees = res;
             ValidateList();
