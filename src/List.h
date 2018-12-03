@@ -163,6 +163,15 @@ namespace Templates
             }
         };
 
+        /**
+         * Chains two nodes together.
+         */
+        static inline void ChainNodes(Node* first, Node* second)
+        {
+            first->_forward = second;
+            second->_backward = first;
+        }
+
     public:
         class ConstIterator : public BaseIterator<const List>
         {
@@ -343,7 +352,176 @@ namespace Templates
                 return tmp;
             }
 
-            //TODO insert, delete
+            /**
+             * Insert element after current element.
+             * The iterator stay at the same position.
+             * @param value Element to insert.
+             * @throw OutOfRangeException If it's end iterator.
+             */
+            void Insert(const T& value)
+            {
+                this->Insert(&value, 1);
+            }
+
+            /**
+             * Insert elements after current element.
+             * The iterator stay at the same position.
+             * The order in the array remains same in the list.
+             * @param array Elements to insert.
+             * @param count Number of elements to insert.
+             * @throw OutOfRangeException If it's end iterator.
+             */
+            void Insert(T const * array, unsigned int count)
+            {
+                if(this->_node->_forward == nullptr)
+                    throw OutOfRangeException("Cannot insert to the end iterator");
+
+                List tmp(array, count);
+
+                List::ChainNodes(tmp._last->_backward, this->_node->_forward);
+                List::ChainNodes(this->_node, tmp._first);
+
+                this->_list->_size += tmp._size;
+
+                tmp._first = tmp._last;
+                tmp._size = 0;
+            }
+
+            /**
+             * Insert element before current element.
+             * The iterator stay at the same position.
+             * Do not throw exception, in case of begin iterator inserts elements at the beginning of the list.
+             * @param value Element to insert.
+             */
+            void InsertBefore(const T& value)
+            {
+                this->InsertBefore(&value, 1);
+            }
+
+            /**
+             * Insert elements before current element.
+             * The iterator stay at the same position.
+             * The order in the array remains same in the list.
+             * Do not throw exception, in case of begin iterator inserts elements at the beginning of the list.
+             * @param array Elements to insert.
+             * @param count Number of elements to insert.
+             */
+            void InsertBefore(T const * array, unsigned int count)
+            {
+                if(this->_node->_backward == nullptr)
+                {
+                    this->_list->Insert(array, count);
+                    return;
+                }
+
+                List tmp(array, count);
+
+                Node* previous_node = this->_node->_backward;
+                Node* current_node = this->_node;
+
+                List::ChainNodes(previous_node, tmp._first);
+                List::ChainNodes(tmp._last->_backward, current_node);
+
+                this->_list->_size += tmp._size;
+
+                tmp._first = tmp._last;
+                tmp._size = 0;
+            }
+
+            /**
+             * Delete next element in the list.
+             * The position remains same.
+             * @throw OutOfRangeException If it's end iterator.
+             */
+            void Delete()
+            {
+                if(this->_node->_forward == nullptr)
+                    throw OutOfRangeException("Invalid call of delete on end iterator");
+
+                this->Delete(1);
+            }
+
+            /**
+             * Delete multiple elements after current element.
+             * The position remains same.
+             * If the count is bigger then the remaining size, the elements are removed to the end.
+             * @param count Number of elements to delete.
+             * @return Number of deleted elements.
+             */
+            unsigned int Delete(unsigned int count)
+            {
+                if(!this->Next())
+                    return 0;
+
+                unsigned int deleted = 0;
+                for(;this->_node->_forward != nullptr && deleted < count;)
+                {
+                    this->DeleteThis();
+                    deleted++;
+                }
+
+                this->Back();
+
+                return deleted;
+            }
+
+            /**
+             * Delete current element.
+             * The iterator move to the next element.
+             * @throw OutOfRangeException if it's end iterator.
+             */
+            void DeleteThis()
+            {
+                if(this->_node->_forward == nullptr)
+                    throw OutOfRangeException("Invalid call of delete on end iterator");
+
+
+                Node* next_element = this->_node->_forward;
+
+                if(this->_node->_backward == nullptr)
+                    this->_list->_first = next_element;
+                else
+                    List::ChainNodes(this->_node->_backward, next_element);
+
+                this->_list->_size--;
+
+                this->_node->Value().~T();
+                delete this->_node;
+
+                this->_node = next_element;
+            }
+
+            /**
+             * Delete previous element in the list.
+             * The position remains same.
+             * @throw OutOfRangeException If it's begin iterator.
+             */
+            void DeleteBefore()
+            {
+                if(this->_node->_backward == nullptr)
+                    throw OutOfRangeException("Invalid call of deleteBefore on begin iterator");
+
+                this->DeleteBefore(1);
+            }
+
+            /**
+             * Delete multiple elements before current element.
+             * The position remains same.
+             * If the count is bigger then the number of element to current element, the elements are removed to the current element.
+             * @param count Number of elements to delete.
+             * @return Number of deleted elements.
+             */
+            unsigned int DeleteBefore(unsigned int count)
+            {
+                unsigned int deleted = 0;
+                while(deleted < count && this->Back())
+                {
+                    this->DeleteThis();
+                    deleted++;
+                }
+
+                return deleted;
+            }
         };
 
 
@@ -589,8 +767,8 @@ namespace Templates
 
             Node* current_first = _first;
             _first = tmp._first;
-            tmp._last->_backward->_forward = current_first;
-            current_first->_backward = tmp._last->_backward;
+            List::ChainNodes(tmp._last->_backward, current_first);
+
             _size += tmp._size;
 
             tmp._first = tmp._last;
