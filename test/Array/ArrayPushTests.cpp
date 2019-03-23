@@ -8,7 +8,7 @@ int OriginalArray[15] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29};
 
 TEST_CASE("Array should push one value", "[Array][Push]"){
     Array<int> instance(OriginalArray, 15);
-    REQUIRE(instance.Push(31)==1);
+    instance.Push(31);
     REQUIRE(instance.Size()==16);
     for(int i=0;i<15;i++)
         REQUIRE(instance[i] == OriginalArray[i]);
@@ -17,7 +17,7 @@ TEST_CASE("Array should push one value", "[Array][Push]"){
 
 TEST_CASE("Array should resize based on the input size if big array is pushed", "[Array][Push]"){
     Array<int> instance(OriginalArray, 2);
-    REQUIRE(instance.Push(OriginalArray+2, 13)==13);
+    instance.Push(OriginalArray+2, 13);
     REQUIRE(instance.Size()==15);
     REQUIRE(instance.Capacity() >= 15);
     for(int i=0;i<15;i++)
@@ -63,7 +63,7 @@ TEST_CASE("Array should be valid after inserting one element with exception", "[
 
 TEST_CASE("Array should push values from array", "[Array][Push]"){
     Array<int> instance(OriginalArray, 15);
-    REQUIRE(instance.Push(OriginalArray, 10)==10);
+    instance.Push(OriginalArray, 10);
     REQUIRE(instance.Size()==25);
     for(int i=0;i<15;i++)
         REQUIRE(instance[i] == OriginalArray[i]);
@@ -73,7 +73,7 @@ TEST_CASE("Array should push values from array", "[Array][Push]"){
 
 TEST_CASE("Array should push whole second array", "[Array][Push]"){
     Array<int> instance(OriginalArray, 15);
-    REQUIRE(instance.Push(OriginalArray, 15)==15);
+    instance.Push(OriginalArray, 15);
     REQUIRE(instance.Size()==30);
     for(int i=0;i<15;i++)
         REQUIRE(instance[i] == OriginalArray[i]);

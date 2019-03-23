@@ -27,14 +27,14 @@ namespace Templates
         /**
          * Initialize new instance with default size.
          */
-        Array() : Array(BASE_SIZE)
+        Array() noexcept: Array(BASE_SIZE)
         {}
 
         /**
          * Initialize new instance with provided size.
          * @param capacity Capacity of the created array.
          */
-        explicit Array(int capacity) : _allocated(0), _inserted(0), _array(nullptr)
+        explicit Array(int capacity) noexcept : _allocated(0), _inserted(0), _array(nullptr)
         {
 
             capacity = (capacity <= 0 ? BASE_SIZE : capacity);
@@ -56,7 +56,7 @@ namespace Templates
          * Move constructor, initialize Array from the values of other array.
          * The second instance will be cleared.
          */
-        Array(Array&& second) : Array()
+        Array(Array&& second) noexcept : Array()
         {
             swap(second, *this);
         }
@@ -87,7 +87,7 @@ namespace Templates
          * Destructor.
          * Is exception safe if the containing object does not throw exception in the destructor.
          */
-        ~Array()
+        ~Array() noexcept
         {
             for (; _inserted > 0;)
                 _array[--_inserted].~T();
@@ -130,7 +130,7 @@ namespace Templates
          * Get number of elements in the array.
          * @return Number of elements in the array.
          */
-        int Size() const
+        int Size() const noexcept
         {
             return _inserted;
         }
@@ -139,7 +139,7 @@ namespace Templates
          * Return allocated capacity of the array.
          * @return Allocated capacity of the array.
          */
-        int Capacity() const
+        int Capacity() const noexcept
         {
             return _allocated;
         }
@@ -148,7 +148,7 @@ namespace Templates
          * Check if is array empty.
          * @return True if is array empty, false otherwise.
          */
-        bool IsEmpty() const
+        bool IsEmpty() const noexcept
         {
             return this->Size() == 0;
         }
@@ -492,22 +492,20 @@ namespace Templates
         }
 
         /**
-         * Insert element at the end of the array
+         * Insert element to the end of the array
          * @param value Element to insert
-         * @return 1 if element was inserted
          */
-        int Push(const T& value)
+        void Push(const T& value)
         {
-            return this->Push(&value, 1);
+            this->Push(&value, 1);
         }
 
         /**
-         * Push elements at the end of the array
+         * Push elements to the end of the array
          * @param values Elements to push
          * @param count Number of elements to push
-         * @return Number of inserted elements
          */
-        int Push(const T * values, int count)
+        void Push(const T * values, int count)
         {
             int newCapacity = _allocated;
             if(newCapacity < _inserted + count)
@@ -536,7 +534,54 @@ namespace Templates
                     throw;
                 }
             }
-            return i;
+        }
+
+        /**
+         * Move element to the end of the array
+         * @param value Element to insert
+         */
+        void Push(T&& value)
+        {
+            using Templates::move;
+            this->Push(&value, 1);
+        }
+
+        /**
+         * Move elements to the end of the array.
+         * Doesn't move the array but the values itself, array still needs to be destroyed after the call.
+         * @param values Elements to push.
+         * @param count Number of elements to push.
+         */
+        void Push(T* &&values, int count)
+        {
+            using Templates::move;
+            int newCapacity = _allocated;
+            if(newCapacity < _inserted + count)
+                newCapacity *= EXPANDING_COEFICIENT;
+            if(newCapacity < _inserted + count)
+                newCapacity = _inserted + count;
+
+            if(newCapacity != _allocated)
+                this->Resize(newCapacity);
+
+            T* interArray = _array.Raw()+_inserted;
+            int i = 0;
+            for(i=0;i<count;i++,values++, interArray++){
+                try
+                {
+                    new (interArray) T(move(*values));
+                    _inserted++;
+                }
+                catch(...)
+                {
+                    while(i > 0)
+                    {
+                        --i;
+                        _array[--_inserted].~T();
+                    }
+                    throw;
+                }
+            }
         }
 
         /**

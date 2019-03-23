@@ -94,6 +94,7 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Array/ArrayInsertTests.cpp
         test/Array/ArrayInsertSafeTests.cpp
         test/Array/ArrayIteratorTests.cpp
+        test/Array/ArrayPushMoveTests.cpp
 
         test/Vector/VectorCreationTests.cpp
         test/Vector/VectorConstCreationTests.cpp
