@@ -68,6 +68,12 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Meta/IsConstructibleCopyable.cpp
         test/Meta/IsAssignableCopyTests.cpp
         test/Meta/IsAssignableMoveTests.cpp
+        test/Meta/IsConstructibleDefaultNoexceptTests.cpp
+        test/Meta/IsConstructibleMovableNoexceptTests.cpp
+        test/Meta/IsConstructibleCopyableNoexceptTests.cpp
+        test/Meta/IsAssignableNoexceptTests.cpp
+        test/Meta/IsAssignableCopyNoexceptTests.cpp
+        test/Meta/IsAssignableMoveNoexceptTests.cpp
 
         test/Pointers/UniquePointerTests.cpp
         test/Pointers/SharedPointerTests.cpp

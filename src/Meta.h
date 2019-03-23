@@ -17,6 +17,13 @@ namespace Templates
             static const bool value = false;
         };
 
+        template<bool>
+        struct bool_type: false_type
+        {};
+        template<>
+        struct bool_type<true>: true_type
+        {};
+
         template<bool, bool ...Args>
         struct and_ : false_type{};
         template<bool ...Args>
@@ -172,15 +179,11 @@ namespace Templates
         struct __declval_rref<T, true>{
             using type=T;
         };
-
         template<typename T>
-        inline typename __declval_rref<T>::type declval();
-
-
+        inline typename __declval_rref<T>::type declval() noexcept;
 
         struct __is_constructible_default_impl
         {
-
             template<typename T, typename = decltype(T())>
             static true_type test(int)
             { return {}; }
@@ -191,8 +194,23 @@ namespace Templates
         };
         template<typename T>
         struct is_constructible_default : decltype(__is_constructible_default_impl::test<T>(0))
+        {};
+
+        struct __is_constructible_default_noexcept_impl
         {
+            template<typename T, bool = noexcept(T())>
+            static bool_type<noexcept(T())> test(int)
+            { return {}; }
+
+            template<typename T>
+            static false_type test(...)
+            { return {}; }
         };
+        template<typename T>
+        struct is_constructible_default_noexcept
+                : decltype(__is_constructible_default_noexcept_impl::test<T>(0))
+        {};
+
 
         struct __is_constructible_movable_impl
         {
@@ -218,6 +236,21 @@ namespace Templates
                 true_type
         {};
 
+        struct __is_constructible_movable_noexcept_impl
+        {
+            template<typename T, bool = noexcept(T(declval<T>()))>
+            static bool_type<noexcept(T(declval<T>()))> test(int)
+            { return {}; }
+
+            template<typename T>
+            static false_type test(...)
+            { return {}; }
+        };
+        template<typename T>
+        struct is_constructible_movable_noexcept
+                : decltype(__is_constructible_movable_noexcept_impl::test<T>(0))
+        {};
+
         struct __is_constructable_copyable_impl
         {
             template<typename T, typename = decltype(T(static_cast<const T&>(declval<T>())))>
@@ -232,9 +265,23 @@ namespace Templates
         struct is_constructible_copyable :
                 decltype(__is_constructable_copyable_impl::test<T>(0))
         {};
-
         template<typename T>
         struct is_constructible_copyable<T&> : true_type
+        {};
+
+        struct __is_constructible_copyable_noexcept_impl
+        {
+            template<typename T, bool = noexcept(T(static_cast<const T&>(declval<T>())))>
+            static bool_type<noexcept(T(static_cast<const T&>(declval<T>())))> test(int)
+            { return {}; }
+
+            template<typename T>
+            static false_type test(...)
+            { return {}; }
+        };
+        template<typename T>
+        struct is_constructible_copyable_noexcept
+                : decltype(__is_constructible_copyable_noexcept_impl::test<T>(0))
         {};
 
         struct __is_assignable_impl
@@ -253,6 +300,22 @@ namespace Templates
         struct is_assignable : decltype(__is_assignable_impl::test<T, U>(0))
         {};
 
+        struct __is_assignable_noexcept_impl
+        {
+            template<typename T, typename U,
+                    bool = noexcept(declval<T>() = declval<U>())
+            >
+            static bool_type<noexcept(declval<T>() = declval<U>())> test(int)
+            { return {}; }
+
+            template<typename, typename>
+            static false_type test(...)
+            { return {}; }
+        };
+        template<typename T, typename U>
+        struct is_assignable_noexcept : decltype(__is_assignable_noexcept_impl::test<T, U>(0))
+        {};
+
 
         template<typename T>
         struct is_assignable_copy : is_assignable<
@@ -263,6 +326,20 @@ namespace Templates
 
         template<typename T>
         struct is_assignable_move : is_assignable<
+                typename as_ref<T>::type,
+                typename as_rref<T>::type
+        >
+        {};
+
+        template<typename T>
+        struct is_assignable_copy_noexcept : is_assignable_noexcept<
+                typename as_ref<T>::type,
+                typename as_const_ref<T>::type
+        >
+        {};
+
+        template<typename T>
+        struct is_assignable_move_noexcept : is_assignable_noexcept<
                 typename as_ref<T>::type,
                 typename as_rref<T>::type
             >
