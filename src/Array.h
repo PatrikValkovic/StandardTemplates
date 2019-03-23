@@ -27,14 +27,14 @@ namespace Templates
         /**
          * Initialize new instance with default size.
          */
-        Array() noexcept: Array(BASE_SIZE)
+        Array(): Array(BASE_SIZE)
         {}
 
         /**
          * Initialize new instance with provided size.
          * @param capacity Capacity of the created array.
          */
-        explicit Array(int capacity) noexcept : _allocated(0), _inserted(0), _array(nullptr)
+        explicit Array(int capacity) : _allocated(0), _inserted(0), _array(nullptr)
         {
 
             capacity = (capacity <= 0 ? BASE_SIZE : capacity);
@@ -183,6 +183,17 @@ namespace Templates
          * Resize is based on capacity, on on the size.
          * @param by How much resize the array. If positive, the array will expand. If negative, the array will shrink.
          */
+        void ResizeBySafe(int by)
+        {
+            this->ResizeSafe(_allocated + by);
+        }
+
+        /**
+         * Resize the array by specific number of elements.
+         * Can be used to expand or shrink the array.
+         * Resize is based on capacity, on on the size.
+         * @param by How much resize the array. If positive, the array will expand. If negative, the array will shrink.
+         */
         void ResizeBy(int by)
         {
             this->Resize(_allocated + by);
@@ -190,7 +201,28 @@ namespace Templates
 
         /**
          * Resize the array to contain specific number of elements.
-         * If the parameter is smaller then current size, overlapping elements will be destroyd.
+         * If the parameter is smaller then current size, overlapping elements will be destroyed.
+         * StrongException safety
+         * @param to
+         */
+        void ResizeSafe(int to)
+        {
+            if(Meta::is_constructible_movable_noexcept<T>::value)
+                return this->Resize(to);
+
+            if(to < 0)
+                throw OutOfRangeException("Cannot resize to negative value");
+
+            Array tmp(to);
+            const T* arr = _array.Raw();
+            tmp.PushSafe(arr, min(_inserted, to));
+
+            swap(*this, tmp);
+        }
+
+        /**
+         * Resize the array to contain specific number of elements.
+         * If the parameter is smaller then current size, overlapping elements will be destroyed.
          * @param to
          */
         void Resize(int to)
@@ -199,7 +231,7 @@ namespace Templates
                 throw OutOfRangeException("Cannot resize to negative value");
 
             Array tmp(to);
-            tmp.Push(_array.Raw(), _inserted > to ? to : _inserted);
+            tmp.Push(_array.Raw(), min(_inserted, to));
 
             swap(*this, tmp);
         }
@@ -210,6 +242,14 @@ namespace Templates
         void ShrinkToFit()
         {
             this->Resize(_inserted);
+        }
+
+        /**
+         * Shrink the array so its capacity is same as the size.
+         */
+        void ShrinkToFitSafe()
+        {
+            this->ResizeSafe(_inserted);
         }
 
         /**
@@ -514,7 +554,7 @@ namespace Templates
                 newCapacity = _inserted + count;
 
             if(newCapacity != _allocated)
-                this->Resize(newCapacity);
+                this->ResizeSafe(newCapacity);
 
             T* interArray = _array.Raw()+_inserted;
             int i = 0;

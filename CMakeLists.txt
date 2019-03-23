@@ -83,7 +83,7 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Array/ArrayAccessTests.cpp
         test/Array/ArrayPushTests.cpp
         test/Array/ArraySwapTests.cpp
-        test/Array/ArrayIntResizeTests.cpp
+        test/Array/ArrayIntResizeSafeTests.cpp
         test/Array/ArrayCustomResizeTests.cpp
         test/Array/ArrayToArrayTests.cpp
         test/Array/ArrayGeneralSpliceSafeIntsTests.cpp
@@ -95,6 +95,7 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Array/ArrayInsertSafeTests.cpp
         test/Array/ArrayIteratorTests.cpp
         test/Array/ArrayPushMoveTests.cpp
+        test/Array/ArrayResizeTests.cpp
 
         test/Vector/VectorCreationTests.cpp
         test/Vector/VectorConstCreationTests.cpp
