@@ -344,7 +344,6 @@ namespace Templates
                 typename as_rref<T>::type
             >
         {};
-
     }
 }
 

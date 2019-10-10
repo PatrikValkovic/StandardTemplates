@@ -58,6 +58,8 @@ namespace Templates
     };
     template<typename T>
     void swap(T& first, T& second){
+        if(&first == &second)
+            return;
         __swap_impl<T>::swap(first, second);
     }
 
@@ -109,6 +111,41 @@ namespace Templates
     template<typename T>
     const T& min(const T& l, const T& r){
         return l < r ? l : r;
+    }
+
+
+    template<typename T, typename ENABLE = void>
+    struct __fastest_init {
+        static void fastest_init(T* where, T& what){
+            static_assert(true, "Need copy or move constructor");
+        }
+    };
+    template<typename T>
+    struct __fastest_init<T,
+            typename Meta::enable_if<Meta::is_constructible_movable<T>::value>::type
+    >
+    {
+        static void fastest_init(T* where, T& what){
+            new (where) T(move(what));
+        }
+    };
+    template<typename T>
+    struct __fastest_init<T,
+            typename Meta::enable_if<
+                    Meta::and_<
+                            Meta::is_constructible_copyable<T>::value,
+                            Meta::not_<Meta::is_constructible_movable<T>::value>::value
+                            >::value
+                    >::type
+    >
+    {
+        static void fastest_init(T* where, T& what){
+            new (where) T(what);
+        }
+    };
+    template<typename T>
+    void fastest_init(T* where, T& what){
+        __fastest_init<T>::fastest_init(where, what);
     }
 }
 
