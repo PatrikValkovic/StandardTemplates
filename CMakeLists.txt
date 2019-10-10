@@ -21,7 +21,6 @@ set(SOURCE_FILES
         src/Queue.h
         src/Stack.h
         src/Vector.h
-        src/Array.h
         src/Interval.h
         src/BinomialTree.h
         src/BinomialHeap.h
@@ -30,7 +29,7 @@ set(SOURCE_FILES
 		src/Meta.h
         src/UniquePointer.h
         src/SharedPointer.h
-        src/NewArray.h
+        src/Array.h
         )
 set(TEST_FILES
         test/AlgorithmsTests.cpp
@@ -85,16 +84,12 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Array/ArrayAccessTests.cpp
         test/Array/ArrayPushTests.cpp
         test/Array/ArraySwapTests.cpp
-        test/Array/ArrayIntResizeSafeTests.cpp
         test/Array/ArrayCustomResizeTests.cpp
-        test/Array/ArrayToArrayTests.cpp
-        test/Array/ArrayGeneralSpliceSafeIntsTests.cpp
-        test/Array/ArrayGeneralSpliceSafeCustomTests.cpp
         test/Array/ArrayGeneralSpliceIntsTests.cpp
+        test/Array/ArrayGeneralSpliceMoveIntsTests.cpp
         test/Array/ArrayDeleteTests.cpp
-        test/Array/ArrayDeleteSafeTests.cpp
         test/Array/ArrayInsertTests.cpp
-        test/Array/ArrayInsertSafeTests.cpp
+        test/Array/ArrayInsertMoveTests.cpp
         test/Array/ArrayIteratorTests.cpp
         test/Array/ArrayPushMoveTests.cpp
         test/Array/ArrayResizeTests.cpp

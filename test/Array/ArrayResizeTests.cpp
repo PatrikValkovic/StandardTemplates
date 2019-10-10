@@ -19,6 +19,14 @@ TEST_CASE("Array should resize to the same value", "[Array][Resize]")
     REQUIRE(instance.Capacity() == capacity);
 }
 
+TEST_CASE("Array of ints should resize to the size", "[Array][Resize]")
+{
+    const int OriginalArray[10] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19};
+    Array<int> instance(OriginalArray, 10);
+    int size = instance.Size();
+    instance.Resize(size);
+    REQUIRE(instance.Capacity() == size);
+}
 
 TEST_CASE("Array should resize to the size with values", "[Array][Resize]")
 {
@@ -109,35 +117,13 @@ TEST_CASE("Array should resize by negative value and delete some of elements", "
     REQUIRE(instance.Size() == size - 2);
 }
 
-TEST_CASE("Array should shrink to fit", "[Array][Resize][ShrinkToFit]")
+TEST_CASE("Array of ints should shrink to fit", "[Array][Resize][ShrinkToFit]")
 {
-    UniquePointer<int> arr[10];
-    for(int i=0; i < 10; i++)
-        arr[i] = make_unique<int>(i);
-    Array<UniquePointer<int>> instance;
-    instance.Push(move(arr), 10);
+    const int OriginalArray[10] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19};
+    Array<int> instance(OriginalArray, 10);
     int size = instance.Size();
     instance.ResizeBy(10);
     instance.ShrinkToFit();
     REQUIRE(instance.Capacity() == size);
     REQUIRE(instance.Size() == size);
-}
-
-TEST_CASE("Array should not resize to negative value", "[Array][Resize]")
-{
-    UniquePointer<int> arr[10];
-    for(int i=0; i < 10; i++)
-        arr[i] = make_unique<int>(i);
-    Array<UniquePointer<int>> instance;
-    instance.Push(move(arr), 10);
-    try    {
-       instance.Resize(-5);
-       REQUIRE(false);
-    }
-    catch(OutOfRangeException&){
-        REQUIRE(true);
-    }
-    catch(...){
-        REQUIRE(false);
-    }
 }

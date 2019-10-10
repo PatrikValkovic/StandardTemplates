@@ -1,693 +1,348 @@
-#ifndef TEMPLATES_ARRAY_H_H
-#define TEMPLATES_ARRAY_H_H
+#ifndef TEMPLATES_ARRAY_H
+#define TEMPLATES_ARRAY_H
 
-#include "Exceptions.h"
-#include "IteratorsDefinitions.h"
-#include "Interval.h"
+#include "Basis.h"
+#include "Meta.h"
 #include "UniquePointer.h"
+#include "Exceptions.h"
 
 namespace Templates
 {
+    /**
+     * Class that represents dynamic array.
+     * @tparam T Type to store
+     */
     template<typename T>
     class Array
     {
     private:
-        static const int BASE_SIZE = 8;
-        static const int EXPANDING_COEFICIENT = 2;
-
-        int _allocated;
-        int _inserted;
         UniquePointer<T, __deleterWithoutDestruction<T>> _array;
+        unsigned int _allocated{};
+        unsigned int _size{};
 
+        template<int EXPAND = 2>
+        void SpliceCommon(unsigned int position, unsigned int to_delete, unsigned int to_insert);
     public:
-
-        using Iterator = T*;
         using ConstIterator = const T*;
+        using Iterator = T*;
 
+        //region lifetime
         /**
-         * Initialize new instance with default size.
+         * Create new empty array, where no memory is allocated.
          */
-        Array(): Array(BASE_SIZE)
-        {}
-
+        Array() noexcept;
         /**
-         * Initialize new instance with provided size.
-         * @param capacity Capacity of the created array.
+         * Create new array with no elements by `capacity` allocated memory.
+         * @param capacity Capacity to allocate.
          */
-        explicit Array(int capacity) : _allocated(0), _inserted(0), _array(nullptr)
-        {
-
-            capacity = (capacity <= 0 ? BASE_SIZE : capacity);
-            _array = UniquePointer<T, __deleterWithoutDestruction<T>>(
-                    (T*)::operator new(sizeof(T) * capacity)
-            );
-            _allocated = capacity;
-            _inserted = 0;
-        }
-
+        explicit Array(unsigned int capacity);
         /**
-         * Initialize new instance with same values as second Array.
-         * Creates copy of values from the second array.
+         * Create new array with `count` elements from the `elements` parameter by copying them.
+         * @param elements Array of elements to insert.
+         * @param count Number of elements to insert.
          */
-        Array(const Array& second) : Array(second._array.Raw(), second._inserted)
-        {}
-
+        Array(T const* elements, unsigned int count);
         /**
-         * Move constructor, initialize Array from the values of other array.
-         * The second instance will be cleared.
+         * Create new array with `count` elements from the `elements` parameter by moving them.
+         * The array is not deleted and the calling procedure needs to manage the memory.
+         * @param elements Array of elements to insert.
+         * @param count Number of elements to insert.
          */
-        Array(Array&& second) noexcept : Array()
-        {
-            swap(second, *this);
-        }
-
+        Array(T*&& elements, unsigned int count);
         /**
-         * Initialize new instance and fill it with values in array.
-         * The Array create copy of the values.
+         * Copy constructor.
          */
-        Array(const T* array, int count) : Array(count)
-        {
-            T* internalPointer = _array.Raw();
-            for (int i = 0; i < count; i++, array++, internalPointer++)
-                try
-                {
-                    new (internalPointer) T(*array);
-                }
-                catch(...)
-                {
-                    i--;
-                    for(;i >= 0; i--)
-                        _array[i].~T();
-                    throw;
-                }
-            _inserted = count;
-        }
-
+        Array(const Array&);
+        /**
+         * Movable constructor.
+         */
+        Array(Array&&) noexcept;
+        /**
+         * Copy assignable operator.
+         */
+        Array<T>& operator=(const Array&);
+        /**
+         * Move assignable operator.
+         */
+        Array<T>& operator=(Array&&) noexcept;
         /**
          * Destructor.
-         * Is exception safe if the containing object does not throw exception in the destructor.
          */
-        ~Array() noexcept
-        {
-            for (; _inserted > 0;)
-                _array[--_inserted].~T();
-        }
+        ~Array();
+        //endregion
 
+        //region swap
         /**
-         * Copy all elements from second array to this one.
-         * Entities from the second array are copied.
+         * Swap elements at indexes.
+         * @param first_index Index of the first element.
+         * @param second_index Index of the second element.
          */
-        Array& operator=(const Array& second)
-        {
-            if (this == &second)
-                return *this;
-
-            Array tmp(second._array.Raw(), second.Size());
-            swap(*this, tmp);
-
-            return *this;
-        }
-
+        void Swap(unsigned int first_index, unsigned int second_index);
         /**
-         * Move all elements from the second array to this one.
-         * Second array is cleared.
+         * Swap this instance with different one.
+         * @param NewArray Instance to swap with.
          */
-        Array& operator=(Array&& second) noexcept
-        {
-            if (this == &second)
-                return *this;
+        void Swap(Array&) noexcept;
+        //endregion
 
-            {
-                Array tmp(move(*this));
-            }
-
-            swap(*this, second);
-
-            return *this;
-        }
-
+        //region queries
         /**
-         * Get number of elements in the array.
-         * @return Number of elements in the array.
+         * Returns number of elements inserted into the array.
+         * @return Number of elements in array.
          */
-        int Size() const noexcept
-        {
-            return _inserted;
-        }
-
+        inline unsigned int Size() const noexcept;
         /**
-         * Return allocated capacity of the array.
-         * @return Allocated capacity of the array.
+         * Get how many elements can fit into container without reallocating.
+         * @return Capacity of the array.
          */
-        int Capacity() const noexcept
-        {
-            return _allocated;
-        }
-
+        inline unsigned int Capacity() const noexcept;
         /**
-         * Check if is array empty.
-         * @return True if is array empty, false otherwise.
+         * Check if the array is empty.
+         * @return True if the array is empty, false otherwise.
          */
-        bool IsEmpty() const noexcept
-        {
-            return this->Size() == 0;
-        }
-
+        inline bool Empty() const noexcept;
         /**
-        * Return element at @i-th index.
-        * Throw exception, if is index out of range
+         * Cast array to pointer.
+         */
+        explicit operator T*() noexcept;
+        /**
+         * Cast const array to const pointer.
+         */
+        explicit operator T const* const() const noexcept;
+        /**
+         * Cast array to pointer.
+         */
+        T* Raw() noexcept;
+        /**
+         * Cast const array to const pointer.
+         */
+        T const* const Raw() const noexcept;
+        /**
+         * Get const element at `index` in the array.
+         * @param index Index of the element.
+         * @return Const element at index `index`.
+         */
+        const T& operator[](unsigned int index) const;
+        /**
+         * Get const element at `index` in the array.
+         * @param index Index of the element.
+         * @return Const element at index `index`.
+         */
+        T& operator[](unsigned int index);
+        //endregion
+
+        //region resizing
+        /**
+         * Resize array to new capacity.
+         * When new capacity is lower than the size, elements from the end of the array are destructed.
+         * @param new_capacity New capacity of the array.
+         * @return New capacity of the array.
+         */
+        unsigned int Resize(unsigned int new_capacity);
+        /**
+         * Resize array by `resize_by` parameter. For negative values the array will be shrinking.
+         * When new capacity is lower than the size, elements from the end of the array are destructed.
+         * @param resize_by Amount of resize.
+         * @return New capacity of the array.
+         */
+        unsigned int ResizeBy(int resize_by);
+        /**
+         * Shrink the array so capacity would be equal to size.
+         * @return New capacity of the array.
+         */
+        unsigned int ShrinkToFit();
+        //endregion
+
+        //region slicing
+        /**
+         * From the position `position`, remove `to_delete` elements and then insert `to_insert` elements (by copy) from `elements` array.
+         * If size of inserted elements is higher then number of deleted elements, the array is shifted (as well as the other way around).
+         * @param position Position where to delete and insert elements.
+         * @param to_delete Number of elements to delete.
+         * @param elements Array of elements to insert.
+         * @param to_insert Number of elements to insert.
+         */
+        void Splice(unsigned int position, unsigned int to_delete, T const* elements, unsigned int to_insert);
+        /**
+         * From the position `position`, remove `to_delete` elements.
+         * If size of inserted elements is higher then number of deleted elements, the array is shifted (as well as the other way around).
+         * @param position Position where to delete and insert elements.
+         * @param to_delete Number of elements to delete..
+         */
+        void Splice(unsigned int position, unsigned int to_delete);
+        /**
+         * From the position `position`, insert `to_insert` elements (by copy) from `elements` array.
+         * If size of inserted elements is higher then number of deleted elements, the array is shifted (as well as the other way around).
+         * @param position Position where to delete and insert elements.
+         * @param elements Array of elements to insert.
+         * @param to_insert Number of elements to insert.
+         */
+        void Splice(unsigned int position, T const* elements, unsigned int to_insert);
+        /**
+         * From the position `position`, remove `to_delete` elements and then insert `to_insert` elements (by copy) from `elements` array.
+         * If size of inserted elements is higher then number of deleted elements, the array is shifted (as well as the other way around).
+         * The array needs to be managed by the calling procedure.
+         * @param position Position where to delete and insert elements.
+         * @param to_delete Number of elements to delete.
+         * @param elements Array of elements to insert.
+         * @param to_insert Number of elements to insert.
+         */
+        void Splice(unsigned int position, unsigned int to_delete, T*&& elements, unsigned int to_insert);
+        /**
+         * From the position `position`, insert `to_insert` elements (by move) from `elements` array.
+         * If size of inserted elements is higher then number of deleted elements, the array is shifted (as well as the other way around).
+         * The array needs to be managed by the calling procedure.
+         * @param position Position where to delete and insert elements.
+         * @param elements Array of elements to insert.
+         * @param to_insert Number of elements to insert.
+         */
+        void Splice(unsigned int position, T*&& elements, unsigned int to_insert);
+        //endregion
+
+        //region inserting
+        /**
+         * Insert element at the end of the array.
+         * @param element Element to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Push(const T& element);
+        /**
+         * Insert element at the end of the array.
+         * @param element Element to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Push(T&& element);
+        /**
+         * Insert `count` elements from the `elements` array to the end of the array.
+         * @param elements Elements to insert.
+         * @param count Number of elements to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Push(T const* elements, unsigned int count);
+        /**
+         * Insert `count` elements from the `elements` array to the end of the array.
+         * @param elements Elements to insert.
+         * @param count Number of elements to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Push(T*&& elements, unsigned int count);
+        /**
+         * Insert element at the beginning of the array.
+         * @param element Element to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Insert(const T& element);
+        /**
+         * Insert element at the beginning of the array.
+         * @param element Element to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Insert(T&& element);
+        /**
+         * Insert `count` elements from the `elements` array to the beginning of the array.
+         * @param elements Elements to insert.
+         * @param count Number of elements to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Insert(T const* elements, unsigned int count);
+        /**
+         * Insert `count` elements from the `elements` array to the beginning of the array.
+         * @param elements Elements to insert.
+         * @param count Number of elements to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Insert(T*&& elements, unsigned int count);
+        /**
+         * Insert element `element` at position `position` by copy.
+         * @param position Position where to insert element.
+         * @param element Element to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Insert(unsigned int position, const T& element);
+        /**
+         * Insert `count` elements from `element` array at position `position` by copy.
+         * @param position Position where to insert element.
+         * @param elements Elements to insert.
+         * @param count Number of elements to insert.
+         * @return Number of inserted elements.
         */
-        T& operator[](int i)
-        {
-            if (i >= _inserted || i < 0)
-                throw OutOfRangeException("Operator is out of array range", __LINE__);
-
-            return _array[i];
-        }
-
+        unsigned int Insert(unsigned int position, T const * elements, unsigned int count);
         /**
-         * Return element at @i-th index.
-         * Throw exception, if is index out of range
-         */
-        const T& operator[](int i) const
-        {
-            if (i >= _inserted || i < 0)
-                throw OutOfRangeException("Operator is out of array range", __LINE__);
-
-            return _array[i];
-        }
-
-        /**
-         * Resize the array by specific number of elements.
-         * Can be used to expand or shrink the array.
-         * Resize is based on capacity, on on the size.
-         * @param by How much resize the array. If positive, the array will expand. If negative, the array will shrink.
-         */
-        void ResizeBySafe(int by)
-        {
-            this->ResizeSafe(_allocated + by);
-        }
-
-        /**
-         * Resize the array by specific number of elements.
-         * Can be used to expand or shrink the array.
-         * Resize is based on capacity, on on the size.
-         * @param by How much resize the array. If positive, the array will expand. If negative, the array will shrink.
-         */
-        void ResizeBy(int by)
-        {
-            this->Resize(_allocated + by);
-        }
-
-        /**
-         * Resize the array to contain specific number of elements.
-         * If the parameter is smaller then current size, overlapping elements will be destroyed.
-         * StrongException safety
-         * @param to
-         */
-        void ResizeSafe(int to)
-        {
-            if(Meta::is_constructible_movable_noexcept<T>::value)
-                return this->Resize(to);
-
-            if(to < 0)
-                throw OutOfRangeException("Cannot resize to negative value");
-
-            Array tmp(to);
-            const T* arr = _array.Raw();
-            tmp.PushSafe(arr, min(_inserted, to));
-
-            swap(*this, tmp);
-        }
-
-        /**
-         * Resize the array to contain specific number of elements.
-         * If the parameter is smaller then current size, overlapping elements will be destroyed.
-         * @param to
-         */
-        void Resize(int to)
-        {
-            if(to < 0)
-                throw OutOfRangeException("Cannot resize to negative value");
-
-            Array tmp(to);
-            tmp.Push(_array.Raw(), min(_inserted, to));
-
-            swap(*this, tmp);
-        }
-
-        /**
-         * Shrink the array so its capacity is same as the size.
-         */
-        void ShrinkToFit()
-        {
-            this->Resize(_inserted);
-        }
-
-        /**
-         * Shrink the array so its capacity is same as the size.
-         */
-        void ShrinkToFitSafe()
-        {
-            this->ResizeSafe(_inserted);
-        }
-
-        /**
-         * Delete {@code count} elements from the beginning.
-         * @param count How many elements delete
-         */
-        void Delete(int count)
-        {
-            this->DeleteFromBegin(count);
-        }
-
-        /**
-         * Delete {@code count} elements from the beginning.
-         * Safe version make sure, that the array remains valid if exception occurs.
-         * Safe version needs more memory than the unsafe one.
-         * @param count How many elements delete
-         */
-        void DeleteSafe(int count)
-        {
-            this->DeleteFromBeginSafe(count);
-        }
-
-        /**
-         * Delete {@code count} elements from the {@code index}.
-         * @param index From which element delete
-         * @param count How many elements delete
-         */
-        void Delete(int index, int count)
-        {
-            this->Splice(index, count);
-        }
-
-        /**
-         * Delete {@code count} elements from the {@code index}.
-         * Safe version make sure, that the array remains valid if exception occurs.
-         * Safe version needs more memory than the unsafe one.
-         * @param index From which element delete
-         * @param count How many elements delete
-         */
-        void DeleteSafe(int index, int count)
-        {
-            this->SpliceSafe(index, count);
-        }
-
-        /**
-         * Delete {@code count} elements from the end.
-         * In case of exception, the array stays in valid state, but the state can change.
-         * @param count Number of elements to delete
-         */
-        void DeleteFromEnd(int count)
-        {
-            count = max(count, 0);
-            this->Delete(max(0, _inserted-count), count);
-        }
-
-        /**
-         * Delete {@code count} elements from the end.
-         * In case of exception, the array stays in the old state.
-         * Safe version needs more memory than the unsafe one.
-         * @param count Number of elements to delete
-         */
-        void DeleteFromEndSafe(int count)
-        {
-            count = max(count, 0);
-            this->DeleteSafe(max(0, _inserted-count), count);
-        }
-
-        /**
-         * Delete {@code count} elements from the beginning of the array.
-         * In case the of exception, the array may stay in invalid state.
-         * @param count Number of elements to delete
-         */
-        void DeleteFromBegin(int count)
-        {
-            return this->Delete(0, count);
-        }
-
-        /**
-         * Delete {@code count} elements from the beginning of the array.
-         * In case the destuctor throws a exception, the array stay in valid state.
-         * Safe method needs more memory than the unsafe one.
-         * @param count Number of elements to delete
-         */
-        void DeleteFromBeginSafe(int count)
-        {
-            return this->DeleteSafe(0, count);
-        }
-
-        /**
-         * Delete all the elements in the array, but the allocated capacity stay.
-         */
-        void Delete()
-        {
-            return this->Delete(0, _inserted);
-        }
-
-        /**
-         * Delete all elements in the array, but the allocated capacity stay.
-         * Safe version make sure, that the array remain valid if exception occurs.
-         * Safe version require more space than the unsafe one.
-         */
-        void DeleteSafe()
-        {
-            this->DeleteSafe(0, _inserted);
-        }
-
-        /**
-         * Delete elements at the specific position.
-         * @param index Index where start deleting the elements.
-         * @param elements_to_delete Number of elements to delete.
-         */
-        void Splice(int index, int elements_to_delete)
-        {
-            this->Splice(index, elements_to_delete, nullptr, 0);
-        }
-
-        /**
-         * Delete elements at the specific position.
-         * Safe version of method make sure that the array is not changed in case of exception.
-         * Safe version needs more memory and is slower then the unsafe version.
-         * @param index Index where start deleting the elements.
-         * @param elements_to_delete Number of elements to delete.
-         */
-        void SpliceSafe(int index, int elements_to_delete)
-        {
-            this->SpliceSafe(index, elements_to_delete, nullptr, 0);
-        }
-
-        /**
-         * Insert elements at the specific position.
-         * @param index Index where to put the elements.
-         * @param arr Array with the new elements
-         * @param elements_to_insert How many elements insert to the array.
-         */
-        void Splice(int index, const T* arr, int elements_to_insert)
-        {
-            this->Splice(index, 0, arr, elements_to_insert);
-        }
-
-        /**
-         * Insert elements at the specific position.
-         * Safe version of method make sure that the array is not changed in case of exception.
-         * Safe version needs more memory and is slower then the unsafe version.
-         * @param index Index where to put the elements.
-         * @param arr Array with the new elements
-         * @param elements_to_insert How many elements insert to the array.
-         */
-        void SpliceSafe(int index, const T* arr, int elements_to_insert)
-        {
-            this->SpliceSafe(index, 0, arr, elements_to_insert);
-        }
-
-        /**
-         * Method that can delete or/and add elements into array.
-         *
-         * First, the elements from the index will be removed.
-         * Then, in place of the deleted items new elements are inserted.
-         * If inserted array is smaller or bigger then the size of deleted sequence, then rest of the array will be moved left or right to fill the gab.
-         * @param index Index where to delete or put the elements.
-         * @param elements_to_delete How many elements delete.
-         * @param arr Array with the new elements
-         * @param elements_to_insert How many elements insert to the array.
-         */
-        void Splice(int index, int elements_to_delete, const T* arr, int elements_to_insert)
-        {
-            //TODO rewrite
-            this->SpliceSafe(index, elements_to_delete, arr, elements_to_insert);
-        }
-
-        /**
-         * Method that can delete or/and add elements into array.
-         * Safe version of method make sure that the array is not changed in case of exception.
-         * Safe version needs more memory and is slower then the unsafe version.
-         *
-         * First, the elements from the index will be removed.
-         * Then, in place of the deleted items new elements are inserted.
-         * If inserted array is smaller or bigger then the size of deleted sequence, then rest of the array will be moved left or right to fill the gab.
-         * @param index Index where to delete or put the elements.
-         * @param elements_to_delete How many elements delete.
-         * @param arr Array with the new elements
-         * @param elements_to_insert How many elements insert to the array.
-         */
-        void SpliceSafe(int index, int elements_to_delete, const T* arr, int elements_to_insert)
-        {
-            if(index < 0 || index > _inserted)
-                throw OutOfRangeException("Index is out of range", __LINE__);
-
-            elements_to_delete = max(elements_to_delete, 0);
-            elements_to_delete = index + elements_to_delete > _inserted ? _inserted - index : elements_to_delete;
-            elements_to_insert = max(elements_to_insert, 0);
-            int to_allocate = _inserted - elements_to_delete + elements_to_insert;
-            to_allocate = max(to_allocate, _allocated);
-
-            Array tmp(to_allocate);
-            tmp.Push(_array.Raw(), index);
-            tmp.Push(arr, elements_to_insert);
-            tmp.Push(_array.Raw() + index + elements_to_delete, _inserted - elements_to_delete - index);
-
-            swap(*this, tmp);
-        }
-
-        /**
-         * Insert element at the specific index.
-         * Other elements are shifted right.
-         * In case the copy constructor throws a exception, the array may stay in invalid state.
-         * The index is validated, but you can use this method to insert element at the end of the array.
-         * @param index Position where to put the element.
+         * Insert element `element` at position `position` by move.
+         * @param position Position where to insert element.
          * @param element Element to insert.
+         * @return Number of inserted elements.
          */
-        void Insert(int index, const T& element)
-        {
-            return this->Insert(index, &element, 1);
-        }
-
+        unsigned int Insert(unsigned int position, T&& element);
         /**
-         * Insert elements at the specific index.
-         * Other elements are shifted right.
-         * In case the copy constructor throws a exception, the array may stay in invalid state.
-         * The index is validated, but you can use this method to insert elements at the end of the array.
-         * @param index Position where to put the element.
-         * @param element Element to insert.
-         */
-        void Insert(int position, const T* elements, int count)
-        {
-            this->Splice(position, elements, count);
-        }
+         * Insert `count` elements from `element` array at position `position` by move.
+         * @param position Position where to insert element.
+         * @param elements Elements to insert.
+         * @param count Number of elements to insert.
+         * @return Number of inserted elements.
+        */
+        unsigned int Insert(unsigned int position, T* &&elements, unsigned int count);
+        //endregion
 
+        //region deleting
         /**
-         * Insert element at the specific index.
-         * Other elements are shifted right.
-         * In case the copy constructor throws a exception, the stay in valid state.
-         * The safe version needs more space than the unsafe one.
-         * The index is validated, but you can use this method to insert element at the end of the array.
-         * @param index Position where to put the element.
+         * Delete all the elements in the array. The capacity remain unchanged.
+         * @return Number of deleted elements.
          */
-        void InsertSafe(int position, const T& element)
-        {
-            return this->InsertSafe(position, &element, 1);
-        }
-
+        inline unsigned int Clear();
         /**
-         * Insert elements at the specific index.
-         * Other elements are shifted right.
-         * In case the copy constructor throws a exception, the array stay in valid state.
-         * The safe version needs more space than the unsafe one.
-         * The index is validated, but you can use this method to insert elements at the end of the array.
-         * @param index Position where to put the element.
+         * Delete all the elements in the array. The capacity remain unchanged.
+         * @return Number of deleted elements.
          */
-        void InsertSafe(int position, const T* elements, int count)
-        {
-            this->SpliceSafe(position, elements, count);
-        }
-
-
-
-        //TODO implement emplace
-
-
-
+        inline unsigned int Delete();
         /**
-         * Return internal C-like array.
-         * @param count Output parameter holding number of elements
-         * @return Internal C-like array. Array can't be deleted.
+         * Delete `count` elements from the array.
+         * For positive parameter returns elements from the beginning, for negative one from the end.
+         * @param count Number of elements to delete.
+         * @return Number of deleted elements.
          */
-        const T* ToArray(int& count) const
-        {
-            count = _inserted;
-            return _array.Raw();
-        }
-
+        inline unsigned int Delete(int count);
         /**
-         * Return internal C-like array.
-         * @param count Output parameter holding number of elements.
-         * @return Internal C-like array. Array can't be deleted.
+         * Delete all elements between `from` (included) and `to` (excluded).
+         * @param from Index of the first element to delete.
+         * @param to Index of the first element NOT TO DELETE.
+         * @return Number of deleted elements.
          */
-        T* ToArray(int& count)
-        {
-            count = _inserted;
-            return _array.Raw();
-        }
+        unsigned int Delete(unsigned int from, unsigned int to);
+        //endregion
 
+        //region iterators
         /**
-         * Insert element to the end of the array
-         * @param value Element to insert
+         * Returns iterator to the beginning of the array.
+         * @return Iterator to the beginning of the array.
          */
-        void Push(const T& value)
-        {
-            this->Push(&value, 1);
-        }
-
+        ConstIterator Begin() const noexcept;
         /**
-         * Push elements to the end of the array
-         * @param values Elements to push
-         * @param count Number of elements to push
+         * Returns iterator to the end of the array.
+         * @return Iterator to the end of the array.
          */
-        void Push(const T * values, int count)
-        {
-            int newCapacity = _allocated;
-            if(newCapacity < _inserted + count)
-                newCapacity *= EXPANDING_COEFICIENT;
-            if(newCapacity < _inserted + count)
-                newCapacity = _inserted + count;
-
-            if(newCapacity != _allocated)
-                this->ResizeSafe(newCapacity);
-
-            T* interArray = _array.Raw()+_inserted;
-            int i = 0;
-            for(i=0;i<count;i++,values++, interArray++){
-                try
-                {
-                    new (interArray) T(*values);
-                    _inserted++;
-                }
-                catch(...)
-                {
-                    while(i > 0)
-                    {
-                        --i;
-                        _array[--_inserted].~T();
-                    }
-                    throw;
-                }
-            }
-        }
-
+        ConstIterator End() const noexcept;
         /**
-         * Move element to the end of the array
-         * @param value Element to insert
+         * Returns iterator at the position in the array.
+         * @return Iterator to the end of the array.
          */
-        void Push(T&& value)
-        {
-            using Templates::move;
-            this->Push(&value, 1);
-        }
-
+        ConstIterator At(unsigned int position) const noexcept;
         /**
-         * Move elements to the end of the array.
-         * Doesn't move the array but the values itself, array still needs to be destroyed after the call.
-         * @param values Elements to push.
-         * @param count Number of elements to push.
+         * Returns iterator to the beginning of the array.
+         * @return Iterator to the beginning of the array.
          */
-        void Push(T* &&values, int count)
-        {
-            using Templates::move;
-            int newCapacity = _allocated;
-            if(newCapacity < _inserted + count)
-                newCapacity *= EXPANDING_COEFICIENT;
-            if(newCapacity < _inserted + count)
-                newCapacity = _inserted + count;
-
-            if(newCapacity != _allocated)
-                this->Resize(newCapacity);
-
-            T* interArray = _array.Raw()+_inserted;
-            int i = 0;
-            for(i=0;i<count;i++,values++, interArray++){
-                try
-                {
-                    new (interArray) T(move(*values));
-                    _inserted++;
-                }
-                catch(...)
-                {
-                    while(i > 0)
-                    {
-                        --i;
-                        _array[--_inserted].~T();
-                    }
-                    throw;
-                }
-            }
-        }
-
+        Iterator Begin() noexcept;
         /**
-         * Swap elements at specific indexes.
-         * The indexes are validated. In case of invalid indexes, {@code OutOfRange} exception is throwed.
-         * @param FirstIndex Index of the first element
-         * @param SecondIndex Index of the second element
+         * Returns iterator to the end of the array.
+         * @return Iterator to the end of the array.
          */
-        void Swap(int FirstIndex, int SecondIndex)
-        {
-            if (FirstIndex < 0 || FirstIndex >= _inserted)
-                throw OutOfRangeException("The index of the first element is not valid", __LINE__);
-            if(SecondIndex < 0 || SecondIndex >= _inserted)
-                throw OutOfRangeException("The index of the second element is not valid", __LINE__);
-
-            if(FirstIndex == SecondIndex)
-                return;
-
-            using Templates::swap;
-            swap(_array[FirstIndex], _array[SecondIndex]);
-        }
-
+        Iterator End() noexcept;
         /**
-         * Swaps to instances of the array
+         * Returns iterator at the position in the array.
+         * @return Iterator to the end of the array.
          */
-        void Swap(Array &second) noexcept {
-            using Templates::swap;
-            swap(_allocated, second._allocated);
-            swap(_inserted, second._inserted);
-            swap(_array, second._array);
-        }
-
-        /**
-         * Get iterator at the beginning of the array.
-         */
-        Iterator Begin() noexcept
-        {
-            return _array.Raw();
-        }
-
-        /**
-         * Get iterator at the end of the array.
-         * The iterator is not valid, it points one element after the end of the array.
-         */
-        Iterator End() noexcept
-        {
-            return _array.Raw() + _inserted;
-        }
-
-        /**
-         * Get iterator at the beginning of the array.
-         */
-        ConstIterator Begin() const noexcept
-        {
-            return _array.Raw();
-        }
-
-        /**
-         * Get iterator at the end of the array.
-         * The iterator is not valid, it points one element after the end of the array.
-         */
-        ConstIterator End() const noexcept
-        {
-            return _array.Raw() + _inserted;
-        }
-
+        Iterator At(unsigned int position) noexcept;
+        //endregion
     };
 
     /**
@@ -696,10 +351,410 @@ namespace Templates
      * @param second Second array
      */
     template<typename T>
-    void swap(Array<T>& first,Array<T>& second)
+    void swap(Array<T>& first, Array<T>& second)
     {
         first.Swap(second);
     }
+
+    //region implementation
+    template<typename T>
+    Array<T>::Array() noexcept : _array(nullptr), _allocated(0), _size(0)
+    {}
+
+    template<typename T>
+    Array<T>::Array(unsigned int capacity): _array(malloc_own<T>(capacity)), _allocated(capacity), _size(0)
+    {}
+
+    template<typename T>
+    Array<T>::Array(T const* elements, unsigned int count): Array(count)
+    {
+        Splice(0, elements, count);
+    }
+
+    template<typename T>
+    Array<T>::Array(T*&& elements, unsigned int count): Array(count)
+    {
+        Splice(0, move(elements), count);
+    }
+
+    template<typename T>
+    Array<T>::Array(const Array& arr): Array(arr.Raw(), arr.Size())
+    {}
+
+    template<typename T>
+    Array<T>::Array(Array&& arr) noexcept : Array()
+    {
+        Swap(arr);
+    }
+
+    template<typename T>
+    void Array<T>::Swap(Array& arr) noexcept
+    {
+        using Templates::swap;
+        swap(_array, arr._array);
+        swap(_size, arr._size);
+        swap(_allocated, arr._allocated);
+    }
+
+    template<typename T>
+    void Array<T>::Swap(unsigned int first_index, unsigned int second_index)
+    {
+        using Templates::swap;
+        if(first_index > Size() || second_index > Size())
+            throw OutOfRangeException("Cant swap values out of the array", __LINE__);
+        swap(*(Raw() + first_index), *(Raw() + second_index));
+    }
+
+    template<typename T>
+    Array<T>& Array<T>::operator=(const Array& arr)
+    {
+        if (this == &arr)
+            return *this;
+
+        Array<T> tmp(arr);
+        swap(*this, tmp);
+        return *this;
+    }
+
+    template<typename T>
+    Array<T>& Array<T>::operator=(Array&& arr) noexcept
+    {
+        if (this == &arr)
+            return *this;
+
+        Array<T> tmp(move(arr));
+        swap(*this, tmp);
+        return *this;
+    }
+
+    template<typename T>
+    void Array<T>::Splice(unsigned int position, T*&& elements, unsigned int to_insert)
+    {
+        return Splice(position, 0, move(elements), to_insert);
+    }
+
+    template<typename T>
+    void Array<T>::Splice(unsigned int position, unsigned int to_delete)
+    {
+        return Splice(position, to_delete, static_cast<T const *>(nullptr), 0);
+    }
+
+    template<typename T>
+    void Array<T>::Splice(unsigned int position, T const* elements, unsigned int to_insert)
+    {
+        return Splice(position, 0, elements, to_insert);
+    }
+
+    template<typename T>
+    void Array<T>::Splice(unsigned int position, unsigned int to_delete, T const* elements, unsigned int to_insert)
+    {
+        if(position > Size())
+            throw OutOfRangeException("Position is bigger than size of the array", __LINE__);
+        SpliceCommon(position, to_delete, to_insert);
+        T const* start = elements, * end = elements + to_insert;
+        T* arr = Raw() + position;
+        for (; start != end; start++, arr++, _size++)
+            new(arr) T(*start);
+    }
+
+    template<typename T>
+    void Array<T>::Splice(unsigned int position, unsigned int to_delete, T*&& elements, unsigned int to_insert)
+    {
+        if(position > Size())
+            throw OutOfRangeException("Position is bigger than size of the array", __LINE__);
+        SpliceCommon(position, to_delete, to_insert);
+        T const* start = elements, * end = elements + to_insert;
+        T* arr = Raw() + position;
+        for (; start != end; start++, arr++, _size++)
+            new (arr) T((T&&)*start);
+    }
+
+    template<typename T>
+    template<int EXPAND>
+    void Array<T>::SpliceCommon(unsigned int position, unsigned int to_delete, unsigned int to_insert)
+    {
+        to_delete = position + to_delete > Size() ? Size() - position : to_delete;
+        unsigned int remain_after = Size() - position - to_delete;
+        //check if it fit
+        if (position + remain_after + to_insert > Capacity())
+        {
+            unsigned int new_capacity =
+                    position + remain_after + to_insert > EXPAND * Capacity() ? position + remain_after + to_insert :
+                    EXPAND * Capacity();
+            Resize(new_capacity);
+        }
+        //delete elements
+        T* del = Raw() + position, *end = Raw() + position + to_delete;
+        for (; del != end; del++, _size--)
+            del->~T();
+        //move elements
+        T* move_from = Raw() + position + to_delete, *move_from_end = Raw() + position + to_delete + remain_after;
+        T* move_to = Raw() + position + to_insert;
+        if(move_from == move_to)
+            return;
+        signed char step = move_to < move_from ? 1 : -1;
+        if(move_to > move_from)
+        {
+            swap(move_from, move_from_end);
+            move_from--;
+            move_from_end--;
+            move_to += remain_after;
+            move_to--;
+        }
+        for (; move_from != move_from_end; move_from += step, move_to += step)
+        {
+            fastest_init(move_to, *move_from);
+            move_from->~T();
+        }
+    }
+
+    template<typename T>
+    Array<T>::~Array()
+    {
+        T* start = Raw(), *end = Raw() + Size();
+        for(;start != end; start++)
+            start->~T();
+        _size = 0;
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Size() const noexcept
+    {
+        return _size;
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Capacity() const noexcept
+    {
+        return _allocated;
+    }
+
+    template<typename T>
+    bool Array<T>::Empty() const noexcept
+    {
+        return Size() == 0;
+    }
+
+    template<typename T>
+    Array<T>::operator T*() noexcept
+    {
+        return Raw();
+    }
+
+    template<typename T>
+    Array<T>::operator T const* const() const noexcept
+    {
+        return Raw();
+    }
+
+    template<typename T>
+    T* Array<T>::Raw() noexcept
+    {
+        return _array.Raw();
+    }
+
+    template<typename T>
+    T const* const Array<T>::Raw() const noexcept
+    {
+        return _array.Raw();
+    }
+
+    template<typename T>
+    const T& Array<T>::operator[](unsigned int index) const
+    {
+        if(index >= Size())
+            throw OutOfRangeException("Index is out of range for this Array", __LINE__);
+        return *(Raw() + index);
+    }
+
+    template<typename T>
+    T& Array<T>::operator[](unsigned int index)
+    {
+        if(index >= Size())
+            throw OutOfRangeException("Index is out of range for this Array", __LINE__);
+        return *(Raw() + index);
+    }
+
+    template<typename T>
+    unsigned int Array<T>::ShrinkToFit()
+    {
+        return Resize(Size());
+    }
+
+    template<typename T>
+    unsigned int Array<T>::ResizeBy(int resize_by)
+    {
+        return Resize(max((int)Capacity() + resize_by, 0));
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Resize(unsigned int new_capacity)
+    {
+        Array tmp(new_capacity);
+        T* data = Raw();
+        tmp.Splice(0, move(data), min(Size(), new_capacity));
+        swap(*this, tmp);
+        return Capacity();
+    }
+
+    template<typename T>
+    typename Array<T>::ConstIterator Array<T>::Begin() const noexcept
+    {
+        return Raw();
+    }
+
+    template<typename T>
+    typename Array<T>::Iterator Array<T>::Begin() noexcept
+    {
+        return Raw();
+    }
+
+    template<typename T>
+    typename Array<T>::ConstIterator Array<T>::End() const noexcept
+    {
+        return Raw() + Size();
+    }
+
+    template<typename T>
+    typename Array<T>::Iterator Array<T>::End() noexcept
+    {
+        return Raw() + Size();
+    }
+
+    template<typename T>
+    typename Array<T>::ConstIterator Array<T>::At(unsigned int position) const noexcept
+    {
+        return Raw() + position;
+    }
+
+    template<typename T>
+    typename Array<T>::Iterator Array<T>::At(unsigned int position) noexcept
+    {
+        return Raw() + position;
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Push(const T& element)
+    {
+        return Push(&element, 1);
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Push(T&& element)
+    {
+        return Push(static_cast<T*&&>(&element), 1);
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Push(T const* elements, unsigned int count)
+    {
+        unsigned int old_size = Size();
+        Splice(Size(), elements, count);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Push(T*&& elements, unsigned int count)
+    {
+        unsigned int old_size = Size();
+        Splice(Size(), move(elements), count);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Insert(const T& element)
+    {
+        return Insert(&element, 1);
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Insert(T&& element)
+    {
+        return Insert(static_cast<T*&&>(&element), 1);
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Insert(T const* elements, unsigned int count)
+    {
+        unsigned int old_size = Size();
+        Splice(0, elements, count);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Insert(T*&& elements, unsigned int count)
+    {
+        unsigned int old_size = Size();
+        Splice(0, move(elements), count);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    inline unsigned int Array<T>::Clear()
+    {
+        return Delete();
+    }
+
+    template<typename T>
+    inline unsigned int Array<T>::Delete()
+    {
+        return Delete(Size());
+    }
+
+    template<typename T>
+    inline unsigned int Array<T>::Delete(int count)
+    {
+        unsigned int from = 0;
+        unsigned int to = count;
+        if(count < 0)
+        {
+            from = (unsigned int)-count > Size() ? 0 : Size() + count;
+            to = min((unsigned int)-count, Size());
+        }
+        return Delete(from, to);
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Delete(unsigned int from, unsigned int to)
+    {
+        unsigned int old_size = Size();
+        if(from > to){
+            swap(from, to);
+            from++;
+            to++;
+        }
+        Splice(from, to - from);
+        return old_size - Size();
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Insert(unsigned int position, const T& element)
+    {
+        return Insert(position, &element, 1);
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Insert(unsigned int position, T const* elements, unsigned int count)
+    {
+        unsigned int old_size = Size();
+        Splice(position, 0, elements, count);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Insert(unsigned int position, T&&element)
+    {
+        return Insert(position, (T*&&)&element, 1);
+    }
+
+    template<typename T>
+    unsigned int Array<T>::Insert(unsigned int position, T* &&elements, unsigned int count)
+    {
+        unsigned int old_size = Size();
+        Splice(position, 0, move(elements), count);
+        return Size() - old_size;
+    }
+    //endregion
 }
 
-#endif //TEMPLATES_ARRAY_H_H
+#endif //TEMPLATES_ARRAY_H

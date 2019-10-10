@@ -10,8 +10,8 @@ TEST_CASE("Should copy array", "[Array][Assignment]") {
     Array<int> instance(array, 5);
     Array<int> second(10);
     second = instance;
-    REQUIRE(!instance.IsEmpty());
-    REQUIRE(!second.IsEmpty());
+    REQUIRE(!instance.Empty());
+    REQUIRE(!second.Empty());
     REQUIRE(instance.Size() == 5);
     REQUIRE(second.Size() == 5);
     REQUIRE(instance.Capacity() >= 5);
@@ -35,8 +35,8 @@ TEST_CASE("Should move array by assignment operator", "[Array][Assignment]") {
     Array<int> instance(array, 5);
     Array<int> second(10);
     second = move(instance);
-    REQUIRE(instance.IsEmpty());
-    REQUIRE(!second.IsEmpty());
+    REQUIRE(instance.Empty());
+    REQUIRE(!second.Empty());
     REQUIRE(instance.Size() == 0);
     REQUIRE(second.Size() == 5);
     REQUIRE(instance.Capacity() >= 0);
@@ -107,10 +107,10 @@ TEST_CASE("Array should stay valid even after exception in copy assignment", "[A
     }
     catch(...)
     {}
-    REQUIRE(!instance1.IsEmpty());
+    REQUIRE(!instance1.Empty());
     REQUIRE(instance1.Size() == 5);
     REQUIRE(instance1.Capacity() >= 5);
-    REQUIRE(instance2.IsEmpty());
+    REQUIRE(instance2.Empty());
     REQUIRE(instance2.Size() == 0);
     REQUIRE(instance2.Capacity() >= 0);
 }

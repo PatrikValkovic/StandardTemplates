@@ -13,7 +13,7 @@ TEST_CASE("Array of ints should delete one value in the middle", "[Array][Splice
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(10, 1, nullptr, 0);
+    instance.Splice(10, 1, (const int*)nullptr, 0);
 
     REQUIRE(instance.Size() == 14);
     REQUIRE(instance.Capacity() == capacity);
@@ -28,7 +28,7 @@ TEST_CASE("Array of ints should delete one value in the beginning", "[Array][Spl
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(0, 1, nullptr, 0);
+    instance.Splice(0, 1, (const int*)nullptr, 0);
 
     REQUIRE(instance.Size() == 14);
     REQUIRE(instance.Capacity() == capacity);
@@ -41,7 +41,7 @@ TEST_CASE("Array of ints should delete one value in the end", "[Array][Splice]")
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(instance.Size() - 1, 1, nullptr, 0);
+    instance.Splice(instance.Size() - 1, 1, (const int*)nullptr, 0);
 
     REQUIRE(instance.Size() == 14);
     REQUIRE(instance.Capacity() == capacity);
@@ -57,7 +57,7 @@ TEST_CASE("Array of ints should delete three values in the middle", "[Array][Spl
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(10, 3, nullptr, 0);
+    instance.Splice(10, 3, (const int*)nullptr, 0);
 
     REQUIRE(instance.Size() == 12);
     REQUIRE(instance.Capacity() == capacity);
@@ -72,7 +72,7 @@ TEST_CASE("Array of ints should delete three values in the beginning", "[Array][
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(0, 3, nullptr, 0);
+    instance.Splice(0, 3, (const int*)nullptr, 0);
 
     REQUIRE(instance.Size() == 12);
     REQUIRE(instance.Capacity() == capacity);
@@ -85,7 +85,7 @@ TEST_CASE("Array of ints should delete three values in the end", "[Array][Splice
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(instance.Size() - 3, 3, nullptr, 0);
+    instance.Splice(instance.Size() - 3, 3, (const int*)nullptr, 0);
 
     REQUIRE(instance.Size() == 12);
     REQUIRE(instance.Capacity() == capacity);
@@ -101,7 +101,7 @@ TEST_CASE("Array of ints should delete three values in the end", "[Array][Splice
 TEST_CASE("Array of ints should insert one value in the middle", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(10, 0, OriginalArray, 1);
+    instance.Splice(10, 0, (const int*)OriginalArray, 1);
 
     REQUIRE(instance.Size() == 16);
     REQUIRE(instance.Capacity() >= 16);
@@ -116,7 +116,7 @@ TEST_CASE("Array of ints should insert one value in the middle", "[Array][Splice
 TEST_CASE("Array of ints should insert one value in the beginning", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(0, 0, OriginalArray, 1);
+    instance.Splice(0, 0, (const int*)OriginalArray, 1);
 
     REQUIRE(instance.Size() == 16);
     REQUIRE(instance.Capacity() >= 16);
@@ -129,7 +129,7 @@ TEST_CASE("Array of ints should insert one value in the beginning", "[Array][Spl
 TEST_CASE("Array of ints should insert one value in the end", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(instance.Size(), 0, OriginalArray, 1);
+    instance.Splice(instance.Size(), 0, (const int*)OriginalArray, 1);
 
     REQUIRE(instance.Size() == 16);
     REQUIRE(instance.Capacity() >= 16);
@@ -142,7 +142,7 @@ TEST_CASE("Array of ints should insert one value in the end", "[Array][Splice]")
 TEST_CASE("Array of ints should insert one value before the end", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(instance.Size()-1, 0, OriginalArray, 1);
+    instance.Splice(instance.Size()-1, 0, (const int*)OriginalArray, 1);
 
     REQUIRE(instance.Size() == 16);
     REQUIRE(instance.Capacity() >= 16);
@@ -159,7 +159,7 @@ TEST_CASE("Array of ints should insert one value before the end", "[Array][Splic
 TEST_CASE("Array of ints should insert three values in the middle", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(10, 0, SecondArray, 3);
+    instance.Splice(10, 0, (const int*)SecondArray, 3);
 
     REQUIRE(instance.Size() == 18);
     REQUIRE(instance.Capacity() >= 18);
@@ -175,7 +175,7 @@ TEST_CASE("Array of ints should insert three values in the middle", "[Array][Spl
 TEST_CASE("Array of ints should insert three values in the beginning", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(0, 0, SecondArray, 3);
+    instance.Splice(0, 0, (const int*)SecondArray, 3);
 
     REQUIRE(instance.Size() == 18);
     REQUIRE(instance.Capacity() >= 18);
@@ -189,7 +189,7 @@ TEST_CASE("Array of ints should insert three values in the beginning", "[Array][
 TEST_CASE("Array of ints should insert three values in the end", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(instance.Size(), 0, SecondArray, 3);
+    instance.Splice(instance.Size(), 0, (const int*)SecondArray, 3);
 
     REQUIRE(instance.Size() == 18);
     REQUIRE(instance.Capacity() >= 18);
@@ -203,7 +203,7 @@ TEST_CASE("Array of ints should insert three values in the end", "[Array][Splice
 TEST_CASE("Array of ints should insert three values before the end", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(instance.Size()-1, 0, SecondArray, 3);
+    instance.Splice(instance.Size()-1, 0, (const int*)SecondArray, 3);
 
     REQUIRE(instance.Size() == 18);
     REQUIRE(instance.Capacity() >= 18);
@@ -222,7 +222,7 @@ TEST_CASE("Array of ints should delete one value and insert one value in the mid
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(10, 1, OriginalArray, 1);
+    instance.Splice(10, 1, (const int*)OriginalArray, 1);
 
     REQUIRE(instance.Size() == 15);
     REQUIRE(instance.Capacity() == capacity);
@@ -238,7 +238,7 @@ TEST_CASE("Array of ints should delete one value and insert one value in the beg
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(0, 1, SecondArray, 1);
+    instance.Splice(0, 1,(const int*) SecondArray, 1);
 
     REQUIRE(instance.Size() == 15);
     REQUIRE(instance.Capacity() == capacity);
@@ -251,7 +251,7 @@ TEST_CASE("Array of ints should delete one value and insert one value in the beg
 TEST_CASE("Array of ints should delete one value and insert one value in the end", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(instance.Size(), 1, SecondArray, 1);
+    instance.Splice(instance.Size(), 1, (const int*)SecondArray, 1);
 
     REQUIRE(instance.Size() == 16);
     REQUIRE(instance.Capacity() >= 16);
@@ -265,7 +265,7 @@ TEST_CASE("Array of ints should delete one value and insert one value before the
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(instance.Size()-1, 1, SecondArray, 1);
+    instance.Splice(instance.Size()-1, 1, (const int*)SecondArray, 1);
 
     REQUIRE(instance.Size() == 15);
     REQUIRE(instance.Capacity() == capacity);
@@ -280,7 +280,7 @@ TEST_CASE("Array of ints should delete one value and insert one value before the
 TEST_CASE("Array of ints should delete one value and insert three values in the middle", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(10, 1, SecondArray, 3);
+    instance.Splice(10, 1, (const int*)SecondArray, 3);
 
     REQUIRE(instance.Size() == 17);
     REQUIRE(instance.Capacity() >= 17);
@@ -296,7 +296,7 @@ TEST_CASE("Array of ints should delete one value and insert three values in the 
 TEST_CASE("Array of ints should delete one value and insert three values in the beginning", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(0, 1, SecondArray, 3);
+    instance.Splice(0, 1,(const int*) SecondArray, 3);
 
     REQUIRE(instance.Size() == 17);
     REQUIRE(instance.Capacity() >= 17);
@@ -310,7 +310,7 @@ TEST_CASE("Array of ints should delete one value and insert three values in the 
 TEST_CASE("Array of ints should delete one value and insert three values in the end", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(instance.Size(), 1, SecondArray, 3);
+    instance.Splice(instance.Size(), 1, (const int*)SecondArray, 3);
 
     REQUIRE(instance.Size() == 18);
     REQUIRE(instance.Capacity() >= 18);
@@ -324,7 +324,7 @@ TEST_CASE("Array of ints should delete one value and insert three values in the 
 TEST_CASE("Array of ints should delete one value and insert three values before the end", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(instance.Size()-1, 1, SecondArray, 3);
+    instance.Splice(instance.Size()-1, 1, (const int*)SecondArray, 3);
 
     REQUIRE(instance.Size() == 17);
     REQUIRE(instance.Capacity() >= 17);
@@ -341,7 +341,7 @@ TEST_CASE("Array of ints should delete three value and insert one value in the m
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(10, 3, SecondArray, 1);
+    instance.Splice(10, 3, (const int*)SecondArray, 1);
 
     REQUIRE(instance.Size() == 13);
     REQUIRE(instance.Capacity() == capacity);
@@ -358,7 +358,7 @@ TEST_CASE("Array of ints should delete three values and insert one value in the 
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(0, 3, SecondArray, 1);
+    instance.Splice(0, 3, (const int*)SecondArray, 1);
 
     REQUIRE(instance.Size() == 13);
     REQUIRE(instance.Capacity() == capacity);
@@ -372,7 +372,7 @@ TEST_CASE("Array of ints should delete three values and insert one value in the 
 TEST_CASE("Array of ints should delete three values and insert one value in the end", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(instance.Size(), 3, SecondArray, 1);
+    instance.Splice(instance.Size(), 3, (const int*)SecondArray, 1);
 
     REQUIRE(instance.Size() == 16);
     REQUIRE(instance.Capacity() >= 16);
@@ -387,7 +387,7 @@ TEST_CASE("Array of ints should delete three values and insert one value before 
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(instance.Size()-3, 3, SecondArray, 1);
+    instance.Splice(instance.Size()-3, 3, (const int*)SecondArray, 1);
 
     REQUIRE(instance.Size() == 13);
     REQUIRE(instance.Capacity() == capacity);
@@ -404,7 +404,7 @@ TEST_CASE("Array of ints should delete four value and insert three values in the
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(10, 4, SecondArray, 3);
+    instance.Splice(10, 4, (const int*)SecondArray, 3);
 
     REQUIRE(instance.Size() == 14);
     REQUIRE(instance.Capacity() == capacity);
@@ -421,7 +421,7 @@ TEST_CASE("Array of ints should delete four values and insert three values in th
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(0, 4, SecondArray, 3);
+    instance.Splice(0, 4, (const int*)SecondArray, 3);
 
     REQUIRE(instance.Size() == 14);
     REQUIRE(instance.Capacity() == capacity);
@@ -435,7 +435,7 @@ TEST_CASE("Array of ints should delete four values and insert three values in th
 TEST_CASE("Array of ints should delete four values and insert three values in the end", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
 
-    instance.Splice(instance.Size(), 4, SecondArray, 3);
+    instance.Splice(instance.Size(), 4, (const int*)SecondArray, 3);
 
     REQUIRE(instance.Size() == 18);
     REQUIRE(instance.Capacity() >= 18);
@@ -450,7 +450,7 @@ TEST_CASE("Array of ints should delete four values and insert three values befor
     Array<int> instance(OriginalArray, 15);
     int capacity = instance.Capacity();
 
-    instance.Splice(instance.Size()-4, 4, SecondArray, 3);
+    instance.Splice(instance.Size()-4, 4, (const int*)SecondArray, 3);
 
     REQUIRE(instance.Size() == 14);
     REQUIRE(instance.Capacity() == capacity);
@@ -463,11 +463,11 @@ TEST_CASE("Array of ints should delete four values and insert three values befor
 //endregion
 
 
-TEST_CASE("Splice with negative index should throw a exception", "[Array][SpliceSafe]") {
+TEST_CASE("Splice with negative index should throw a exception", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
     try
     {
-        instance.Splice(-2, 3, nullptr, 0);
+        instance.Splice(-2, 3, (const int*)nullptr, 0);
         REQUIRE(false);
     }
     catch(OutOfRangeException&)
@@ -476,11 +476,11 @@ TEST_CASE("Splice with negative index should throw a exception", "[Array][Splice
     }
 }
 
-TEST_CASE("Splice with big index should throw a exception", "[Array][SpliceSafe]") {
+TEST_CASE("Splice with big index should throw a exception", "[Array][Splice]") {
     Array<int> instance(OriginalArray, 15);
     try
     {
-        instance.Splice(20, 3, nullptr, 0);
+        instance.Splice(20, 3, (const int*)nullptr, 0);
         REQUIRE(false);
     }
     catch(OutOfRangeException&)
