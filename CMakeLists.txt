@@ -29,7 +29,7 @@ set(SOURCE_FILES
         src/Basis.h
 		src/Meta.h
         src/UniquePointer.h
-        src/SharedPointer.h)
+        src/SharedPointer.h src/1ewArray.h)
 set(TEST_FILES
         test/AlgorithmsTests.cpp
         test/BinaryHeapTests.cpp

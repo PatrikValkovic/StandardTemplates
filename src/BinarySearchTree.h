@@ -100,7 +100,7 @@ namespace Templates
                 return *this;
 
             this->Clear();
-            this->BinarySearchTree(Second);
+            //this->BinarySearchTree(Second);
             return *this;
         }
 
