@@ -20,8 +20,15 @@ namespace Templates
         unsigned int _allocated{};
         unsigned int _size{};
 
-        template<int EXPAND = 2>
-        void SpliceCommon(unsigned int position, unsigned int to_delete, unsigned int to_insert);
+        /**
+         * Perform common operations for Splice - delete `to_delete` elements from `position` and move all elements from `position+to_delete` to `position_to_insert`.
+         * The `expand_ratio` set how much the array should expand.
+         * @param position Position where to delete and insert elements.
+         * @param to_delete Number of elements to delete.
+         * @param to_insert Number of elements to insert.
+         * @param expand_ratio How much increase size of the array.
+         */
+        void SpliceCommon(unsigned int position, unsigned int to_delete, unsigned int to_insert, float expand_ratio = 2.0);
     public:
         using ConstIterator = const T*;
         using Iterator = T*;
@@ -161,23 +168,26 @@ namespace Templates
          * @param to_delete Number of elements to delete.
          * @param elements Array of elements to insert.
          * @param to_insert Number of elements to insert.
+         * @param expand_ratio How much expand the array when resizing.
          */
-        void Splice(unsigned int position, unsigned int to_delete, T const* elements, unsigned int to_insert);
+        void Splice(unsigned int position, unsigned int to_delete, T const* elements, unsigned int to_insert, float expand_ratio = 2.0);
         /**
          * From the position `position`, remove `to_delete` elements.
          * If size of inserted elements is higher then number of deleted elements, the array is shifted (as well as the other way around).
          * @param position Position where to delete and insert elements.
          * @param to_delete Number of elements to delete..
+         * @param expand_ratio How much expand the array when resizing.
          */
-        void Splice(unsigned int position, unsigned int to_delete);
+        void Splice(unsigned int position, unsigned int to_delete, float expand_ratio = 2.0);
         /**
          * From the position `position`, insert `to_insert` elements (by copy) from `elements` array.
          * If size of inserted elements is higher then number of deleted elements, the array is shifted (as well as the other way around).
          * @param position Position where to delete and insert elements.
          * @param elements Array of elements to insert.
          * @param to_insert Number of elements to insert.
+         * @param expand_ratio How much expand the array when resizing.
          */
-        void Splice(unsigned int position, T const* elements, unsigned int to_insert);
+        void Splice(unsigned int position, T const* elements, unsigned int to_insert, float expand_ratio = 2.0);
         /**
          * From the position `position`, remove `to_delete` elements and then insert `to_insert` elements (by copy) from `elements` array.
          * If size of inserted elements is higher then number of deleted elements, the array is shifted (as well as the other way around).
@@ -186,8 +196,9 @@ namespace Templates
          * @param to_delete Number of elements to delete.
          * @param elements Array of elements to insert.
          * @param to_insert Number of elements to insert.
+         * @param expand_ratio How much expand the array when resizing.
          */
-        void Splice(unsigned int position, unsigned int to_delete, T*&& elements, unsigned int to_insert);
+        void Splice(unsigned int position, unsigned int to_delete, T*&& elements, unsigned int to_insert, float expand_ratio = 2.0);
         /**
          * From the position `position`, insert `to_insert` elements (by move) from `elements` array.
          * If size of inserted elements is higher then number of deleted elements, the array is shifted (as well as the other way around).
@@ -195,8 +206,9 @@ namespace Templates
          * @param position Position where to delete and insert elements.
          * @param elements Array of elements to insert.
          * @param to_insert Number of elements to insert.
+         * @param expand_ratio How much expand the array when resizing.
          */
-        void Splice(unsigned int position, T*&& elements, unsigned int to_insert);
+        void Splice(unsigned int position, T*&& elements, unsigned int to_insert, float expand_ratio = 2.0);
         //endregion
 
         //region inserting
@@ -428,59 +440,68 @@ namespace Templates
     }
 
     template<typename T>
-    void Array<T>::Splice(unsigned int position, T*&& elements, unsigned int to_insert)
+    void Array<T>::Splice(unsigned int position, T*&& elements, unsigned int to_insert, float expand_ratio)
     {
-        return Splice(position, 0, move(elements), to_insert);
+        return Splice(position, 0, move(elements), to_insert, expand_ratio);
     }
 
     template<typename T>
-    void Array<T>::Splice(unsigned int position, unsigned int to_delete)
+    void Array<T>::Splice(unsigned int position, unsigned int to_delete, float expand_ratio)
     {
-        return Splice(position, to_delete, static_cast<T const *>(nullptr), 0);
+        return Splice(position, to_delete, static_cast<T const*>(nullptr), 0, expand_ratio);
     }
 
     template<typename T>
-    void Array<T>::Splice(unsigned int position, T const* elements, unsigned int to_insert)
+    void Array<T>::Splice(unsigned int position, T const* elements, unsigned int to_insert, float expand_ratio)
     {
-        return Splice(position, 0, elements, to_insert);
+        return Splice(position, 0, elements, to_insert, expand_ratio);
     }
 
     template<typename T>
-    void Array<T>::Splice(unsigned int position, unsigned int to_delete, T const* elements, unsigned int to_insert)
+    void Array<T>::Splice(unsigned int position, unsigned int to_delete, T const* elements, unsigned int to_insert, float expand_ratio)
     {
         if(position > Size())
             throw OutOfRangeException("Position is bigger than size of the array", __LINE__);
-        SpliceCommon(position, to_delete, to_insert);
+        SpliceCommon(position, to_delete, to_insert, expand_ratio);
         T const* start = elements, * end = elements + to_insert;
         T* arr = Raw() + position;
         for (; start != end; start++, arr++, _size++)
             new(arr) T(*start);
+        // TODO can be copied directly
+        if(Size() < (unsigned int)((float)Capacity() / expand_ratio))
+            Resize(int((float)Capacity() / expand_ratio));
     }
 
     template<typename T>
-    void Array<T>::Splice(unsigned int position, unsigned int to_delete, T*&& elements, unsigned int to_insert)
+    void Array<T>::Splice(unsigned int position, unsigned int to_delete, T*&& elements, unsigned int to_insert, float expand_ratio)
     {
+        // TODO merge with previous method
         if(position > Size())
             throw OutOfRangeException("Position is bigger than size of the array", __LINE__);
-        SpliceCommon(position, to_delete, to_insert);
+        SpliceCommon(position, to_delete, to_insert, expand_ratio);
         T const* start = elements, * end = elements + to_insert;
         T* arr = Raw() + position;
         for (; start != end; start++, arr++, _size++)
             new (arr) T((T&&)*start);
+        // TODO can be copied directly
+        if(Size() < (unsigned int)((float)Capacity() / expand_ratio))
+            Resize(int((float)Capacity() / expand_ratio));
     }
 
     template<typename T>
-    template<int EXPAND>
-    void Array<T>::SpliceCommon(unsigned int position, unsigned int to_delete, unsigned int to_insert)
+    void Array<T>::SpliceCommon(unsigned int position, unsigned int to_delete, unsigned int to_insert, float expand_ratio)
     {
+        if(expand_ratio < 1.0)
+            throw new InvalidArgumentException("The expand ratio can't be lower then 1!", __LINE__);
         to_delete = position + to_delete > Size() ? Size() - position : to_delete;
         unsigned int remain_after = Size() - position - to_delete;
         //check if it fit
         if (position + remain_after + to_insert > Capacity())
         {
+            // TODO can copy elements directly to the correct position
             unsigned int new_capacity =
-                    position + remain_after + to_insert > EXPAND * Capacity() ? position + remain_after + to_insert :
-                    EXPAND * Capacity();
+                    position + remain_after + to_insert > (unsigned int)(expand_ratio * Capacity()) ? position + remain_after + to_insert :
+                    int(expand_ratio * Capacity());
             Resize(new_capacity);
         }
         //delete elements
@@ -649,7 +670,7 @@ namespace Templates
     unsigned int Array<T>::Push(T const* elements, unsigned int count)
     {
         unsigned int old_size = Size();
-        Splice(Size(), elements, count);
+        Splice(Size(), elements, count, 0, 0);
         return Size() - old_size;
     }
 
@@ -657,7 +678,7 @@ namespace Templates
     unsigned int Array<T>::Push(T*&& elements, unsigned int count)
     {
         unsigned int old_size = Size();
-        Splice(Size(), move(elements), count);
+        Splice(Size(), move(elements), count, 0, 0);
         return Size() - old_size;
     }
 
@@ -677,7 +698,7 @@ namespace Templates
     unsigned int Array<T>::Insert(T const* elements, unsigned int count)
     {
         unsigned int old_size = Size();
-        Splice(0, elements, count);
+        Splice(0, elements, count, 0, 0);
         return Size() - old_size;
     }
 
@@ -685,7 +706,7 @@ namespace Templates
     unsigned int Array<T>::Insert(T*&& elements, unsigned int count)
     {
         unsigned int old_size = Size();
-        Splice(0, move(elements), count);
+        Splice(0, move(elements), count, 0, 0);
         return Size() - old_size;
     }
 
@@ -723,7 +744,7 @@ namespace Templates
             from++;
             to++;
         }
-        Splice(from, to - from);
+        Splice(from, to - from, 0, 0, 0);
         return old_size - Size();
     }
 
@@ -737,7 +758,7 @@ namespace Templates
     unsigned int Array<T>::Insert(unsigned int position, T const* elements, unsigned int count)
     {
         unsigned int old_size = Size();
-        Splice(position, 0, elements, count);
+        Splice(position, 0, elements, count, 0);
         return Size() - old_size;
     }
 
@@ -751,7 +772,7 @@ namespace Templates
     unsigned int Array<T>::Insert(unsigned int position, T* &&elements, unsigned int count)
     {
         unsigned int old_size = Size();
-        Splice(position, 0, move(elements), count);
+        Splice(position, 0, move(elements), count, 0);
         return Size() - old_size;
     }
     //endregion
