@@ -30,7 +30,7 @@ set(SOURCE_FILES
         src/UniquePointer.h
         src/SharedPointer.h
         src/Array.h
-        )
+        src/NewVector.h)
 set(TEST_FILES
         test/AlgorithmsTests.cpp
         test/BinaryHeapTests.cpp

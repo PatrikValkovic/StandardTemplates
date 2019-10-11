@@ -39,7 +39,7 @@ namespace Templates
          */
         Array() noexcept;
         /**
-         * Create new array with no elements by `capacity` allocated memory.
+         * Create new array with `capacity` elements allocated in memory.
          * @param capacity Capacity to allocate.
          */
         explicit Array(unsigned int capacity);
@@ -87,9 +87,9 @@ namespace Templates
         void Swap(unsigned int first_index, unsigned int second_index);
         /**
          * Swap this instance with different one.
-         * @param NewArray Instance to swap with.
+         * @param a Instance to swap with.
          */
-        void Swap(Array&) noexcept;
+        void Swap(Array& a) noexcept;
         //endregion
 
         //region queries
