@@ -6,6 +6,7 @@
 #include "src/Array.h"
 #include "src/Queue.h"
 #include "src/Vector.h"
+#include "src/NewVector.h"
 #include "src/CondQueue.h"
 #include "src/List.h"
 #include "src/PriorityQueue.h"

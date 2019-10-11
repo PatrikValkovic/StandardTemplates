@@ -1,5 +1,6 @@
 #ifndef TEMPLATES_NEWVECTOR_H
 #define TEMPLATES_NEWVECTOR_H
+#include "Basis.h"
 
 namespace Templates
 {
@@ -14,7 +15,7 @@ namespace Templates
         unsigned int _allocated;
         template<typename TYPE, typename VECT, typename NODE>
         class BaseIterator;
-        void AllocateNode(unsigned int count);
+        void AllocateNode(unsigned int count = 1);
     public:
         class ConstIterator;
         class Iterator;
@@ -221,8 +222,12 @@ namespace Templates
         /**
          * Pointer to the next node.
          */
-        Node* next = nullptr;
     public:
+        /**
+         * Pointer to the next node.
+         */
+        Node* next = nullptr;
+
         /**
          * Return typed pointer to the memory with element.
          * @return Pointer to memory with element.
@@ -351,13 +356,15 @@ namespace Templates
         Iterator operator+(unsigned int count);
 
         /**
-         * Insert `value` after current iterator and move iterator on that element.
+         * Insert `value` at the position of current iterator and move iterator on next element.
+         * That mean the iterator stay at the same node.
          * @param value Value to insert.
          * @return Number of inserted elements.
          */
         unsigned int Insert(const T& value);
         /**
-         * Insert `value` after current iterator and move iterator on that element.
+         * Insert `value` at the position of current iterator and move iterator on next element.
+         * That mean the iterator stay at the same node.
          * @param value Value to insert.
          * @return NUmber of inserted elements.
          */
@@ -365,7 +372,7 @@ namespace Templates
         /**
          * Insert `count` values from `values` array into the vector.
          * The values are copied into the vector.
-         * The vector ends at the last inserted element.
+         * The vector ends after the last inserted element (at the same node).
          * @param values Values to insert.
          * @param count How many values insert.
          * @return Number of inserted elements.
@@ -374,7 +381,7 @@ namespace Templates
         /**
          * Insert `count` values from `values` array into the vector.
          * The values are moved into the vector, but the vector needs to be managed by the valling procedure.
-         * The vector ends at the last inserted element.
+         * The vector ends after the last inserted element (at the same node).
          * @param values Array of values to insert.
          * @param count Number of elements to insert.
          * @return Number of inserted elements.
@@ -382,8 +389,8 @@ namespace Templates
         unsigned int Insert(T* &&values, unsigned int count);
 
         /**
-         * Delete `count` elements and move iterator to the next not-deleted element.
-         * The elements are deleted only until last element in the vector.
+         * Delete `count` elements and move iterator to the next not-deleted element (including current one)
+         * The elements are deleted only until the last element in the vector.
          * @param count Number of nodes to remove.
          * @return Number of deleted elements.
          */
@@ -400,6 +407,288 @@ namespace Templates
     {
         first.Swap(second);
     }
+
+    //region implementation
+    template<typename T>
+    void NewVector<T>::AllocateNode(unsigned int count)
+    {
+        if (!_last)
+        {
+            _first = _last = new Node();
+            _allocated++;
+        }
+
+        for (unsigned int i = 0; i < count; i++)
+        {
+            Node* n = new Node();
+            n->next = _last->next;
+            _last->next = n;
+            _allocated++;
+        }
+    }
+
+    template<typename T>
+    NewVector<T>::NewVector() noexcept: _first(nullptr), _last(nullptr), _size(0), _allocated(0)
+    {}
+
+    template<typename T>
+    NewVector<T>::NewVector(unsigned int capacity) : NewVector()
+    {
+        AllocateNode(capacity);
+    }
+
+    template<typename T>
+    NewVector<T>::NewVector(T const* elements, unsigned int count) : NewVector(count)
+    {
+        Begin().Insert(elements, count);
+    }
+
+    template<typename T>
+    NewVector<T>::NewVector(T*&& elements, unsigned int count) : NewVector(count)
+    {
+        Begin().Insert(move(elements), count);
+    }
+
+    template<typename T>
+    NewVector<T>::NewVector(const NewVector& v) : NewVector(v.Size())
+    {
+        *this = v;
+    }
+
+    template<typename T>
+    NewVector<T>::NewVector(NewVector &&v) noexcept : NewVector()
+    {
+        Swap(v);
+    }
+
+    template<typename T>
+    void NewVector<T>::Swap(NewVector& v) noexcept
+    {
+        using Templates::swap;
+        swap(_first, v._last);
+        swap(_last, v._last);
+        swap(_allocated, v._allocated);
+        swap(_size, v._size);
+    }
+
+    template<typename T>
+    NewVector<T>& NewVector<T>::operator=(const NewVector& v)
+    {
+        if(this == &v)
+            return *this;
+
+        Clear();
+        Iterator working = v.Begin(), ending = v.End(), push=Begin();
+        for(; working != ending; working++)
+            push.Insert(*working);
+        return *this;
+    }
+
+    template<typename T>
+    NewVector<T>& NewVector<T>::operator=(NewVector&& v) noexcept
+    {
+        if(this == &v)
+            return *this;
+
+        Swap(*this, v);
+    }
+
+    template<typename T>
+    NewVector<T>::~NewVector()
+    {
+        Delete();
+        ShrinkToFit();
+        delete _first;
+        _first = _last = nullptr;
+        _allocated = 0;
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::Size() const noexcept
+    {
+        return _size;
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::Capacity() const noexcept
+    {
+        return _allocated == 0 ? 0 : _allocated - 1;
+    }
+
+    template<typename T>
+    bool NewVector<T>::Empty() const noexcept
+    {
+        return Size() == 0;
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::ShrinkToFit()
+    {
+        return Resize(Capacity());
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::Resize(unsigned int new_capacity)
+    {
+        // allocate more
+        if(Capacity() < new_capacity)
+            AllocateNode(new_capacity - Capacity());
+
+        // dealocate from the end
+        while(Size() < Capacity() && new_capacity < Capacity() && _last->next){
+            Node* to_delete = _last->next;
+            _last->next = _last->next->next;
+            delete to_delete;
+            _allocated--;
+        }
+        //TODO assert size == capacity
+
+        // dealocate from the beginning
+        while(new_capacity < Capacity())
+            Begin().Delete();
+
+        return Capacity();
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::ResizeBy(int resize_by)
+    {
+        return Resize(max(0, (int)Capacity() + resize_by));
+    }
+
+    template<typename T>
+    typename NewVector<T>::ConstIterator NewVector<T>::Begin() const noexcept
+    {
+        return ConstIterator(&_first, this);
+    }
+
+    template<typename T>
+    typename NewVector<T>::ConstIterator NewVector<T>::End() const noexcept
+    {
+        return ConstIterator(&_last, this);
+    }
+
+    template<typename T>
+    typename NewVector<T>::Iterator NewVector<T>::Begin() noexcept
+    {
+        return Iterator(_first, this);
+    }
+
+    template<typename T>
+    typename NewVector<T>::Iterator NewVector<T>::End() noexcept
+    {
+        return Iterator(&_last, this);
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::Push(const T& element)
+    {
+        unsigned int old_size = Size();
+        End().Insert(element);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::Push(T&& element)
+    {
+        unsigned int old_size = Size();
+        End().Insert(move(element));
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::Push(T const* elements, unsigned int count)
+    {
+        unsigned int old_size = Size();
+        End().Insert(elements, count);
+        return Size() - old_size;    }
+
+    template<typename T>
+    unsigned int NewVector<T>::Push(T*&& elements, unsigned int count)
+    {
+        unsigned int old_size = Size();
+        End().Insert(move(elements), count);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::Insert(const T& element)
+    {
+        unsigned int old_size = Size();
+        Begin().Insert(element);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::Insert(T&& element)
+    {
+        unsigned int old_size = Size();
+        Begin().Insert(move(element));
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::Insert(T const* elements, unsigned int count)
+    {
+        unsigned int old_size = Size();
+        Begin().Insert(elements, count);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::Insert(T*&& elements, unsigned int count)
+    {
+        unsigned int old_size = Size();
+        Begin().Insert(move(elements), count);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::Clear()
+    {
+        return Delete();
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::Delete()
+    {
+        return Delete(Size());
+    }
+
+    template<typename T>
+    unsigned int NewVector<T>::Delete(unsigned int count)
+    {
+        return Begin().Delete(count);
+    }
+
+    template<typename T>
+    template<typename TYPE, typename VECT, typename NODE>
+    bool NewVector<T>::BaseIterator<TYPE, VECT, NODE>::operator==(const NewVector<T>::BaseIterator<TYPE, VECT, NODE>& v) const noexcept
+    {
+        return *_node == *v._node;
+    }
+
+    template<typename T>
+    template<typename TYPE, typename VECT, typename NODE>
+    bool NewVector<T>::BaseIterator<TYPE, VECT, NODE>::operator!=(const NewVector<T>::BaseIterator<TYPE, VECT, NODE>& v) const noexcept
+    {
+        return !(*this == v);
+    }
+
+    template<typename T>
+    template<typename TYPE, typename VECT, typename NODE>
+    void NewVector<T>::BaseIterator<TYPE, VECT, NODE>::Beginning() noexcept
+    {
+        _node = &(_vector->_first);
+    }
+
+    template<typename T>
+    template<typename TYPE, typename VECT, typename NODE>
+    void NewVector<T>::BaseIterator<TYPE, VECT, NODE>::End() noexcept
+    {
+        _node = &(_vector->_last);
+    }
+    //endregion
 }
 
 #endif //TEMPLATES_NEWVECTOR_H
