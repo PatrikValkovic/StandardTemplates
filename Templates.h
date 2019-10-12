@@ -19,5 +19,6 @@
 #include "src/Algorithms.h"
 #include "src/UniquePointer.h"
 #include "src/SharedPointer.h"
+#include "src/Interval.h"
 
 #endif //TEMPLATES_TEMPLATES_H

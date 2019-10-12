@@ -415,13 +415,15 @@ namespace Templates
          */
         T* ToArray(int& Count) const
         {
+            //TODO optimize
             Vector<T> ArrayTemp;
             ToArrayRecursive(ArrayTemp, this->Root);
-            Array<T> arr = ArrayTemp.ToArray();
-            T* array = new T[arr.Size()];
-            Count = arr.Size();
-            for(int i=0;i<Count;i++)
-                array[i] = arr[i];
+            Count = ArrayTemp.Size();
+            T* array = new T[Count];
+            typename Vector<T>::ConstIterator from = ArrayTemp.Begin(), from_end = ArrayTemp.End();
+            T* to = array;
+            for (;from != from_end;from++, to++)
+                *to = *from;
             return array;
         }
 

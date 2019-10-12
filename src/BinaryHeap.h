@@ -167,7 +167,7 @@ namespace Templates
                 return false;
 
             this->Container->Swap(Container->Size() - 1, 0);
-            this->Container->DeleteFromEnd(1);
+            this->Container->Delete(-1);
             this->DowngradeRepairHeap(0);
 
             return true;

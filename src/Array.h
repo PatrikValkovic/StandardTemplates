@@ -670,7 +670,7 @@ namespace Templates
     unsigned int Array<T>::Push(T const* elements, unsigned int count)
     {
         unsigned int old_size = Size();
-        Splice(Size(), elements, count, 0, 0);
+        Splice(Size(), elements, count);
         return Size() - old_size;
     }
 
@@ -678,7 +678,7 @@ namespace Templates
     unsigned int Array<T>::Push(T*&& elements, unsigned int count)
     {
         unsigned int old_size = Size();
-        Splice(Size(), move(elements), count, 0, 0);
+        Splice(Size(), move(elements), count);
         return Size() - old_size;
     }
 
@@ -698,7 +698,7 @@ namespace Templates
     unsigned int Array<T>::Insert(T const* elements, unsigned int count)
     {
         unsigned int old_size = Size();
-        Splice(0, elements, count, 0, 0);
+        Splice(0, elements, count);
         return Size() - old_size;
     }
 
@@ -706,7 +706,7 @@ namespace Templates
     unsigned int Array<T>::Insert(T*&& elements, unsigned int count)
     {
         unsigned int old_size = Size();
-        Splice(0, move(elements), count, 0, 0);
+        Splice(0, move(elements), count);
         return Size() - old_size;
     }
 
@@ -744,7 +744,7 @@ namespace Templates
             from++;
             to++;
         }
-        Splice(from, to - from, 0, 0, 0);
+        Splice(from, to - from);
         return old_size - Size();
     }
 
@@ -758,7 +758,7 @@ namespace Templates
     unsigned int Array<T>::Insert(unsigned int position, T const* elements, unsigned int count)
     {
         unsigned int old_size = Size();
-        Splice(position, 0, elements, count, 0);
+        Splice(position, 0, elements, count);
         return Size() - old_size;
     }
 
@@ -772,7 +772,7 @@ namespace Templates
     unsigned int Array<T>::Insert(unsigned int position, T* &&elements, unsigned int count)
     {
         unsigned int old_size = Size();
-        Splice(position, 0, move(elements), count, 0);
+        Splice(position, 0, move(elements), count);
         return Size() - old_size;
     }
     //endregion
