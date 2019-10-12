@@ -13,7 +13,7 @@ namespace Templates
         Node* _last;
         unsigned int _size;
         unsigned int _allocated;
-        template<typename TYPE, typename VECT, typename NODE>
+        template<typename VECT, typename NODE>
         class BaseIterator;
         void AllocateNode(unsigned int count = 1);
     public:
@@ -275,85 +275,155 @@ namespace Templates
     };
 
     template<typename T>
-    template<typename TYPE, typename VECT, typename NODE>
+    template<typename VECT, typename NODE>
     class NewVector<T>::BaseIterator
     {
     protected:
         NODE** _node = nullptr;
         VECT* _vector = nullptr;
     public:
-        bool operator==(const BaseIterator&) const noexcept;
-        bool operator!=(const BaseIterator&) const noexcept;
-        const T& operator*() const;
-        T const * operator->() const noexcept;
+        bool operator==(const BaseIterator& v) const noexcept
+        {
+            return *_node == *v._node;
+        }
+        bool operator!=(const BaseIterator& v) const noexcept
+        {
+            return !(*this == v);
+        }
+        const T& operator*() const
+        {
+            return (*_node)->v();
+        }
+        T const * operator->() const noexcept
+        {
+            return (*_node)->p();
+        }
         /**
          * Move iterator to the beginning of the vector.
          */
-        void Beginning() noexcept;
+        void Begin() noexcept
+        {
+            _node = &(_vector->_first);
+        }
         /**
          * Move iterator to the end of the vector.
          */
-        void End() noexcept;
+        void End() noexcept
+        {
+            _node = &(_vector->_last);
+        }
     };
 
     template<typename T>
-    class NewVector<T>::ConstIterator: public NewVector<T>::BaseIterator<const T, const NewVector<T>, const NewVector<T>::Node>
+    class NewVector<T>::ConstIterator : public NewVector<T>::template BaseIterator<const NewVector<T>, const NewVector<T>::Node>
     {
     public:
         ConstIterator() noexcept = default;
-        ConstIterator(const Node* &n, const NewVector* vect) noexcept;
+        ConstIterator(const Node* &n, const NewVector* vect) noexcept
+        {
+            this->_node = &n;
+            this->_vector = vect;
+        }
         ConstIterator(const ConstIterator&) noexcept = default;
         ConstIterator(ConstIterator&&) noexcept = default;
         ConstIterator& operator=(const ConstIterator&) = default;
-        ConstIterator& operator=(const ConstIterator&&) = default;
+        ConstIterator& operator=(ConstIterator&&) noexcept = default;
 
         /**
          * Move iterator to the next node.
          * @return This iterator on the next node.
          */
-        ConstIterator& operator++();
+        ConstIterator& operator++()
+        {
+            this->_node = &((*this->_node)->next);
+            return *this;
+        }
         /**
          * Move iterator to the next node.
          * @return Iterator to the previous node.
          */
-        ConstIterator operator++(int);
+        ConstIterator operator++(int)
+        {
+            const ConstIterator &c = *this;
+            ConstIterator tmp(c);
+            (*this)++;
+            return tmp;
+        }
         /**
          * Move iterator `count` nodes ahead.
          * @return Iterator to the node `count` nodes ahead.
          */
-        ConstIterator operator+(unsigned int count);
+        ConstIterator operator+(unsigned int count)
+        {
+            const ConstIterator &c = *this;
+            ConstIterator tmp(c);
+            for(unsigned int i=0; i < count; i++)
+                tmp++;
+            return tmp;
+        }
     };
 
     template<typename T>
-    class NewVector<T>::Iterator: public NewVector<T>::BaseIterator<T, NewVector<T>, NewVector<T>::Node>
+    class NewVector<T>::Iterator: public NewVector<T>::template BaseIterator<NewVector<T>, NewVector<T>::Node>
     {
     public:
         Iterator() noexcept = default;
-        Iterator(const Node* &n, const NewVector* vect) noexcept;
+        Iterator(Node* &n, NewVector* vect) noexcept
+        {
+            this->_node = &n;
+            this->_vector = vect;
+        }
         Iterator(const Iterator&) noexcept = default;
         Iterator(Iterator&&) noexcept = default;
         Iterator& operator=(const Iterator&) = default;
-        Iterator& operator=(const Iterator&&) = default;
-        operator ConstIterator() const noexcept;
+        Iterator& operator=(Iterator&&) = default;
+        operator ConstIterator() const noexcept
+        {
+            return ConstIterator(*(this->_node), this->_vector);
+        }
 
-        T& operator*();
-        T* operator->() noexcept;
+        T& operator*()
+        {
+            return (*(this->_node))->v();
+        }
+        T* operator->() noexcept
+        {
+            return (*(this->_node))->p();
+        }
 
         /**
          * Move iterator to the next node.
          * @return This iterator on the next node.
          */
-        Iterator& operator++();
+        Iterator& operator++()
+        {
+            this->_node = &((*this->_node)->next);
+            return *this;
+        }
         /**
          * Move iterator to the next node.
          * @return Iterator to the previous node.
          */
-        Iterator operator++(int);
+        const Iterator operator++(int)
+        {
+            const ConstIterator &c = *this;
+            ConstIterator tmp(c);
+            (*this)++;
+            return tmp;
+        }
         /**
          * Move iterator `count` nodes ahead.
          * @return Iterator to the node `count` nodes ahead.
          */
-        Iterator operator+(unsigned int count);
+        Iterator operator+(unsigned int count)
+        {
+            const ConstIterator &c = *this;
+            ConstIterator tmp(c);
+            for(unsigned int i=0; i < count; i++)
+                tmp++;
+            return tmp;
+        }
+
 
         /**
          * Insert `value` at the position of current iterator and move iterator on next element.
@@ -361,14 +431,54 @@ namespace Templates
          * @param value Value to insert.
          * @return Number of inserted elements.
          */
-        unsigned int Insert(const T& value);
+        unsigned int Insert(const T& value)
+        {
+            Node** n = this->_node;
+            NewVector<T>* v = this->_vect;
+            // check size
+            if(Size() + 1 >= Capacity())
+                AllocateNode();
+            // move empty node
+            if(*n != v->_last){
+                Node* after_last = v->_last->next;
+                v->_last->next = after_last->next;
+                after_last->next = *n;
+                *n = after_last;
+            }
+            // construct the element
+            new ((*n)->p()) T(value);
+            v->_size++;
+            // move iterator
+            this->_node = &((*(this->_node))->next);
+            return 1;
+        }
         /**
          * Insert `value` at the position of current iterator and move iterator on next element.
          * That mean the iterator stay at the same node.
          * @param value Value to insert.
          * @return NUmber of inserted elements.
          */
-        unsigned int Insert(T&& value);
+        unsigned int Insert(T&& value)
+        {
+            Node** n = this->_node;
+            NewVector<T>* v = this->_vect;
+            // check size
+            if(Size() + 1 >= Capacity())
+                AllocateNode();
+            // move empty node
+            if(*n != v->_last){
+                Node* after_last = v->_last->next;
+                v->_last->next = after_last->next;
+                after_last->next = *n;
+                *n = after_last;
+            }
+            // construct the element
+            new ((*n)->p()) T(move(value));
+            v->_size++;
+            // move iterator
+            this->_node = &((*(this->_node))->next);
+            return 1;
+        }
         /**
          * Insert `count` values from `values` array into the vector.
          * The values are copied into the vector.
@@ -377,7 +487,20 @@ namespace Templates
          * @param count How many values insert.
          * @return Number of inserted elements.
          */
-        unsigned int Insert(T const * values, unsigned int count);
+        unsigned int Insert(T const * values, unsigned int count)
+        {
+            Vector<T>* v = this->_vect;
+            // allocate nodes
+            if(v->Size() + count >= v->Capacity())
+                v->Resize(Size() + count);
+            // insert elements
+            unsigned int old_size = v->Size();
+            T const *from = values, *ends = values + count;
+            for(;from != ends; from++)
+                Insert(*from);
+            return Size() - old_size;
+        }
+
         /**
          * Insert `count` values from `values` array into the vector.
          * The values are moved into the vector, but the vector needs to be managed by the valling procedure.
@@ -386,7 +509,22 @@ namespace Templates
          * @param count Number of elements to insert.
          * @return Number of inserted elements.
          */
-        unsigned int Insert(T* &&values, unsigned int count);
+        unsigned int Insert(T* &&values, unsigned int count)
+        {
+            Vector<T>* v = this->_vect;
+            // allocate nodes
+            if(v->Size() + count >= v->Capacity())
+                v->Resize(Size() + count);
+            // insert elements
+            unsigned int old_size = v->Size();
+            T *from = values, *ends = values + count;
+            for(;from != ends; from++)
+            {
+                T& value = *from;
+                Insert(move(value));
+            }
+            return Size() - old_size;
+        }
 
         /**
          * Delete `count` elements and move iterator to the next not-deleted element (including current one)
@@ -394,7 +532,22 @@ namespace Templates
          * @param count Number of nodes to remove.
          * @return Number of deleted elements.
          */
-        unsigned int Delete(unsigned int count = 1);
+        unsigned int Delete(unsigned int count = 1)
+        {
+            Node** n = this->_node;
+            Vector<T>* v = this->_vect;
+
+            unsigned int old_size = v->Size();
+            for(unsigned int i=0; i < count && *this != v->End(); i++)
+            {
+                Node* next = (*n)->n();
+                Node* to_delete = *n;
+                *n = next;
+                to_delete->v().~T();
+                v->_size--;
+            }
+            return v->Size() - old_size;
+        }
     };
 
     /**
@@ -659,34 +812,6 @@ namespace Templates
     unsigned int NewVector<T>::Delete(unsigned int count)
     {
         return Begin().Delete(count);
-    }
-
-    template<typename T>
-    template<typename TYPE, typename VECT, typename NODE>
-    bool NewVector<T>::BaseIterator<TYPE, VECT, NODE>::operator==(const NewVector<T>::BaseIterator<TYPE, VECT, NODE>& v) const noexcept
-    {
-        return *_node == *v._node;
-    }
-
-    template<typename T>
-    template<typename TYPE, typename VECT, typename NODE>
-    bool NewVector<T>::BaseIterator<TYPE, VECT, NODE>::operator!=(const NewVector<T>::BaseIterator<TYPE, VECT, NODE>& v) const noexcept
-    {
-        return !(*this == v);
-    }
-
-    template<typename T>
-    template<typename TYPE, typename VECT, typename NODE>
-    void NewVector<T>::BaseIterator<TYPE, VECT, NODE>::Beginning() noexcept
-    {
-        _node = &(_vector->_first);
-    }
-
-    template<typename T>
-    template<typename TYPE, typename VECT, typename NODE>
-    void NewVector<T>::BaseIterator<TYPE, VECT, NODE>::End() noexcept
-    {
-        _node = &(_vector->_last);
     }
     //endregion
 }
