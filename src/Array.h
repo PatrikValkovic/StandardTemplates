@@ -468,8 +468,8 @@ namespace Templates
         for (; start != end; start++, arr++, _size++)
             new(arr) T(*start);
         // TODO can be copied directly
-        if(Size() < (unsigned int)((float)Capacity() / expand_ratio))
-            Resize(int((float)Capacity() / expand_ratio));
+        //if(Size() < (unsigned int)((float)Capacity() / expand_ratio))
+        //    Resize(int((float)Capacity() / expand_ratio));
     }
 
     template<typename T>
@@ -484,8 +484,8 @@ namespace Templates
         for (; start != end; start++, arr++, _size++)
             new (arr) T((T&&)*start);
         // TODO can be copied directly
-        if(Size() < (unsigned int)((float)Capacity() / expand_ratio))
-            Resize(int((float)Capacity() / expand_ratio));
+        //if(Size() < (unsigned int)((float)Capacity() / expand_ratio))
+        //    Resize(int((float)Capacity() / expand_ratio));
     }
 
     template<typename T>
@@ -725,12 +725,13 @@ namespace Templates
     template<typename T>
     inline unsigned int Array<T>::Delete(int count)
     {
+        //TODO test
         unsigned int from = 0;
         unsigned int to = count;
         if(count < 0)
         {
             from = (unsigned int)-count > Size() ? 0 : Size() + count;
-            to = min((unsigned int)-count, Size());
+            to = min(from + ((unsigned int)-count), Size());
         }
         return Delete(from, to);
     }
