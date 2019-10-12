@@ -574,17 +574,22 @@ namespace Templates
          */
         unsigned int Delete(unsigned int count = 1)
         {
-            Node** n = this->_node;
             Vector<T>* v = this->_vector;
 
             unsigned int old_size = v->Size();
             for(unsigned int i=0; i < count && *this != v->End(); i++)
             {
-                Node* next = (*n)->n();
-                Node* to_delete = *n;
-                *n = next;
+                //remove node from chain
+                Node** current = this->_node;
+                Node* next = (*current)->n();
+                Node* to_delete = *current;
+                *(this->_node) = next;
+                //delete element
                 to_delete->v().~T();
                 v->_size--;
+                //move node to the end as capacity
+                to_delete->next = v->_last->next;
+                v->_last->next = to_delete;
             }
             return v->Size() - old_size;
         }
@@ -719,7 +724,7 @@ namespace Templates
     template<typename T>
     unsigned int Vector<T>::ShrinkToFit()
     {
-        return Resize(Capacity());
+        return Resize(Size());
     }
 
     template<typename T>

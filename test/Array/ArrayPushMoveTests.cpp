@@ -37,4 +37,5 @@ TEST_CASE("Array should push dynamic move array of 100 values", "[Array][Push]")
     Array<UniquePointer<int>> instance;
     instance.Push(move(pointers), 100);
     REQUIRE(instance.Size()==100);
+    delete [] pointers;
 }
