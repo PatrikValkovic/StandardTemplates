@@ -1,746 +1,877 @@
 #ifndef TEMPLATES_VECTOR_H
 #define TEMPLATES_VECTOR_H
 #include "Basis.h"
-#include "Array.h"
 
 namespace Templates
 {
-    /**
-     * Data structure that represent one-way linked list.
-     * The structure keeps its size and pointers to the first and last element.
-     * Vector can have more nodes then number of elements. Use ShrinkToFit to delete these nodes.
-     */
     template<typename T>
     class Vector
     {
     private:
-        class Node
-        {
-        public:
-#ifdef ___OUT_OF_MEMORY_TESTING
-            static unsigned int allocation;
-            Node()
-            {
-                allocation--;
-                if(allocation == 0)
-                    throw 0;
-            }
-#endif
-            alignas(alignof(T)) unsigned char _value[sizeof(T)];
-            Node* _next = nullptr;
-            T* const Pointer() noexcept
-            {
-                return static_cast<T*>(static_cast<void*>(_value));
-            }
-            T& Value() noexcept
-            {
-                return *Pointer();
-            }
-        };
-
+        class Node;
         Node* _first;
         Node* _last;
-        unsigned int _count;
-
-        template<typename __BaseType>
-        class BaseIterator
-        {
-            friend class Vector;
-        protected:
-            Node* _node = nullptr;
-            __BaseType* _vector;
-
-            /**
-             * Create iterator pointing to specific node.
-             */
-            BaseIterator(Node* working_node, __BaseType* v) : _node(working_node), _vector(v)
-            {}
-        public:
-
-            /**
-             * Equality operator.
-             * @return True if iterators points to the same node, false otherwise.
-             */
-            bool operator==(const BaseIterator& s) const noexcept
-            {
-                return _node == s._node;
-            }
-
-            /**
-             * Non equality operator.
-             * @return True if iterators points to different nodes, false otherwise.
-             */
-            bool operator!=(const BaseIterator& s) const noexcept
-            {
-                return !(*this == s);
-            }
-
-            /**
-             * Dereference iterator to get value.
-             */
-            const T& operator*() const noexcept
-            {
-                return _node->Value();
-            }
-
-            /**
-             * Structure dereference iterator to get pointer.
-             */
-            const T* operator->() const noexcept
-            {
-                return _node->Pointer();
-            }
-
-            /**
-             * Move to the next element. Return true if can, false otherwise.
-             * Note that it doesn't mean, that is iterator valid on the new position.
-             */
-            bool Next()
-            {
-                return Next(1);
-            }
-
-            /**
-             * Move {@code how_many} elements after actual element. Return true, if can, otherwise false.
-             * Note that it doesn't mean, that is iterator valid on the new position.
-             * If the return value is false, then the position of the iterator was not changed.
-             */
-            bool Next(unsigned int how_many)
-            {
-                Node* tmp = _node;
-                for (unsigned int a = 0; a < how_many; a++)
-                {
-                    if (tmp->_next == nullptr)
-                        return false;
-                    tmp = tmp->_next;
-                }
-                _node = tmp;
-                return true;
-            }
-
-            /**
-             * Move iterator to the beginning of the vector.
-             * Iterator is not valid if the vector is empty.
-             */
-            void JumpToBegin() noexcept
-            {
-                *this = _vector->Begin();
-            }
-
-            /**
-             * Move iterator to the end of the vector.
-             * Iterator is not valid.
-             */
-            void JumpToEnd() noexcept
-            {
-                *this = _vector->End();
-            }
-        };
+        unsigned int _size;
+        unsigned int _allocated;
+        template<typename VECT, typename NODE>
+        class BaseIterator;
+        void AllocateNode(unsigned int count = 1);
     public:
-        class ConstIterator: public BaseIterator<const Vector>
-        {
-            friend class Vector;
-        protected:
-            ConstIterator(Node* working_node, const Vector* v) : BaseIterator<const Vector>(working_node, v)
-            {}
-        public:
-            ConstIterator(const ConstIterator& iterator) = default;
-            ConstIterator(ConstIterator&& iterator) noexcept = default;
-            ConstIterator& operator=(const ConstIterator& iterator) = default;
-            ConstIterator& operator=(ConstIterator&& iterator) noexcept = default;
-            /**
-             * Prefix increment operator.
-             */
-            ConstIterator& operator++()
-            {
-                this->Next();
-                return *this;
-            }
+        class ConstIterator;
+        class Iterator;
 
-            /**
-             * Postfix increment operator.
-             */
-            ConstIterator operator++(int)
-            {
-                ConstIterator tmp(*this);
-                this->Next();
-                return tmp;
-            }
-
-            /**
-             * Plus operator with the number.
-             * Move iterator {@code v} places after the current node.
-             * If the position is not valid, iterator stay at the same node.
-             * The result iterator doesn't need to be valid.
-             * @param v Number of nodes to skip.
-             */
-            ConstIterator operator+(unsigned int v)
-            {
-                ConstIterator tmp(*this);
-                tmp.Next(v);
-                return tmp;
-            }
-        };
-
-        class Iterator : public BaseIterator<Vector>
-        {
-            friend class Vector;
-        protected:
-            Iterator(Node* working_node, Vector* v) : BaseIterator<Vector>(working_node, v)
-            {}
-        public:
-            Iterator(const Iterator& iterator) = default;
-            Iterator(Iterator&& iterator) noexcept = default;
-            Iterator& operator=(const Iterator& iterator) = default;
-            Iterator& operator=(Iterator&& iterator) noexcept = default;
-            operator ConstIterator() const
-            {
-                return ConstIterator(this->_node, this->_vector);
-            }
-
-
-            /**
-             * Dereference iterator to get value.
-             */
-            T& operator*() noexcept
-            {
-                return this->_node->Value();
-            }
-
-            /**
-             * Structure dereference iterator to get pointer.
-             */
-            T* operator->() noexcept
-            {
-                return this->_node->Pointer();
-            }
-
-            /**
-             * Prefix increment operator.
-             */
-            Iterator& operator++()
-            {
-                this->Next();
-                return *this;
-            }
-
-            /**
-             * Postfix increment operator.
-             */
-            Iterator operator++(int)
-            {
-                Iterator tmp(*this);
-                this->Next();
-                return tmp;
-            }
-
-            /**
-             * Plus operator with the number.
-             * Move iterator {@code v} places after the current node.
-             * If the position is not valid, iterator stay at the same node.
-             * The result iterator doesn't need to be valid.
-             * @param v Number of nodes to skip.
-             */
-            Iterator operator+(unsigned int v)
-            {
-                Iterator tmp(*this);
-                tmp.Next(v);
-                return tmp;
-            }
-
-            /**
-             * Insert elements after the current node.
-             * First element in the array will be next element of the current node.
-             * This method is potentially dangerous. You must be absolutely sure, that the iterator is valid.
-             * Valid iterator point to existing node with already allocated value.
-             * Valid iterator is from Begin and not already equal to End.
-             * Otherwise Vector will be in undefined state and it's behaviour is undefined (even the destructuring of the Vector!!).
-             * In case of exception Vector stay valid but previous inserted elements remain in the Vector.
-             * @param values Values to insert
-             * @param count number of elements to insert
-             */
-            void Insert(const T* values, unsigned int count)
-            {
-                //TODO rewrite to be safe
-                const T* tmp = values + count;
-                while(tmp --> values)
-                    Insert(*tmp);
-            }
-
-            /**
-             * Insert element after the current node.
-             * This method is potentially dangerous. You must be absolutely sure, that the iterator is valid.
-             * Valid iterator point to existing node with already allocated value.
-             * Valid iterator is from Begin and not already equal to End.
-             * Otherwise Vector will be in undefined state and it's behaviour is undefined (even the destructuring of the Vector!!).
-             * In case of exception Vector stay in the same state.
-             * @param value Element to insert.
-             */
-            void Insert(const T& value)
-            {
-                Node* tmp = new Node();
-                try
-                {
-                    new (tmp->Pointer()) T(value);
-                }
-                catch(...)
-                {
-                    delete tmp;
-                    throw;
-                }
-
-                tmp->_next = this->_node->_next;
-                this->_node->_next = tmp;
-                this->_vector->_count++;
-            }
-
-            /**
-             * Delete next element in the Vector.
-             * The iterator stays at the same node.
-             * This method is potentially dangerous. You must be absolutely sure, that the iterator is valid.
-             * Valid iterator point to existing node with already allocated value.
-             * Valid iterator is from Begin and not already equal to End.
-             * Otherwise Vector will be in undefined state and it's behaviour is undefined (even the destructuring of the Vector!!).
-             * In case of exception Vector stay valid but element is deleted anyway.
-             * @return True if the element was deleted, false otherwise.
-             */
-            bool Delete()
-            {
-                Node* next = this->_node->_next;
-                if(next == this->_vector->_last)
-                    return false;
-
-                try
-                {
-                    next->Value().~T();
-                }
-                catch(...)
-                {
-                    this->_node->_next = next->_next;
-                    this->_vector->_count--;
-                    next->_next = this->_vector->_last->_next;
-                    this->_vector->_last->_next = next;
-                    throw;
-                }
-
-                this->_node->_next = next->_next;
-                this->_vector->_count--;
-                next->_next = this->_vector->_last->_next;
-                this->_vector->_last->_next = next;
-                return true;
-            }
-
-            /**
-             * Delete next elements in the Vector.
-             * Only elements up to Vector's end are deleted, so number of deleted elements can be lower then provided parameter.
-             * The iterator stays at the same node.
-             * This method is potentially dangerous. You must be absolutely sure, that the iterator is valid.
-             * Valid iterator point to existing node with already allocated value.
-             * Valid iterator is from Begin and not already equal to End.
-             * Otherwise Vector will be in undefined state and it's behaviour is undefined (even the destructuring of the Vector!!).
-             * In case of exception Vector stay valid but element is deleted anyway.
-             * @param count Number of elements to delete.
-             * @return Number of deleted elements.
-             */
-            unsigned int Delete(unsigned int count)
-            {
-                unsigned int i = 0;
-                for(;i < count && this->Delete();i++);
-                return i;
-            }
-        };
-
-    public:
-
+        //region lifetime
         /**
-         * Creates new instance of Vector
+         * Create new empty vector, where no memory is allocated.
          */
-        Vector() : Vector(0)
-        {}
-
+        Vector() noexcept;
         /**
-         * Create new instance with provided capacity.
-         * The nodes are allocated, but not valid yet.
-         * @param capacity Number of nodes to allocate.
+         * Create new vector with  `capacity` element allocated in memory.
+         * @param capacity Capacity to allocate.
          */
-        Vector(unsigned int capacity) : _first(nullptr), _last(nullptr), _count(0)
-        {
-            try
-            {
-                capacity++;
-                _last = _first = new Node;
-                for (unsigned int a = 0; a < capacity; a++)
-                {
-                    Node* created = new Node;
-                    _last->_next = created;
-                    _last = created;
-                }
-                _last = _first;
-            }
-            catch(...)
-            {
-                delete _last;
-                while(_first != _last)
-                {
-                    Node* tmp = _first->_next;
-                    delete _first;
-                    _first = tmp;
-                }
-                throw;
-            }
-
-        }
-
+        explicit Vector(unsigned int capacity);
         /**
-         * Creates new instance and inserts all elements from the array into the vector.
-         * The elements will be added in the same order, so first element in the array will be first in the list.
-         * @param array Array of elements to add into list.
-         * @param count Count of elements in the array.
+         * Create new vector with `count` elements from the `elements` parameter by copying them.
+         * @param elements Array of elements to insert.
+         * @param count Number of elements to insert.
          */
-        Vector(const T* array, unsigned int count) : Vector(count)
-        {
-            this->Push(array, count);
-
-            //don't call destructor, even in catch block
-            //https://stackoverflow.com/questions/17657761/is-the-destructor-called-when-a-delegating-constructor-throws
-            //this->~Vector();
-        }
-
+        Vector(T const* elements, unsigned int count);
+        /**
+         * Create new vector with `count` elements from the `elements` parameter by moving them.
+         * The array is not deleted and the calling procedure needs to manage the memory.
+         * @param elements Array of elements to insert.
+         * @param count Number of elements to insert.
+         */
+        Vector(T*&& elements, unsigned int count);
         /**
          * Copy constructor.
-         * Makes copy of all elements in the second array.
          */
-        Vector(const Vector& copy): Vector(copy._count)
-        {
-            Vector::ConstIterator b = copy.Begin();
-            Vector::ConstIterator e = copy.End();
-            for(;b != e;b++)
-                this->Push(*b);
-
-            //don't call destructor, even in catch block
-            //https://stackoverflow.com/questions/17657761/is-the-destructor-called-when-a-delegating-constructor-throws
-            //this->~Vector();
-        }
-
+        Vector(const Vector&);
         /**
-         * Move constructor.
-         * Second vector will be cleared.
+         * Movable constructor.
          */
-        Vector(Vector&& second) : Vector(0)
-        {
-            swap(*this, second);
-        }
-
+        Vector(Vector&&) noexcept;
         /**
-         * Copy assignment operator.
-         * Values will be copied from the second vector.
+         * Copy assignable operator.
          */
-        Vector& operator=(const Vector& second)
-        {
-            if(this==&second)
-                return *this;
-
-            Vector tmp(second);
-            swap(*this, tmp);
-
-            return *this;
-        }
-
+        Vector<T>& operator=(const Vector&);
         /**
-         * Move assignment operator.
-         * Second vector will be cleared.
+         * Move assignable operator.
          */
-        Vector& operator=(Vector&& second)
-        {
-            if(this==&second)
-                return *this;
-
-            {
-                Vector tmp(move(*this));
-            }
-
-            swap(*this, second);
-            return *this;
-        }
-
+        Vector<T>& operator=(Vector&&) noexcept;
         /**
          * Destructor.
          */
-        ~Vector()
-        {
-            this->Delete();
-            this->ShrinkToFit();
-            delete _first;
-        }
+        ~Vector();
+        //endregion
 
+        //region swap
         /**
-         * Access operator.
-         * Complexity is linear.
-         * In case of negative or invalid index, OutOfRangeException is thrown.
+         * Swap this instance with different one.
+         * @param v Instance to swap with.
          */
-        T& operator[](int x)
-        {
-            if(x < 0)
-                throw OutOfRangeException("Index cannot be negative", __LINE__);
-            Iterator b = this->Begin();
-            Iterator e = this->End();
-            for(int i = 0;b != e && i < x;b++,i++);
-            if(b == e)
-                throw OutOfRangeException("Index is out of range", __LINE__);
+        void Swap(Vector& v) noexcept;
+        //endregion
 
-            return *b;
-        }
-
+        //region queries
         /**
-         * Access operator.
-         * Complexity is linear.
-         * In case of negative or invalid index, OutOfRangeException is thrown.
+         * Returns number of elements inserted into the vector.
+         * @return Number of elements in vector.
          */
-        const T& operator[](int x) const
-        {
-            if(x < 0)
-                throw OutOfRangeException("Index cannot be negative", __LINE__);
-            ConstIterator b = this->Begin();
-            ConstIterator e = this->End();
-            for(int i = 0;b != e && i < x;b++,i++);
-            if(b == e)
-                throw OutOfRangeException("Index is out of range", __LINE__);
-
-            return *b;
-        }
-
+        inline unsigned int Size() const noexcept;
         /**
-         * Return array containing COPIES of the object inside the Vector.
-         * Changes in the array are not propagated back to the Vector.
+         * Get how many elements can fit into container without reallocating.
+         * @return Capacity of the vector.
          */
-        Array<T> ToArray() const
-        {
-            Array<T> tmp(this->Size());
-
-            ConstIterator b = this->Begin();
-            ConstIterator e = this->End();
-            for(;b != e;b++)
-                tmp.Push(*b);
-
-            return move(tmp);
-        }
-
+        inline unsigned int Capacity() const noexcept;
         /**
-         * Return iterator to beginning of Vector.
+         * Check if the vector is empty.
+         * @return True if the vector is empty, false otherwise.
          */
-        Iterator Begin()
-        {
-            return Iterator(_first, this);
-        }
-
+        inline bool Empty() const noexcept;
         /**
-         * Return iterator to element after last element.
-         * This iterator will be not valid.
+         * Get element at the `i` position. Has linear complexity.
+         * @param i Index of the element.
+         * @return Element.
          */
-        Iterator End()
-        {
-            return Iterator(_last, this);
-        }
-
+        const T& operator[](unsigned int i) const;
         /**
-         * Return constant iterator to beginning of Vector.
+         * Get element at the `i` position. Has linear complexity.
+         * @param i Index of the element.
+         * @return Element.
          */
-        ConstIterator Begin() const
-        {
-            return ConstIterator(_first, this);
-        }
+        T& operator[](unsigned int i);
+        //endregion
 
+        //region resizing
         /**
-         * Return constant iterator to element after last element.
-         * This iterator will be not valid.
+         * Resize vector to the new capacity.
+         * When new capacity is lower than the size, elements from the beginning of the vector are destructed.
+         * @param new_capacity New capacity of the vector.
+         * @return New capacity of the vector.
          */
-        ConstIterator End() const
-        {
-            return ConstIterator(_last, this);
-        }
-
+        unsigned int Resize(unsigned int new_capacity);
         /**
-         * Return count of elements in Vector.
+         * Resize vector by `resize_by` parameter. For negative values the vector will be shrinking.
+         * When new capacity is lower than the size, elements from the beginning of the vector are destructed.
+         * @param resize_by Amount of resize.
+         * @return New capacity of the vector.
          */
-        unsigned int Size() const
-        {
-            return _count;
-        }
-
+        unsigned int ResizeBy(int resize_by);
         /**
-         * Return true if the Vector is empty, false otherwise.
-         * Allocated nodes are not taken into account.
+         * Shrink the vector so capacity would be equal to size + 1 (because of the last empty node).
+         * @return New capacity of the vector.
          */
-        inline bool IsEmpty() const
-        {
-            return _first == _last;
-        }
+        unsigned int ShrinkToFit();
+        //endregion
 
+        //region iterators
         /**
-         * Insert element at the end of the Vector.
-         * In case of exception, Vector stay at the valid state, however one node could be allocated.
-         * @param value Element to insert.
+         * Returns iterator to the beginning of the vector.
+         * @return Iterator to the beginning of the vector.
          */
-        void Push(const T& value)
-        {
-            if(_last->_next == nullptr)
-                _last->_next = new Node;
-
-            new (_last->Pointer()) T(value);
-            _count++;
-            _last = _last->_next;
-        }
-
+        ConstIterator Begin() const noexcept;
         /**
-         * Insert elements from array into the Vector.
-         * In case of exception, Vector stay at valid state, however some elements could be already inserted.
-         * @param array Array of elements to insert.
-         * @param count Count of elements to insert.
+         * Returns iterator to the end of the vector.
+         * @return Iterator to the end of the vector.
          */
-        void Push(const T* array, unsigned int count)
-        {
-            //TODO rewrite to be safe
-            const T* last_element = array + count;
-            for (; array != last_element; array++)
-                Push(*array);
-        }
-
+        ConstIterator End() const noexcept;
         /**
-         * Because vector can hold more nodes then is number of elements, this method delete unused nodes.
+         * Returns iterator to the beginning of the vector.
+         * @return Iterator to the beginning of the vector.
          */
-        void ShrinkToFit() noexcept
-        {
-            Node* working = _last->_next;
-            while(working != nullptr){
-                Node* tmp = working->_next;
-                delete working;
-                working = tmp;
-            }
-            _last->_next = nullptr;
-        }
-
+        Iterator Begin() noexcept;
         /**
-         * Delete all elements from the Vector.
+         * Returns iterator to the end of the vector.
+         * @return Iterator to the end of the vector.
          */
-        inline unsigned int Delete()
-        {
-            return Delete(Size());
-        }
+        Iterator End() noexcept;
+        //endregion
 
+        //region inserting
         /**
-         * Delete specific amount of elements from the beginning of the Vector.
-         * The method takes care about size of the Vector, so maximum of Size() elements will be removed.
-         * In case of exception, Vector stay in valid state, however some elements could be already deleted.
+         * Insert element at the end of the vector.
+         * @param element Element to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Push(const T& element);
+        /**
+         * Insert element at the end of the vector.
+         * @param element Element to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Push(T&& element);
+        /**
+         * Insert `count` elements from the `elements` array to the end of the vector.
+         * @param elements Elements to insert.
+         * @param count Number of elements to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Push(T const* elements, unsigned int count);
+        /**
+         * Insert `count` elements from the `elements` array to the end of the vector.
+         * @param elements Elements to insert.
+         * @param count Number of elements to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Push(T*&& elements, unsigned int count);
+        /**
+         * Insert element at the beginning of the vector.
+         * @param element Element to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Insert(const T& element);
+        /**
+         * Insert element at the beginning of the vector.
+         * @param element Element to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Insert(T&& element);
+        /**
+         * Insert `count` elements from the `elements` array to the beginning of the vector.
+         * @param elements Elements to insert.
+         * @param count Number of elements to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Insert(T const* elements, unsigned int count);
+        /**
+         * Insert `count` elements from the `elements` array to the beginning of the vector.
+         * @param elements Elements to insert.
+         * @param count Number of elements to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Insert(T*&& elements, unsigned int count);
+        //endregion
+
+        //region deleting
+        /**
+         * Delete all the elements in the vector. The capacity remain unchanged.
+         * @return Number of deleted elements.
+         */
+        inline unsigned int Clear();
+        /**
+         * Delete all the elements in the vector. The capacity remain unchanged.
+         * @return Number of deleted elements.
+         */
+        inline unsigned int Delete();
+        /**
+         * Delete `count` elements from the beginning of the vector.
          * @param count Number of elements to delete.
          * @return Number of deleted elements.
          */
-        unsigned int Delete(unsigned int count)
+        inline unsigned int Delete(unsigned int count);
+        //endregion
+    };
+
+    template<typename T>
+    class Vector<T>::Node
+    {
+    private:
+        /**
+         * Memory for the element.
+         */
+        alignas(T) unsigned char mem[sizeof(T)];
+        /**
+         * Pointer to the next node.
+         */
+    public:
+        /**
+         * Pointer to the next node.
+         */
+        Node* next = nullptr;
+
+        /**
+         * Return typed pointer to the memory with element.
+         * @return Pointer to memory with element.
+         */
+        inline T* p() noexcept {
+            return static_cast<T*>(static_cast<void*>(mem));
+        }
+        /**
+         * Return typed pointer to the memory with element.
+         * @return Pointer to memory with element.
+         */
+        inline T const * p() const noexcept {
+            return static_cast<T const *>(static_cast<const void*>(mem));
+        }
+        /**
+         * Return reference to the containing element.
+         * If no element is present, the behavior is undefined.
+         * @return Reference to the element.
+         */
+        inline T& v() noexcept {
+            return *p();
+        }
+        /**
+         * Return reference to the containing element.
+         * If no element is present, the behavior is undefined.
+         * @return Reference to the element.
+         */
+        inline const T& v() const noexcept {
+            return *p();
+        }
+        /**
+         * Get pointer to the next node.
+         * @return Next node.
+         */
+        inline Node* n() noexcept {
+            return next;
+        }
+        /**
+         * Get pointer to the next node.
+         * @return Next node.
+         */
+        inline Node const * n() const noexcept {
+            return next;
+        }
+    };
+
+    template<typename T>
+    template<typename VECT, typename NODE>
+    class Vector<T>::BaseIterator
+    {
+    protected:
+        NODE _node = nullptr;
+        VECT* _vector = nullptr;
+    public:
+        bool operator==(const BaseIterator& v) const noexcept
         {
-            if(count != 1)
+            return *_node == *v._node;
+        }
+        bool operator!=(const BaseIterator& v) const noexcept
+        {
+            return !(*this == v);
+        }
+        const T& operator*() const
+        {
+            return (*_node)->v();
+        }
+        T const * operator->() const noexcept
+        {
+            return (*_node)->p();
+        }
+        /**
+         * Move iterator to the beginning of the vector.
+         */
+        void Begin() noexcept
+        {
+            _node = &(_vector->_first);
+        }
+        /**
+         * Move iterator to the end of the vector.
+         */
+        void End() noexcept
+        {
+            _node = &(_vector->_last);
+        }
+    };
+
+    template<typename T>
+    class Vector<T>::ConstIterator : public Vector<T>::template BaseIterator<const Vector<T>, Vector<T>::Node const * const *>
+    {
+    public:
+        ConstIterator() noexcept = default;
+        ConstIterator(Node const * const * n, const Vector* vect) noexcept
+        {
+            this->_node = n;
+            this->_vector = vect;
+        }
+        ConstIterator(const ConstIterator&) noexcept = default;
+        ConstIterator(ConstIterator&&) noexcept = default;
+        ConstIterator& operator=(const ConstIterator&) = default;
+        ConstIterator& operator=(ConstIterator&&) noexcept = default;
+
+        /**
+         * Move iterator to the next node.
+         * @return This iterator on the next node.
+         */
+        ConstIterator& operator++()
+        {
+            this->_node = &((*this->_node)->next);
+            return *this;
+        }
+        /**
+         * Move iterator to the next node.
+         * @return Iterator to the previous node.
+         */
+        ConstIterator operator++(int)
+        {
+            const ConstIterator &c = *this;
+            ConstIterator tmp(c);
+            ++(*this);
+            return tmp;
+        }
+        /**
+         * Move iterator `count` nodes ahead.
+         * @return Iterator to the node `count` nodes ahead.
+         */
+        ConstIterator operator+(unsigned int count)
+        {
+            const ConstIterator &c = *this;
+            ConstIterator tmp(c);
+            for(unsigned int i=0; i < count; i++)
+                tmp++;
+            return tmp;
+        }
+    };
+
+    template<typename T>
+    class Vector<T>::Iterator: public Vector<T>::template BaseIterator<Vector<T>, Vector<T>::Node**>
+    {
+    public:
+        Iterator() noexcept = default;
+        Iterator(Node** n, Vector* vect) noexcept
+        {
+            this->_node = n;
+            this->_vector = vect;
+        }
+        Iterator(const Iterator&) noexcept = default;
+        Iterator(Iterator&&) noexcept = default;
+        Iterator& operator=(const Iterator&) = default;
+        Iterator& operator=(Iterator&&) = default;
+        operator ConstIterator() const noexcept
+        {
+            return ConstIterator(this->_node, this->_vector);
+        }
+
+        T& operator*()
+        {
+            return (*(this->_node))->v();
+        }
+        T* operator->() noexcept
+        {
+            return (*(this->_node))->p();
+        }
+
+        /**
+         * Move iterator to the next node.
+         * @return This iterator on the next node.
+         */
+        Iterator& operator++()
+        {
+            this->_node = &((*this->_node)->next);
+            return *this;
+        }
+        /**
+         * Move iterator to the next node.
+         * @return Iterator to the previous node.
+         */
+        const Iterator operator++(int)
+        {
+            const Iterator &c = *this;
+            Iterator tmp(c);
+            ++(*this);
+            return tmp;
+        }
+        /**
+         * Move iterator `count` nodes ahead.
+         * @return Iterator to the node `count` nodes ahead.
+         */
+        Iterator operator+(unsigned int count)
+        {
+            const Iterator &c = *this;
+            Iterator tmp(c);
+            for(unsigned int i=0; i < count; i++)
+                tmp++;
+            return tmp;
+        }
+
+
+        /**
+         * Insert `value` at the position of current iterator and move iterator on next element.
+         * That mean the iterator stay at the same node.
+         * @param value Value to insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Insert(const T& value)
+        {
+            Node** n = this->_node;
+            Vector<T>* v = this->_vector;
+            // check size
+            if(v->Size() + 1 > v->Capacity())
+                v->AllocateNode();
+            // check if the iterator wasn't null before
+            if(*n == nullptr)
             {
-                unsigned int old_size = this->Size();
-                while(count --> 0 && this->Delete(1));
-                return old_size - this->Size();
+                this->_node = &(v->_last);
+                n = this->_node;
             }
-
-            if(_first == _last)
-                return 0;
-
-            Node* working = _first;
-            _first = working->_next;
-            working->_next = _last->_next;
-            _last->_next = working;
-            _count--;
-
-            working->Value().~T();
-
+            // move free node
+            if(*n != v->_last){
+                Node* after_last = v->_last->next;
+                v->_last->next = after_last->next;
+                after_last->next = *n;
+                *n = after_last;
+            }
+            // construct the element
+            new ((*n)->p()) T(value);
+            v->_size++;
+            // check vector pointers
+            if(*n == v->_last)
+            {
+                v->_last = (*n)->n();
+                this->_node = &(v->_last);
+            }
+            else
+            {
+                this->_node = &((*n)->next);
+            }
             return 1;
         }
-
         /**
-         * Insert element at the beginning of the Vector.
-         * In case of exception, Vector stay in valid state, however additional Node could be allocated after the end element.
-         * @param value Element to insert.
+         * Insert `value` at the position of current iterator and move iterator on next element.
+         * That mean the iterator stay at the same node.
+         * @param value Value to insert.
+         * @return NUmber of inserted elements.
          */
-        void Insert(const T& value)
+        unsigned int Insert(T&& value)
         {
-            if(_last->_next == nullptr)
-                _last->_next = new Node;
-
-            new (_last->_next->Pointer()) T(value);
-
-            Node* current_first = _first;
-            Node* created = _last->_next;
-            _last->_next = created->_next;
-            created->_next = current_first;
-            _first = created;
-            _count++;
-        }
-
-        /**
-         * Insert {@code count} elements into the Vector at the beginning.
-         * First element in the array begin the first element in the Vector.
-         * In case of exception, the Vector stay in valid state and no elements will be inserted.
-         * However, some nodes could be allocated.
-         * @param array Array of elements to insert.
-         * @param count Count of elements to insert.
-         */
-        void Insert(const T* array, unsigned int count)
-        {
-            const T* end_ptr = array + count;
-            const T* beg_ptr = array;
-            try
+            Node** n = this->_node;
+            Vector<T>* v = this->_vector;
+            // check size
+            if(v->Size() + 1 > v->Capacity())
+                v->AllocateNode();
+            // check if the iterator wasn't null before
+            if(*n == nullptr)
             {
-                while (end_ptr-- > array)
-                    this->Insert(*end_ptr);
+                this->_node = &(v->_last);
+                n = this->_node;
             }
-            catch(...)
+            // move free node
+            if(*n != v->_last){
+                Node* after_last = v->_last->next;
+                v->_last->next = after_last->next;
+                after_last->next = *n;
+                *n = after_last;
+            }
+            // construct the element
+            new ((*n)->p()) T(move(value));
+            v->_size++;
+            // check vector pointers
+            if(*n == v->_last)
             {
-                this->Delete(count - static_cast<unsigned int>(end_ptr - beg_ptr) - 1);
-                throw;
+                v->_last = (*n)->n();
+                this->_node = &(v->_last);
             }
+            else
+            {
+                this->_node = &((*n)->next);
+            }
+            return 1;
         }
-
-        //TODO implement emplace front
-        //TODO implement emplace back
-        //TODO implement sort
-        //TODO implement to array method
+        /**
+         * Insert `count` values from `values` array into the vector.
+         * The values are copied into the vector.
+         * The vector ends after the last inserted element (at the same node).
+         * @param values Values to insert.
+         * @param count How many values insert.
+         * @return Number of inserted elements.
+         */
+        unsigned int Insert(T const * values, unsigned int count)
+        {
+            Vector<T>* v = this->_vector;
+            // allocate nodes
+            if(v->Size() + count > v->Capacity())
+                v->Resize(v->Size() + count);
+            // insert elements
+            unsigned int old_size = v->Size();
+            T const *from = values, *ends = values + count;
+            for(;from != ends; from++)
+                Insert(*from);
+            return v->Size() - old_size;
+        }
 
         /**
-         * Swap two instances of Vector.
+         * Insert `count` values from `values` array into the vector.
+         * The values are moved into the vector, but the vector needs to be managed by the calling procedure.
+         * The vector ends after the last inserted element (at the same node).
+         * @param values Array of values to insert.
+         * @param count Number of elements to insert.
+         * @return Number of inserted elements.
          */
-        void Swap(Vector& second) noexcept
+        unsigned int Insert(T* &&values, unsigned int count)
         {
-            swap(_count, second._count);
-            swap(_first, second._first);
-            swap(_last, second._last);
+            Vector<T>* v = this->_vector;
+            // allocate nodes
+            if(v->Size() + count > v->Capacity())
+                v->Resize(v->Size() + count);
+            // insert elements
+            unsigned int old_size = v->Size();
+            T *from = values, *ends = values + count;
+            for(;from != ends; from++)
+            {
+                T& value = *from;
+                Insert(move(value));
+            }
+            return v->Size() - old_size;
         }
 
-#ifdef ___OUT_OF_MEMORY_TESTING
-        static void _SetAllocationLimit(unsigned int limit)
+        /**
+         * Delete `count` elements and move iterator to the next not-deleted element (including current one)
+         * The elements are deleted only until the last element in the vector.
+         * @param count Number of nodes to remove.
+         * @return Number of deleted elements.
+         */
+        unsigned int Delete(unsigned int count = 1)
         {
-            Node::allocation = limit;
+            Node** n = this->_node;
+            Vector<T>* v = this->_vector;
+
+            unsigned int old_size = v->Size();
+            for(unsigned int i=0; i < count && *this != v->End(); i++)
+            {
+                Node* next = (*n)->n();
+                Node* to_delete = *n;
+                *n = next;
+                to_delete->v().~T();
+                v->_size--;
+            }
+            return v->Size() - old_size;
         }
-#endif
     };
 
     /**
-     * Swap two instances of the Vector.
-     * @param first First vector.
-     * @param second Second vector.
+     * Swap two instances of the array
+     * @param first First array
+     * @param second Second array
      */
     template<typename T>
-    void swap(Vector<T>& first,Vector<T>& second)
+    void swap(Vector<T>& first, Vector<T>& second)
     {
         first.Swap(second);
     }
+
+    //region implementation
+    template<typename T>
+    void Vector<T>::AllocateNode(unsigned int count)
+    {
+        if (!_last)
+        {
+            _first = _last = new Node();
+            _allocated++;
+        }
+
+        for (unsigned int i = 0; i < count; i++)
+        {
+            Node* n = new Node();
+            n->next = _last->next;
+            _last->next = n;
+            _allocated++;
+        }
+    }
+
+    template<typename T>
+    Vector<T>::Vector() noexcept: _first(nullptr), _last(nullptr), _size(0), _allocated(0)
+    {}
+
+    template<typename T>
+    Vector<T>::Vector(unsigned int capacity) : Vector()
+    {
+        AllocateNode(capacity);
+    }
+
+    template<typename T>
+    Vector<T>::Vector(T const* elements, unsigned int count) : Vector(count)
+    {
+        Begin().Insert(elements, count);
+    }
+
+    template<typename T>
+    Vector<T>::Vector(T*&& elements, unsigned int count) : Vector(count)
+    {
+        Begin().Insert(move(elements), count);
+    }
+
+    template<typename T>
+    Vector<T>::Vector(const Vector& v) : Vector(v.Size())
+    {
+        *this = v;
+    }
+
+    template<typename T>
+    Vector<T>::Vector(Vector &&v) noexcept : Vector()
+    {
+        Swap(v);
+    }
+
+    template<typename T>
+    void Vector<T>::Swap(Vector& v) noexcept
+    {
+        using Templates::swap;
+        swap(_first, v._first);
+        swap(_last, v._last);
+        swap(_allocated, v._allocated);
+        swap(_size, v._size);
+    }
+
+    template<typename T>
+    Vector<T>& Vector<T>::operator=(const Vector& v)
+    {
+        if(this == &v)
+            return *this;
+
+        Clear();
+        ConstIterator working = v.Begin(), ending = v.End();
+        Iterator push=Begin();
+        for(; working != ending; working++)
+            push.Insert(*working);
+        return *this;
+    }
+
+    template<typename T>
+    Vector<T>& Vector<T>::operator=(Vector&& v) noexcept
+    {
+        if(this == &v)
+            return *this;
+
+        Swap(v);
+        return *this;
+    }
+
+    template<typename T>
+    Vector<T>::~Vector()
+    {
+        Delete();
+        ShrinkToFit();
+        delete _first;
+        _first = _last = nullptr;
+        _allocated = 0;
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::Size() const noexcept
+    {
+        return _size;
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::Capacity() const noexcept
+    {
+        return _allocated == 0 ? 0 : _allocated - 1;
+    }
+
+    template<typename T>
+    bool Vector<T>::Empty() const noexcept
+    {
+        return Size() == 0;
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::ShrinkToFit()
+    {
+        return Resize(Capacity());
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::Resize(unsigned int new_capacity)
+    {
+        // allocate more
+        if(Capacity() < new_capacity)
+            AllocateNode(new_capacity - Capacity());
+
+        // deallocate from the end
+        while(Size() < Capacity() && new_capacity < Capacity() && _last->next){
+            Node* to_delete = _last->next;
+            _last->next = _last->next->next;
+            delete to_delete;
+            _allocated--;
+        }
+        //TODO assert size == capacity
+
+        // deallocate from the beginning
+        while(new_capacity < Capacity())
+            Begin().Delete();
+
+        return Capacity();
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::ResizeBy(int resize_by)
+    {
+        return Resize(max(0, (int)Capacity() + resize_by));
+    }
+
+    template<typename T>
+    typename Vector<T>::ConstIterator Vector<T>::Begin() const noexcept
+    {
+        return ConstIterator(&_first, this);
+    }
+
+    template<typename T>
+    typename Vector<T>::ConstIterator Vector<T>::End() const noexcept
+    {
+        return ConstIterator(&_last, this);
+    }
+
+    template<typename T>
+    typename Vector<T>::Iterator Vector<T>::Begin() noexcept
+    {
+        return Iterator(&_first, this);
+    }
+
+    template<typename T>
+    typename Vector<T>::Iterator Vector<T>::End() noexcept
+    {
+        return Iterator(&_last, this);
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::Push(const T& element)
+    {
+        unsigned int old_size = Size();
+        End().Insert(element);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::Push(T&& element)
+    {
+        unsigned int old_size = Size();
+        End().Insert(move(element));
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::Push(T const* elements, unsigned int count)
+    {
+        unsigned int old_size = Size();
+        End().Insert(elements, count);
+        return Size() - old_size;    }
+
+    template<typename T>
+    unsigned int Vector<T>::Push(T*&& elements, unsigned int count)
+    {
+        unsigned int old_size = Size();
+        End().Insert(move(elements), count);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::Insert(const T& element)
+    {
+        unsigned int old_size = Size();
+        Begin().Insert(element);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::Insert(T&& element)
+    {
+        unsigned int old_size = Size();
+        Begin().Insert(move(element));
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::Insert(T const* elements, unsigned int count)
+    {
+        unsigned int old_size = Size();
+        Begin().Insert(elements, count);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::Insert(T*&& elements, unsigned int count)
+    {
+        unsigned int old_size = Size();
+        Begin().Insert(move(elements), count);
+        return Size() - old_size;
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::Clear()
+    {
+        return Delete();
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::Delete()
+    {
+        return Delete(Size());
+    }
+
+    template<typename T>
+    unsigned int Vector<T>::Delete(unsigned int count)
+    {
+        return Begin().Delete(count);
+    }
+
+    template<typename T>
+    const T& Vector<T>::operator[](unsigned int i) const
+    {
+        if(i >= Size())
+            throw OutOfRangeException("Index is out of vector's range.", __LINE__);
+        return *(Begin() + i);
+    }
+
+    template<typename T>
+    T& Vector<T>::operator[](unsigned int i)
+    {
+        if(i >= Size())
+            throw OutOfRangeException("Index is out of vector's range.", __LINE__);
+        return *(Begin() + i);
+    }
+    //endregion
 }
 
-#ifdef ___OUT_OF_MEMORY_TESTING
-template<typename T>
-unsigned int Templates::Vector<T>::Node::allocation = ~0U;
-#endif
-
-
-
-#endif //TEMPLATES_QUEUE_H
+#endif //TEMPLATES_VECTOR_H

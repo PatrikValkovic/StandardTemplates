@@ -20,18 +20,18 @@ TEST_CASE("Vector's ConstIterator should iterate thought all elements", "[Vector
         REQUIRE(*it == array[i]);
 }
 
-TEST_CASE("Vector's Iterator should iterate thought all elements, even the deleted", "[Vector][Iterator]") {
+TEST_CASE("Vector's Iterator should iterate thought all elements, even the allocated", "[Vector][Iterator]") {
     Vector<int> instance(array, 5);
     instance.Delete(2);
     Vector<int>::Iterator it = instance.Begin();
-    for(int i=0;i<20;i++, it++);
+    for(int i=0;i<5;i++, it++);
 }
 
-TEST_CASE("Vector's ConstIterator should iterate thought all elements, even the deleted", "[Vector][Iterator]") {
+TEST_CASE("Vector's ConstIterator should iterate thought all elements, even the allocated", "[Vector][Iterator]") {
     Vector<int> instance(array, 5);
     instance.Delete(2);
     Vector<int>::ConstIterator it = instance.Begin();
-    for(int i=0;i<20;i++, it++);
+    for(int i=0;i<5;i++, it++);
 }
 
 
@@ -53,30 +53,30 @@ TEST_CASE("Vector's Iterator should iterate thought all elements, even the delet
     Vector<int> instance(array, 5);
     instance.Delete(2);
     Vector<int>::Iterator it = instance.Begin();
-    for(int i=0;i<20;i++, ++it);
+    for(int i=0;i<5;i++, ++it);
 }
 
 TEST_CASE("Vector's ConstIterator should iterate thought all elements, even the deleted using pre-increment", "[Vector][Iterator]") {
     Vector<int> instance(array, 5);
     instance.Delete(2);
     Vector<int>::ConstIterator it = instance.Begin();
-    for(int i=0;i<20;i++, ++it);
+    for(int i=0;i<5;i++, ++it);
 }
 
 
 
-TEST_CASE("Vector's Iterator should iterate thought all elements, even the deleted, by Next", "[Vector][Iterator]") {
+TEST_CASE("Vector's Iterator should iterate thought all elements, even the allocated, by plusplus", "[Vector][Iterator]") {
     Vector<int> instance(array, 5);
     instance.Delete(2);
     Vector<int>::Iterator it = instance.Begin();
-    for(int i=0;i<20 && it.Next();i++);
+    for(int i=0;i<5;i++, it++);
 }
 
-TEST_CASE("Vector's ConstIterator should iterate thought all elements, even the deleted, by Next", "[Vector][Iterator]") {
+TEST_CASE("Vector's ConstIterator should iterate thought all elements, even the allocated, by plusplus", "[Vector][Iterator]") {
     Vector<int> instance(array, 5);
     instance.Delete(2);
     Vector<int>::ConstIterator it = instance.Begin();
-    for(int i=0;i<20 && it.Next();i++);
+    for(int i=0;i<5;i++, it++);
 }
 
 TEST_CASE("Vector's Iterator comparsion operators", "[Vector][Iterator]") {
@@ -121,125 +121,11 @@ TEST_CASE("Vector's ConstIterator structured dereference should work", "[Vector]
     REQUIRE(b->variable == 5);
 }
 
-TEST_CASE("Vector's Iterator should jump over multiple elements", "[Vector][Iterator]") {
-    Vector<int> instance(25);
-    instance.Push(array, 5);
-    Vector<int>::Iterator b = instance.Begin();
-    REQUIRE(b.Next(1));
-    b = instance.Begin();
-    REQUIRE(b.Next(5));
-    b = instance.Begin();
-    REQUIRE(b.Next(10));
-    b = instance.Begin();
-    REQUIRE(b.Next(25));
-    b = instance.Begin();
-    REQUIRE(b.Next(26)); //because of the end node
-    b = instance.Begin();
-    REQUIRE(!b.Next(27));
-    b = instance.Begin();
-    REQUIRE(!b.Next(30));
-}
-
-TEST_CASE("Vector's ConstIterator should jump over multiple elements", "[Vector][Iterator]") {
-    Vector<int> instance(25);
-    instance.Push(array, 5);
-    Vector<int>::ConstIterator b = instance.Begin();
-    REQUIRE(b.Next(1));
-    b = instance.Begin();
-    REQUIRE(b.Next(5));
-    b = instance.Begin();
-    REQUIRE(b.Next(10));
-    b = instance.Begin();
-    REQUIRE(b.Next(25));
-    b = instance.Begin();
-    REQUIRE(b.Next(26)); //because of the end node
-    b = instance.Begin();
-    REQUIRE(!b.Next(27));
-    b = instance.Begin();
-    REQUIRE(!b.Next(30));
-}
-
-TEST_CASE("Vector's Iterator should jump over multiple elements using plus operator", "[Vector][Iterator]") {
-    Vector<int> instance(25);
-    instance.Push(array, 5);
-    Vector<int>::Iterator b = instance.Begin();
-    Vector<int>::Iterator t = b + 1;
-    REQUIRE(b.Next());
-    REQUIRE(b == t);
-
-    b = instance.Begin();
-    t = b + 5;
-    REQUIRE(b.Next(5));
-    REQUIRE(b == t);
-    REQUIRE(t == instance.End());
-
-    b = instance.Begin();
-    t = b + 10;
-    REQUIRE(b.Next(10));
-    REQUIRE(b == t);
-
-    b = instance.Begin();
-    t = b + 25;
-    REQUIRE(b.Next(25));
-    REQUIRE(b == t);
-
-    b = instance.Begin();
-    t = b + 26;
-    REQUIRE(b.Next(26)); //because of the end node
-    REQUIRE(b == t);
-
-    b = instance.Begin();
-    t = b + 27;
-    REQUIRE(b == t);
-
-    b = instance.Begin();
-    t = b + 30;
-    REQUIRE(b == t);
-}
-
-TEST_CASE("Vector's ConstIterator should jump over multiple elements using plus operator", "[Vector][Iterator]") {
-    Vector<int> instance(25);
-    instance.Push(array, 5);
-    Vector<int>::ConstIterator b = instance.Begin();
-    Vector<int>::ConstIterator t = b + 1;
-    REQUIRE(b.Next());
-    REQUIRE(b == t);
-
-    b = instance.Begin();
-    t = b + 5;
-    REQUIRE(b.Next(5));
-    REQUIRE(b == t);
-    REQUIRE(t == instance.End());
-
-    b = instance.Begin();
-    t = b + 10;
-    REQUIRE(b.Next(10));
-    REQUIRE(b == t);
-
-    b = instance.Begin();
-    t = b + 25;
-    REQUIRE(b.Next(25));
-    REQUIRE(b == t);
-
-    b = instance.Begin();
-    t = b + 26;
-    REQUIRE(b.Next(26)); //because of the end node
-    REQUIRE(b == t);
-
-    b = instance.Begin();
-    t = b + 27;
-    REQUIRE(b == t);
-
-    b = instance.Begin();
-    t = b + 30;
-    REQUIRE(b == t);
-}
-
 TEST_CASE("Vector's Iterator should jump the the end", "[Vector][Iterator]") {
     Vector<int> instance(array, 5);
     Vector<int>::Iterator b = instance.Begin();
     Vector<int>::Iterator e = instance.End();
-    b.JumpToEnd();
+    b.End();
     REQUIRE(b == e);
 }
 
@@ -247,7 +133,7 @@ TEST_CASE("Vector's ConstIterator should jump the the end", "[Vector][Iterator]"
     Vector<int> instance(array, 5);
     Vector<int>::ConstIterator b = instance.Begin();
     Vector<int>::ConstIterator e = instance.End();
-    b.JumpToEnd();
+    b.End();
     REQUIRE(b == e);
 }
 
@@ -255,7 +141,7 @@ TEST_CASE("Vector's Iterator should jump the the beginning", "[Vector][Iterator]
     Vector<int> instance(array, 5);
     Vector<int>::Iterator b = instance.Begin();
     Vector<int>::Iterator e = instance.End();
-    e.JumpToBegin();
+    e.Begin();
     REQUIRE(b == e);
 }
 
@@ -263,6 +149,6 @@ TEST_CASE("Vector's ConstIterator should jump the the beginning", "[Vector][Iter
     Vector<int> instance(array, 5);
     Vector<int>::ConstIterator b = instance.Begin();
     Vector<int>::ConstIterator e = instance.End();
-    e.JumpToBegin();
+    e.Begin();
     REQUIRE(b == e);
 }

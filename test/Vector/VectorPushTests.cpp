@@ -24,45 +24,6 @@ TEST_CASE("Vector should resize based on the input size if big array is pushed",
 }
 
 
-static int COUNTER = 0;
-static int SHOULD_THROW = ~0;
-class T1
-{
-    int* value;
-public:
-    T1() : value(new int(COUNTER++)) {}
-    T1(const T1& s) {
-        if(--SHOULD_THROW == 0)
-            throw 0;
-        value = new int(*s.value);
-    }
-    ~T1(){
-        delete value;
-    }
-    bool operator==(const T1& s) const {
-        return *value == *(s.value);
-    }
-};
-TEST_CASE("Vector should be valid after inserting one element with exception", "[Vector][Push]"){
-    SHOULD_THROW = ~0;
-    T1* arr = new T1[15];
-    Vector<T1> instance(arr, 15);
-    SHOULD_THROW = 1;
-    try
-    {
-        instance.Push(arr[0]);
-        REQUIRE(false);
-    }
-    catch(...)
-    {}
-    SHOULD_THROW = ~0;
-
-    REQUIRE(instance.Size()==15);
-
-    delete [] arr;
-}
-
-
 TEST_CASE("Vector should push values from array", "[Vector][Push]"){
     Vector<int> instance(OriginalArray, 15);
     instance.Push(OriginalArray, 10);
@@ -81,44 +42,4 @@ TEST_CASE("Vector should push whole second array", "[Vector][Push]"){
         REQUIRE(instance[i] == OriginalArray[i]);
     for(int i=0;i<15;i++)
         REQUIRE(instance[i+15] == OriginalArray[i]);
-}
-
-TEST_CASE("Vector should not push values from array if exception occurs", "[Vector][Push]"){
-    SHOULD_THROW = ~0;
-    T1* arr = new T1[15];
-    Vector<T1> instance(arr, 15);
-    SHOULD_THROW = 5;
-    try
-    {
-        instance.Push(arr, 10);
-        REQUIRE(false);
-    }
-    catch(...)
-    {}
-    SHOULD_THROW = ~0;
-    REQUIRE(instance.Size() >= 15);
-    for(int i=0;i<15;i++)
-        REQUIRE((instance[i] == arr[i]));
-
-    delete [] arr;
-}
-
-TEST_CASE("Vector should not push values from array if exception occurs in the last insertion", "[Vector][Push]"){
-    SHOULD_THROW = ~0;
-    T1* arr = new T1[15];
-    Vector<T1> instance(arr, 15);
-    SHOULD_THROW = 15;
-    try
-    {
-        instance.Push(arr, 15);
-        REQUIRE(false);
-    }
-    catch(...)
-    {}
-    SHOULD_THROW = ~0;
-    REQUIRE(instance.Size() >= 15);
-    for(int i=0;i<15;i++)
-        REQUIRE((instance[i] == arr[i]));
-
-    delete [] arr;
 }

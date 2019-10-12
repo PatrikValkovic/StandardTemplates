@@ -30,7 +30,7 @@ set(SOURCE_FILES
         src/UniquePointer.h
         src/SharedPointer.h
         src/Array.h
-        src/NewVector.h)
+        src/Vector.h)
 set(TEST_FILES
         test/AlgorithmsTests.cpp
         test/BinaryHeapTests.cpp
@@ -98,7 +98,6 @@ set(TEST_SOURCES ${TEST_FILES}
         test/Vector/VectorConstCreationTests.cpp
         test/Vector/VectorAssignmentTests.cpp
         test/Vector/VectorAccessTests.cpp
-        test/Vector/VectorToArrayTests.cpp
         test/Vector/VectorPushTests.cpp
         test/Vector/VectorDeleteTests.cpp
         test/Vector/VectorInsertTests.cpp

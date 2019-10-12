@@ -10,14 +10,14 @@ TEST_CASE("Vector should delete all elements by default", "[Vector][Delete]") {
     Vector<int> instance(OriginalArray, 15);
     instance.Delete();
     REQUIRE(instance.Size() == 0);
-    REQUIRE(instance.IsEmpty());
+    REQUIRE(instance.Empty());
 }
 
 TEST_CASE("Vector should delete all elements if number=size", "[Vector][Delete]") {
     Vector<int> instance(OriginalArray, 15);
     instance.Delete(15);
     REQUIRE(instance.Size() == 0);
-    REQUIRE(instance.IsEmpty());
+    REQUIRE(instance.Empty());
 }
 
 TEST_CASE("Vector should delete 5 elements", "[Vector][Delete]") {
